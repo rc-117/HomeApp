@@ -20,7 +20,7 @@
         /// <summary>
         /// Hash of the user's password.
         /// </summary>
-        private string PasswordHash { get; set; }
+        public string PasswordHash { get; set; }
 
         /// <summary>
         /// The user's first name. 

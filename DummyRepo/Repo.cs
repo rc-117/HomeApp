@@ -21,5 +21,26 @@
                     StartingBalance = 500
                 }
             };
+
+        public static List<User> Users = new List<User>()
+        {
+            new User()
+            {
+                Id = new Guid("e79d653c-c5db-4740-8edd-87d3851f039d"),
+                EmailAddress = "test1@mail.com",
+                PasswordHash = "5E884898DA28047151D0E56F8DC6292773603D0D6AABBDD62A11EF721D1542D8",
+                FirstName = "John",
+                LastName = "Doe"
+            },
+
+            new User()
+            {
+                Id = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
+                EmailAddress = "test2@mail.com",
+                PasswordHash = "6CF615D5BCAAC778352A8F1F3360D23F02F34EC182E259897FD6CE485D7870D4",
+                FirstName = "John",
+                LastName = "Doe"
+            }
+        };
     }
 }
