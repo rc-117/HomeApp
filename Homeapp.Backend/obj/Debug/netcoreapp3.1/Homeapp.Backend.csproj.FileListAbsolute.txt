@@ -19,3 +19,8 @@ D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\obj\Debug\netcoreapp3.1\Hom
 D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\obj\Debug\netcoreapp3.1\Homeapp.Backend.dll
 D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\obj\Debug\netcoreapp3.1\Homeapp.Backend.pdb
 D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\obj\Debug\netcoreapp3.1\Homeapp.Backend.genruntimeconfig.cache
+D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\bin\Debug\netcoreapp3.1\System.Net.Http.Formatting.dll
+D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\bin\Debug\netcoreapp3.1\System.Web.Http.dll
+D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\bin\Debug\netcoreapp3.1\Newtonsoft.Json.Bson.dll
+D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\bin\Debug\netcoreapp3.1\DummyRepo.dll
+D:\Storage\Repos\Homeapp\src\Homeapp\Homeapp.Backend\bin\Debug\netcoreapp3.1\DummyRepo.pdb

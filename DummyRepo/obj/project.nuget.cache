@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OLOOdNZI/ke1D6JKq5PADotWUQjV32XiatcRcqOQjT+KHtmpzqaISTEt0gQUW5jEclteoSAO0qbdLe84z78i1A==",
+  "dgSpecHash": "LIXDBL/Mn1R5tSwC9AtQ72y+rVhAcAuc1it0+3x92JgyuN7Z4EHqZ3w8e0KQXN41EKkmNfA32BDRITaVqiifmg==",
   "success": true,
   "projectFilePath": "D:\\Storage\\Repos\\Homeapp\\src\\Homeapp\\DummyRepo\\DummyRepo.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\S117\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }

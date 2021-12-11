@@ -1,4 +1,4 @@
-﻿namespace Homeapp.Backend.Entities
+﻿namespace DummyRepo.Entities
 {
     using System;
 
