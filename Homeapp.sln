@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31919.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Homeapp.Backend", "Homeapp.Backend\Homeapp.Backend.csproj", "{6A593EB6-6703-40CE-A89D-C5A2C61EE382}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyRepo", "DummyRepo\DummyRepo.csproj", "{B7E97040-33A2-4D3D-B411-8DED0832EA7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6A593EB6-6703-40CE-A89D-C5A2C61EE382}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A593EB6-6703-40CE-A89D-C5A2C61EE382}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A593EB6-6703-40CE-A89D-C5A2C61EE382}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7E97040-33A2-4D3D-B411-8DED0832EA7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7E97040-33A2-4D3D-B411-8DED0832EA7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7E97040-33A2-4D3D-B411-8DED0832EA7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7E97040-33A2-4D3D-B411-8DED0832EA7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

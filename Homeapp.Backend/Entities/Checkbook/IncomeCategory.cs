@@ -4,16 +4,16 @@
     using System;
 
     /// <summary>
-    /// The expense category
+    /// The income category.
     /// </summary>
-    public class ExpenseCategory
+    public class IncomeCategory
     {
         /// <summary>
-        /// The unique Id of the expense category.
+        /// The unique Id of the income category.
         /// </summary>
         [JsonProperty]
         public Guid Id { get; set; }
-        
+
         /// <summary>
         /// The name of the category.
         /// </summary>

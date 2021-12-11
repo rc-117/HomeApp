@@ -4,9 +4,9 @@
     using System;
 
     /// <summary>
-    /// The base expense class.
+    /// The base income class.
     /// </summary>
-    public class Expense
+    public class Income
     {
         /// <summary>
         /// The unique Id of the Expense
@@ -21,20 +21,20 @@
         public Guid UserId { get; set; }
 
         /// <summary>
-        /// The expense category
+        /// The income category
         /// </summary>
         [JsonProperty]
-        public ExpenseCategory ExpenseCategory { get; set; }
+        public IncomeCategory IncomeCategory { get; set; }
 
         /// <summary>
-        /// The date and time the expense was created
+        /// The date and time the income record was created.
         /// </summary>
         [JsonProperty]
         public DateTime DateTime { get; set; }
 
 
         /// <summary>
-        /// The recurring type
+        /// The recurring type.
         /// </summary>
         [JsonProperty]
         public RecurringType RecurringType { get; set; }
@@ -46,9 +46,10 @@
         public Account Account { get; set; }
 
         /// <summary>
-        /// Indicates whether or not the expense has been paid for. 
+        /// Indicates whether or not the income has been deposited. 
         /// </summary>
         [JsonProperty]
-        public bool IsPaid { get; set; }
+        public bool IsDeposited { get; set; }
+
     }
 }

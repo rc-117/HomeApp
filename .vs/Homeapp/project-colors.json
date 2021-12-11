@@ -5,7 +5,12 @@
       "ProjectGuid": "6a593eb6-6703-40ce-a89d-c5a2c61ee382",
       "DisplayName": "Homeapp.Backend",
       "ColorIndex": 0
+    },
+    "b7e97040-33a2-4d3d-b411-8ded0832ea7a": {
+      "ProjectGuid": "b7e97040-33a2-4d3d-b411-8ded0832ea7a",
+      "DisplayName": "DummyRepo",
+      "ColorIndex": 1
     }
   },
-  "NextColorIndex": 1
+  "NextColorIndex": 2
 }
