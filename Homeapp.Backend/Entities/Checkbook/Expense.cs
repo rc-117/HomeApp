@@ -1,5 +1,6 @@
 ﻿namespace Homeapp.Backend.Entities
 {
+    using Homeapp.Backend.Identity;
     using Newtonsoft.Json;
     using System;
 
@@ -9,16 +10,22 @@
     public class Expense
     {
         /// <summary>
-        /// The unique Id of the Expense
+        /// The unique id of the expense.
         /// </summary>
         [JsonProperty]
         public string Id { get; set; }
 
         /// <summary>
-        /// The Id of the user who owns this expense
+        /// The id of the user who owns this expense.
         /// </summary>
         [JsonProperty]
         public Guid UserId { get; set; }
+
+        /// <summary>
+        /// The user who owns this expense.
+        /// </summary>
+        [JsonProperty]
+        public User User { get; set; }
 
         /// <summary>
         /// The expense category
@@ -38,6 +45,12 @@
         /// </summary>
         [JsonProperty]
         public RecurringType RecurringType { get; set; }
+
+        /// <summary>
+        /// The account id.
+        /// </summary>
+        [JsonProperty]
+        public Guid AccountId { get; set; }
 
         /// <summary>
         /// The account for this transaction.

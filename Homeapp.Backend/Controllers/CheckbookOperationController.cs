@@ -5,6 +5,7 @@
     using Homeapp.Test;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Linq;
     using System.Net;
@@ -30,7 +31,7 @@
             this.accountManager = accountManager;
         }
 
-        
+
 
         /// <summary>
         /// Gets a specified account.
@@ -50,8 +51,6 @@
                 accountGuid = guid;
             }
 
-            
-
             var account = this.accountManager.GetAccountById(accountGuid);
 
             if (account == null)
@@ -63,7 +62,23 @@
                 return Unauthorized($"User unauthorized to view the specified account.");
             }
 
-            return Ok(account);
+            // When expenses are implemented need to add a field here "current balance"
+            // then in accountmanager need to calculate the current balance (starting balance - alltransactions)
+            // Then need to include an array of expenses going as far back as 3 months
+            var responseBody = new JObject()
+            {
+                { "AccountId", account.Id },
+                { "AccountName", account.Name },
+                { "AccountOwner", new JObject() {
+                        { "UserId", account.UserId },
+                        { "UserEmail", account.User.EmailAddress },
+                        { "UserFirstName", account.User.FirstName },
+                        { "UserLastName", account.User.LastName }
+                    }
+                } 
+            };
+
+            return Ok(responseBody.ToString());
         }
     }
 }
