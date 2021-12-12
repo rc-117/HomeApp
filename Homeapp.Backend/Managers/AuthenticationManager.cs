@@ -1,5 +1,5 @@
-﻿using DummyRepo;
-using DummyRepo.Entities;
+﻿using Homeapp.Backend.Identity;
+using Homeapp.Test;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -38,7 +38,7 @@ namespace Homeapp.Backend.Managers
             string passwordHash = credentials[1];
 
             //Test user from dummy repo
-            User user = Repo.Users.Where(u => 
+            User user = TestRepo.Users.Where(u => 
                 u.EmailAddress == email && u.PasswordHash == passwordHash)
                 .FirstOrDefault();
 

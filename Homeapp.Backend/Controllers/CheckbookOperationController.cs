@@ -1,6 +1,6 @@
 ﻿namespace Homeapp.Backend.Controllers
 {
-    using DummyRepo;
+    using Homeapp.Test;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using System;
@@ -43,7 +43,7 @@
             }
                            
             
-            var account = Repo.Accounts
+            var account = TestRepo.Accounts
                 .FirstOrDefault(account => account.Id == accountGuid);
 
             if (account == null)

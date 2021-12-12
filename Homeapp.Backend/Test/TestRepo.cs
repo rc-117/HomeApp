@@ -1,11 +1,11 @@
-﻿namespace Homeapp.TestRepo
+﻿namespace Homeapp.Test
 {
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
     using System;
     using System.Collections.Generic;
 
-    public static class Repo
+    public static class TestRepo
     {
         public static List<Account> Accounts = new List<Account>
             {
