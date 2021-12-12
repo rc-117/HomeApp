@@ -1236,16 +1236,6 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
-      },
-      "DummyRepo/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v3.1",
-        "compile": {
-          "bin/placeholder/DummyRepo.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/DummyRepo.dll": {}
-        }
       }
     }
   },
@@ -4591,16 +4581,10 @@
         "system.xml.xdocument.4.3.0.nupkg.sha512",
         "system.xml.xdocument.nuspec"
       ]
-    },
-    "DummyRepo/1.0.0": {
-      "type": "project",
-      "path": "../DummyRepo/DummyRepo.csproj",
-      "msbuildProject": "../DummyRepo/DummyRepo.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
-      "DummyRepo >= 1.0.0",
       "Microsoft.AspNet.WebApi.Core >= 5.2.7",
       "Newtonsoft.Json >= 13.0.1"
     ]
@@ -4631,11 +4615,7 @@
       "frameworks": {
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
-          "projectReferences": {
-            "D:\\Storage\\Repos\\Homeapp\\src\\Homeapp\\DummyRepo\\DummyRepo.csproj": {
-              "projectPath": "D:\\Storage\\Repos\\Homeapp\\src\\Homeapp\\DummyRepo\\DummyRepo.csproj"
-            }
-          }
+          "projectReferences": {}
         }
       },
       "warningProperties": {
