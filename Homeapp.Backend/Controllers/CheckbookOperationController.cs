@@ -21,12 +21,12 @@
     [ApiController]
     public class CheckbookOperationController : HomeappControllerBase
     {
-        private IAccountManager accountManager;
+        private IAccountDataManager accountManager;
 
         /// <summary>
         /// Initializes CheckbookOperationController.
         /// </summary>
-        public CheckbookOperationController(IAccountManager accountManager)
+        public CheckbookOperationController(IAccountDataManager accountManager)
         {
             this.accountManager = accountManager;
         }
@@ -62,16 +62,12 @@
                 return Unauthorized($"User unauthorized to view the specified account.");
             }
 
-            // When expenses are implemented need to add a field here "current balance"
-            // then in accountmanager need to calculate the current balance (starting balance - alltransactions)
-            // Then need to include an array of expenses going as far back as 3 months
-
-            var transactions = this.accountManager.GetTransactionsByAccount(account.Id);
-
+  
             var responseBody = new JObject()
             {
                 { "AccountId", account.Id },
                 { "AccountName", account.Name },
+                { "AccountBalance", this.accountManager.CalculateAccountBalance(account.Id) },
                 { "AccountOwner", new JObject() {
                         { "UserId", account.UserId },
                         { "UserEmail", account.User.EmailAddress },
@@ -79,10 +75,8 @@
                         { "UserLastName", account.User.LastName }
                     }
                 },
-                { "AccountTransactions", new JObject()
-                    {
-                        transactions
-                    } 
+                { 
+                    "AccountTransactions", this.accountManager.GetTransactionsJObjectByAccount(account.Id)
                 }
             };
 

@@ -18,6 +18,7 @@
         /// <summary>
         /// The transaction name.
         /// </summary>
+        [JsonProperty]
         public string Name { get; set; }
 
         /// <summary>
@@ -28,6 +29,7 @@
         /// <summary>
         /// The transaction type.
         /// </summary>
+        [JsonProperty]
         public TransactionType TransactionType { get; set; }
 
         /// <summary>
@@ -46,13 +48,13 @@
         /// The expense category, if applicable.
         /// </summary>
         [JsonProperty]
-        public ExpenseCategory ExpenseCategory { get; set; }
+        public ExpenseCategory? ExpenseCategory { get; set; }
 
         /// <summary>
         /// The income category, if applicable.
         /// </summary>
         [JsonProperty]
-        public IncomeCategory IncomeCategory { get; set; }
+        public IncomeCategory? IncomeCategory { get; set; }
 
         /// <summary>
         /// The date and time the transaction was created

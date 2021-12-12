@@ -352,10 +352,11 @@
         };
         #endregion
 
-        public List<Transaction> Transactions { get; set; }
+        public List<Transaction> Transactions;
 
         public TransactionGenerator()
         {
+            Transactions = new List<Transaction>();
             GenerateTransactions();
         }
 
@@ -372,6 +373,12 @@
                 Account[] userAccounts = TestRepo.Accounts
                     .Where(account => account.UserId == user.Id)
                     .ToArray();
+
+                if (userAccounts.Length == 0)
+                {
+                    continue;
+                }
+
                 var randomAccount = userAccounts[random.Next(userAccounts.Length)];
 
                 DateTime dateTime = DateTime.Now

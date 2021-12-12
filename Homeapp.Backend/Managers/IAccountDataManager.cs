@@ -2,12 +2,13 @@
 namespace Homeapp.Backend.Managers
 {
     using Homeapp.Backend.Entities;
+    using Newtonsoft.Json.Linq;
     using System;
 
     /// <summary>
     /// The Account Manager interface.
     /// </summary>
-    public interface IAccountManager
+    public interface IAccountDataManager
     {
         /// <summary>
         /// Gets an account by its id.
@@ -26,5 +27,18 @@ namespace Homeapp.Backend.Managers
         /// </summary>
         /// <param name="userId">The account id.</param>
         public Transaction[] GetTransactionsByAccount(Guid accountId);
+
+        /// <summary>
+        /// Gets all transactions from an account.
+        /// </summary>
+        /// <param name="userId">The account id.</param>
+        public JArray GetTransactionsJObjectByAccount(Guid accountId);
+
+
+        /// <summary>
+        /// Calculates the balance of a specified account.
+        /// </summary>
+        /// <param name="accountId">The account id.</param>
+        public double CalculateAccountBalance(Guid accountId);
     }
 }

@@ -65,7 +65,8 @@ namespace Homeapp.Backend
             });
 
             //Dependency injection
-            services.Add(new ServiceDescriptor(typeof(IAccountManager), typeof(AccountManager), ServiceLifetime.Singleton));
+            services.Add(new ServiceDescriptor(typeof(IAccountDataManager), typeof(AccountDataManager), ServiceLifetime.Singleton));
+            services.Add(new ServiceDescriptor(typeof(IUserDataManager), typeof(UserDataManager), ServiceLifetime.Singleton));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
