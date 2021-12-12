@@ -21,6 +21,16 @@
         public string Name { get; set; }
 
         /// <summary>
+        /// The transaction amount.
+        /// </summary>
+        public double Amount { get; set; }
+
+        /// <summary>
+        /// The transaction type.
+        /// </summary>
+        public TransactionType TransactionType { get; set; }
+
+        /// <summary>
         /// The id of the user who owns this transaction.
         /// </summary>
         [JsonProperty]

@@ -65,6 +65,9 @@
             // When expenses are implemented need to add a field here "current balance"
             // then in accountmanager need to calculate the current balance (starting balance - alltransactions)
             // Then need to include an array of expenses going as far back as 3 months
+
+            var transactions = this.accountManager.GetTransactionsByAccount(account.Id);
+
             var responseBody = new JObject()
             {
                 { "AccountId", account.Id },
@@ -75,7 +78,12 @@
                         { "UserFirstName", account.User.FirstName },
                         { "UserLastName", account.User.LastName }
                     }
-                } 
+                },
+                { "AccountTransactions", new JObject()
+                    {
+                        transactions
+                    } 
+                }
             };
 
             return Ok(responseBody.ToString());

@@ -21,5 +21,30 @@
             return TestRepo.Accounts
                 .FirstOrDefault(account => account.Id == accountId);
         }
+
+        /// <summary>
+        /// Gets all of a user's accounts.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        public Account[] GetUserAccounts(Guid userId) 
+        {
+            //Test repo code
+            return TestRepo.Accounts
+                .Where(account => account.UserId == userId)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// Gets all transactions from an account.
+        /// </summary>
+        /// <param name="userId">The account id.</param>
+        public Transaction[] GetTransactionsByAccount(Guid accountId)
+        {
+            //test code
+            var testGenerator = new TransactionGenerator();
+            return testGenerator.Transactions
+                .Where(transaction => transaction.AccountId == accountId)
+                .ToArray();
+        }
     }
 }

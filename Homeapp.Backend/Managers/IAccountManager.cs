@@ -12,8 +12,19 @@ namespace Homeapp.Backend.Managers
         /// <summary>
         /// Gets an account by its id.
         /// </summary>
-        /// <param name="accountId"></param>
-        /// <returns>An account, if any. Returns null if no account is found.</returns>
+        /// <param name="accountId">The account id.</param>
         public Account GetAccountById(Guid accountId);
+
+        /// <summary>
+        /// Gets all of a user's accounts.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        public Account[] GetUserAccounts(Guid userId);
+
+        /// <summary>
+        /// Gets all transactions from an account.
+        /// </summary>
+        /// <param name="userId">The account id.</param>
+        public Transaction[] GetTransactionsByAccount(Guid accountId);
     }
 }
