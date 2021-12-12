@@ -1,5 +1,7 @@
 ﻿namespace Homeapp.Backend.Entities
 {
+    using Homeapp.Backend.Identity;
+    using Newtonsoft.Json;
     using System;
 
     /// <summary>
@@ -10,19 +12,31 @@
         /// <summary>
         /// The unique Id of the account.
         /// </summary>
+        [JsonProperty]
         public Guid Id { get; set; }
 
-        //public User User { get; set; }
-        //public string UserId { get; set; }
+        /// <summary>
+        /// The user who owns the account.
+        /// </summary>
+        [JsonProperty]
+        public User User { get; set; }
+
+
+        /// <summary>
+        /// The owning user's id.
+        /// </summary>
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// The name of the account.
         /// </summary>
+        [JsonProperty]
         public string Name { get; set; }
 
         /// <summary>
         /// The account's starting balance.
         /// </summary>
+        [JsonProperty]
         public double StartingBalance { get; set; }
     }
 }

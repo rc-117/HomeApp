@@ -63,6 +63,9 @@ namespace Homeapp.Backend
                     ValidateAudience = false
                 };
             });
+
+            //Dependency injection
+            services.Add(new ServiceDescriptor(typeof(IAccountManager), typeof(AccountManager), ServiceLifetime.Singleton));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

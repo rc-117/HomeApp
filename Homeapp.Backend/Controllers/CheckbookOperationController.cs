@@ -1,5 +1,7 @@
 ﻿namespace Homeapp.Backend.Controllers
 {
+    using Homeapp.Backend.Managers;
+    using Homeapp.Backend.Tools;
     using Homeapp.Test;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -7,6 +9,8 @@
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Text;
     using System.Threading.Tasks;
     using System.Web;
     
@@ -14,15 +18,19 @@
     /// The checkbook operations controller.
     /// </summary>
     [ApiController]
-    public class CheckbookOperationController : Controller
+    public class CheckbookOperationController : HomeappControllerBase
     {
+        private IAccountManager accountManager;
+
         /// <summary>
         /// Initializes CheckbookOperationController.
         /// </summary>
-        public CheckbookOperationController()
+        public CheckbookOperationController(IAccountManager accountManager)
         {
-
+            this.accountManager = accountManager;
         }
+
+        
 
         /// <summary>
         /// Gets a specified account.
@@ -31,24 +39,28 @@
         [Route("/api/Checkbook/Accounts/{accountId}/Get")]
         public IActionResult GetAccount(string accountId)
         {
-            var accountGuid = new Guid();
+            var accountGuid = Guid.Empty;
 
-            try
-            {
-                accountGuid = Guid.Parse(accountId);
-            }
-            catch (Exception)
+            if (!Validation.GuidIsValid(accountId, out Guid guid))
             {
                 return BadRequest("Invalid account Id.");
             }
-                           
+            else
+            {
+                accountGuid = guid;
+            }
+
             
-            var account = TestRepo.Accounts
-                .FirstOrDefault(account => account.Id == accountGuid);
+
+            var account = this.accountManager.GetAccountById(accountGuid);
 
             if (account == null)
             {
                 return NotFound($"Account with Id '{accountId}' was not found");
+            }
+            else if (!Validation.AccountBelongsToUser(this.GetUserId(), account))
+            {
+                return Unauthorized($"User unauthorized to view the specified account.");
             }
 
             return Ok(account);

@@ -1,6 +1,7 @@
 ﻿namespace Homeapp.Backend.Controllers
 {
     using Homeapp.Backend.Identity;
+    using Homeapp.Backend.Tools;
     using Homeapp.Test;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
@@ -18,7 +19,7 @@
     /// The user operation controller.
     /// </summary>
     [ApiController]
-    public class UserOperationController : ControllerBase
+    public class UserOperationController : HomeappControllerBase
     {
         private JWTSettings jwtSettings;
 
@@ -42,8 +43,21 @@
                 return BadRequest("Authorization header was not found.");
             }
 
+
+
             var authenticationHeaderValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-            var bytes = Convert.FromBase64String(authenticationHeaderValue.Parameter);
+            var bytes = new byte[] { };
+            if (Validation.StringIsBase64Compatible
+                (authenticationHeaderValue.Parameter, 
+                out byte[] byteArray))
+            {
+                bytes = byteArray;
+            }
+            else
+            {
+                return BadRequest("Invalid request.");
+            }
+
             string[] credentials = Encoding.UTF8.GetString(bytes).Split(":");
             string email = credentials[0];
             string passwordHash = credentials[1];
@@ -59,7 +73,8 @@
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.EmailAddress)
+                    new Claim(ClaimTypes.Name, user.EmailAddress),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(5),
                 SigningCredentials = new SigningCredentials
