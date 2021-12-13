@@ -1,3 +1,4 @@
+using Homeapp.Backend.Db;
 using Homeapp.Backend.Identity;
 using Homeapp.Backend.Managers;
 using Microsoft.AspNetCore.Authentication;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -63,6 +65,8 @@ namespace Homeapp.Backend
                     ValidateAudience = false
                 };
             });
+
+            services.AddDbContext<AppDbContext>(options => options.UseMySql(Configuration.GetConnectionString("Default")));
 
             //Dependency injection
             services.Add(new ServiceDescriptor(typeof(IAccountDataManager), typeof(AccountDataManager), ServiceLifetime.Singleton));
