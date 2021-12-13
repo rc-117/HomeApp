@@ -12,12 +12,12 @@
         }
 
         //Identity dbSets
-        DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; set; }
 
         // Checkbook dbSets
-        DbSet<Account> Accounts { get; set; }
-        DbSet<ExpenseCategory> ExpenseCategories { get; set; }
-        DbSet<IncomeCategory> IncomeCategories { get; set; }
-        DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
+        public DbSet<IncomeCategory> IncomeCategories { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
     }
 }

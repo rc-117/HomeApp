@@ -1,5 +1,6 @@
 ﻿namespace Homeapp.Backend.Managers
 {
+    using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
     using Homeapp.Test;
@@ -17,9 +18,22 @@
         /// </summary>
         private IUserDataManager userDataManager;
 
-        public AccountDataManager(IUserDataManager userDataManager)
+        /// <summary>
+        /// The db context for the database.
+        /// </summary>
+        private AppDbContext appDbContext;
+
+        /// <summary>
+        /// Initializes the AccountDataManager.
+        /// </summary>
+        /// <param name="userDataManager">The user data manager class.</param>
+        /// <param name="appDbContext">The app db context.</param>
+        public AccountDataManager(
+            IUserDataManager userDataManager,
+            AppDbContext appDbContext)
         {
             this.userDataManager = userDataManager;
+            this.appDbContext = appDbContext;
         }
 
         /// <summary>
@@ -139,11 +153,8 @@
         /// <param name="request">The user's account request.</param>
         public void CreateAccount(User user, CreateAccountRequest request)
         {
-            // dynamic repo code
-            // Need to rmeove the ids from this since EF core will generate them when persisting to db
             var account = new Account
             {
-                Id = Guid.NewGuid(),
                 Name = request.Name,
                 AccountType = (AccountType)Enum.Parse(typeof(AccountType), request.AccountType),
                 StartingBalance = request.StartingBalance,
@@ -153,6 +164,8 @@
 
             // Write code here to persist the account to db
             // This method needs to return some sort of status indicating write to db succeeded
+            appDbContext.Accounts.Add(account);
+            appDbContext.SaveChanges(); // Possibly change this to async and await it later
         }
     }
 }
