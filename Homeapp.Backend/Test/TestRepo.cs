@@ -23,6 +23,7 @@
                         },
                     UserId = new Guid("e79d653c-c5db-4740-8edd-87d3851f039d"),
                     Name = "Checkings",
+                    AccountType = AccountType.Checkings,
                     StartingBalance = 120.34
                 },
                 new Account()
@@ -38,6 +39,7 @@
                         },
                     UserId = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
                     Name = "Savings",
+                    AccountType = AccountType.Savings,
                     StartingBalance = 500
                 },
                                 new Account()
@@ -53,6 +55,7 @@
                         },
                     UserId = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
                     Name = "Checkings",
+                    AccountType = AccountType.Checkings,
                     StartingBalance = 1589.58
                 }
             };

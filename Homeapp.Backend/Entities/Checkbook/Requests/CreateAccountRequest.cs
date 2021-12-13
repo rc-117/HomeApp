@@ -5,16 +5,10 @@
     using System;
 
     /// <summary>
-    /// Bank account class.
+    /// An object containing properties to create an account.
     /// </summary>
-    public class Account
+    public class CreateAccountRequest
     {
-        /// <summary>
-        /// The unique Id of the account.
-        /// </summary>
-        [JsonProperty]
-        public Guid Id { get; set; }
-
         /// <summary>
         /// The name of the account.
         /// </summary>
@@ -24,24 +18,13 @@
         /// <summary>
         /// The type of account.
         /// </summary>
-        public AccountType AccountType { get; set; }
+        [JsonProperty]
+        public string AccountType { get; set; }
 
         /// <summary>
         /// The account's starting balance.
         /// </summary>
         [JsonProperty]
         public double StartingBalance { get; set; }
-
-        /// <summary>
-        /// The user who owns the account.
-        /// </summary>
-        [JsonProperty]
-        public User User { get; set; }
-
-
-        /// <summary>
-        /// The owning user's id.
-        /// </summary>
-        public Guid UserId { get; set; }
     }
 }

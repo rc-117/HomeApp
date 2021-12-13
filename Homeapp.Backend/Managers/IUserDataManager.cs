@@ -2,6 +2,7 @@
 {
     using Homeapp.Backend.Identity;
     using Newtonsoft.Json.Linq;
+    using System;
 
     /// <summary>
     /// The user data manager.
@@ -14,5 +15,12 @@
         /// <param name="user"></param>
         /// <returns></returns>
         public JObject CreateShortUserJobjectFromUser(User user);
+
+
+        /// <summary>
+        /// Gets a user by its id.
+        /// </summary>
+        /// <param name="userId">The user id.</param>
+        public User GetUserFromUserId(Guid userId);
     }
 }

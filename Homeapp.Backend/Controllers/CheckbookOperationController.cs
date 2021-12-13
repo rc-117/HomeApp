@@ -1,5 +1,7 @@
 ﻿namespace Homeapp.Backend.Controllers
 {
+    using Homeapp.Backend.Entities;
+    using Homeapp.Backend.Identity;
     using Homeapp.Backend.Managers;
     using Homeapp.Backend.Tools;
     using Homeapp.Test;
@@ -22,16 +24,18 @@
     public class CheckbookOperationController : HomeappControllerBase
     {
         private IAccountDataManager accountManager;
+        private IUserDataManager userDataManager;
 
         /// <summary>
         /// Initializes CheckbookOperationController.
         /// </summary>
-        public CheckbookOperationController(IAccountDataManager accountManager)
+        public CheckbookOperationController(
+            IAccountDataManager accountManager,
+            IUserDataManager userDataManager)
         {
             this.accountManager = accountManager;
+            this.userDataManager = userDataManager;
         }
-
-
 
         /// <summary>
         /// Gets a specified account.
@@ -67,6 +71,7 @@
             {
                 { "AccountId", account.Id },
                 { "AccountName", account.Name },
+                { "AccountType", Enum.GetName(typeof(AccountType), account.AccountType) },
                 { "AccountBalance", this.accountManager.CalculateAccountBalance(account.Id) },
                 { "AccountOwner", new JObject() {
                         { "UserId", account.UserId },
@@ -81,6 +86,42 @@
             };
 
             return Ok(responseBody.ToString());
+        }
+
+
+        /// <summary>
+        /// Creates an account for a user.
+        /// </summary>
+        [HttpGet]
+        [Route("/api/Checkbook/Accounts/user/{userId}/Create")]
+        public IActionResult CreateAccountForUser(
+            string userId,
+            [FromBody]CreateAccountRequest accountRequest)
+        {
+            var userIdGuid = Guid.Empty;
+
+            if (!Validation.GuidIsValid(userId, out Guid guid))
+            {
+                return BadRequest("Invalid user Id.");
+            }
+            else
+            {
+                userIdGuid = guid;
+            }
+
+            if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
+            {
+                return NotFound($"User '{userIdGuid}' not found.");
+            }
+
+            var user = this.userDataManager.GetUserFromUserId(userIdGuid);
+
+            // Need to edit this to wait for the result of the account
+            // write to db, then return OK if succeeded
+            this.accountManager.CreateAccount(user, accountRequest);
+            
+            // Return the created account here
+            return Ok();
         }
     }
 }

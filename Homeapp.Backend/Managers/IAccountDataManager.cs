@@ -2,6 +2,7 @@
 namespace Homeapp.Backend.Managers
 {
     using Homeapp.Backend.Entities;
+    using Homeapp.Backend.Identity;
     using Newtonsoft.Json.Linq;
     using System;
 
@@ -40,5 +41,13 @@ namespace Homeapp.Backend.Managers
         /// </summary>
         /// <param name="accountId">The account id.</param>
         public double CalculateAccountBalance(Guid accountId);
+
+        /// <summary>
+        /// Creates an account for a user.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        /// <param name="request">The user's account request.</param>
+        public void CreateAccount(User user, CreateAccountRequest request);
+
     }
 }

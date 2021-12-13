@@ -1,6 +1,7 @@
 ﻿namespace Homeapp.Backend.Managers
 {
     using Homeapp.Backend.Entities;
+    using Homeapp.Backend.Identity;
     using Homeapp.Test;
     using Newtonsoft.Json.Linq;
     using System;
@@ -28,7 +29,7 @@
         /// <returns>An account, if any. Returns null if no account is found.</returns>
         public Account GetAccountById(Guid accountId)
         {
-            //Test repo code
+            //static test repo code
             return TestRepo.Accounts
                 .FirstOrDefault(account => account.Id == accountId);
         }
@@ -39,7 +40,7 @@
         /// <param name="userId">The user's id.</param>
         public Account[] GetUserAccounts(Guid userId) 
         {
-            //Test repo code
+            //static test repo code
             return TestRepo.Accounts
                 .Where(account => account.UserId == userId)
                 .ToArray();
@@ -129,6 +130,29 @@
                 .StartingBalance 
                 + totalincome 
                 - totalexpense;
+        }
+
+        /// <summary>
+        /// Creates an account for a user.
+        /// </summary>
+        /// <param name="userId">The user's id.</param>
+        /// <param name="request">The user's account request.</param>
+        public void CreateAccount(User user, CreateAccountRequest request)
+        {
+            // dynamic repo code
+            // Need to rmeove the ids from this since EF core will generate them when persisting to db
+            var account = new Account
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                AccountType = (AccountType)Enum.Parse(typeof(AccountType), request.AccountType),
+                StartingBalance = request.StartingBalance,
+                User = user,
+                UserId = user.Id
+            };
+
+            // Write code here to persist the account to db
+            // This method needs to return some sort of status indicating write to db succeeded
         }
     }
 }
