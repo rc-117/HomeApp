@@ -114,10 +114,8 @@
             {
                 return NotFound($"User '{userIdGuid}' not found.");
             }
-
-            var user = this.userDataManager.GetUserFromUserId(userIdGuid);
                         
-            var createdAccount = await this.accountManager.CreateAccount(user, accountRequest);
+            var createdAccount = await this.accountManager.CreateAccount(userIdGuid, accountRequest);
             
             return createdAccount == null ? 
                 Ok("Error saving account to database.") : 

@@ -152,14 +152,14 @@
         /// </summary>
         /// <param name="userId">The user's id.</param>
         /// <param name="request">The user's account request.</param>
-        public async Task<Account> CreateAccount(User user, CreateAccountRequest request)
+        public async Task<Account> CreateAccount(Guid userId, CreateAccountRequest request)
         {
             var account = new Account
             {
                 Name = request.Name,
                 AccountType = (AccountType)Enum.Parse(typeof(AccountType), request.AccountType),
                 StartingBalance = request.StartingBalance,
-                UserId = user.Id
+                UserId = userId
             };
 
             appDbContext.Accounts.Add(account);
