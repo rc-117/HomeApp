@@ -151,7 +151,7 @@
         /// </summary>
         /// <param name="userId">The user's id.</param>
         /// <param name="request">The user's account request.</param>
-        public void CreateAccount(User user, CreateAccountRequest request)
+        public async void CreateAccount(User user, CreateAccountRequest request)
         {
             var account = new Account
             {
@@ -165,7 +165,7 @@
             // Write code here to persist the account to db
             // This method needs to return some sort of status indicating write to db succeeded
             appDbContext.Accounts.Add(account);
-            appDbContext.SaveChanges(); // Possibly change this to async and await it later
+            await appDbContext.SaveChangesAsync(); // Possibly change this to async and await it later
         }
     }
 }
