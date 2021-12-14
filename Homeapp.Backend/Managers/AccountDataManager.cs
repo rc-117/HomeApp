@@ -7,6 +7,7 @@
     using Newtonsoft.Json.Linq;
     using System;
     using System.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The Account Manager.
@@ -151,21 +152,28 @@
         /// </summary>
         /// <param name="userId">The user's id.</param>
         /// <param name="request">The user's account request.</param>
-        public async void CreateAccount(User user, CreateAccountRequest request)
+        public async Task<Account> CreateAccount(User user, CreateAccountRequest request)
         {
             var account = new Account
             {
                 Name = request.Name,
                 AccountType = (AccountType)Enum.Parse(typeof(AccountType), request.AccountType),
                 StartingBalance = request.StartingBalance,
-                User = user,
                 UserId = user.Id
             };
 
-            // Write code here to persist the account to db
-            // This method needs to return some sort of status indicating write to db succeeded
             appDbContext.Accounts.Add(account);
-            await appDbContext.SaveChangesAsync(); // Possibly change this to async and await it later
+
+            try
+            {
+                await appDbContext.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                account = null;                
+            }
+
+            return account;
         }
     }
 }

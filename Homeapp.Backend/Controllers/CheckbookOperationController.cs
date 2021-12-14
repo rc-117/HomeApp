@@ -93,9 +93,9 @@
         /// <summary>
         /// Creates an account for a user.
         /// </summary>
-        [HttpGet]
+        [HttpPut]
         [Route("/api/Checkbook/Accounts/user/{userId}/Create")]
-        public IActionResult CreateAccountForUser(
+        public async Task<IActionResult> CreateAccountForUser(
             string userId,
             [FromBody] CreateAccountRequest accountRequest)
         {
@@ -116,13 +116,18 @@
             }
 
             var user = this.userDataManager.GetUserFromUserId(userIdGuid);
-
-            // Need to edit this to wait for the result of the account
-            // write to db, then return OK if succeeded
-            this.accountManager.CreateAccount(user, accountRequest);
+                        
+            var createdAccount = await this.accountManager.CreateAccount(user, accountRequest);
             
-            // Return the created account here
-            return Ok();
+            return createdAccount == null ? 
+                Ok("Error saving account to database.") : 
+                Ok(new JObject()
+                    {
+                        { "Id", createdAccount.Id },
+                        { "Name", createdAccount.Name },
+                        { "AccountType", ((int)createdAccount.AccountType) },
+                        { "UserId", createdAccount.UserId },                      
+                    }.ToString());
         }
     }
 }

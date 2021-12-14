@@ -5,6 +5,7 @@ namespace Homeapp.Backend.Managers
     using Homeapp.Backend.Identity;
     using Newtonsoft.Json.Linq;
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The Account Manager interface.
@@ -47,7 +48,7 @@ namespace Homeapp.Backend.Managers
         /// </summary>
         /// <param name="userId">The user's id.</param>
         /// <param name="request">The user's account request.</param>
-        public void CreateAccount(User user, CreateAccountRequest request);
+        public Task<Account> CreateAccount(User user, CreateAccountRequest request);
 
     }
 }
