@@ -152,8 +152,6 @@
                 - totalexpense;
         }
 
-
-
         /// <summary>
         /// Creates an account for a user.
         /// </summary>

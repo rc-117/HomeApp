@@ -4,7 +4,6 @@
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Managers;
     using Homeapp.Backend.Tools;
-    using Homeapp.Test;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
@@ -42,7 +41,7 @@
         /// Gets a specified account.
         /// </summary>
         [HttpGet]
-        [Route("/api/Checkbook/Accounts/{accountId}/Get")]
+        [Route("/api/Checkbook/Accounts/accountId/{accountId}/Get")]
         public IActionResult GetAccount(string accountId)
         {
             var accountGuid = Guid.Empty;
@@ -130,7 +129,7 @@
         }
 
         /// <summary>
-        /// Creates an account for a user.
+        /// Gets all accounts a user owns.
         /// </summary>
         [HttpGet]
         [Route("/api/Checkbook/Accounts/user/{userId}/GetAll")]
@@ -180,6 +179,17 @@
             {
                 { "Accounts", accountJArray }
             }.ToString());
+        }
+
+        /// <summary>
+        /// Creates a transaction record in a specified account owned by the user.
+        /// </summary>
+        /// <param name="accountId"></param>
+        [HttpPut]
+        [Route("/api/Checkbook/Accounts/accountId/{accountId}/Transactions/Create")]
+        public async Task<IActionResult> CreateAccountTransaction(string accountId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
