@@ -73,7 +73,7 @@
                 { "AccountId", account.Id },
                 { "AccountName", account.Name },
                 { "AccountType", Enum.GetName(typeof(AccountType), account.AccountType) },
-                { "AccountBalance", this.accountManager.CalculateAccountBalance(account.Id) },
+                { "AccountBalance", this.accountManager.CalculateAccountBalance(account) },
                 { "AccountOwner", new JObject() {
                         { "UserId", account.UserId },
                         { "UserEmail", account.User.EmailAddress },
@@ -114,11 +114,12 @@
             {
                 return NotFound($"User '{userIdGuid}' not found.");
             }
-                        
-            var createdAccount = await this.accountManager.CreateAccount(userIdGuid, accountRequest);
+
+            var user = this.userDataManager.GetUserFromUserId(userIdGuid);
+            var createdAccount = await this.accountManager.CreateAccount(user, accountRequest);
             
             return createdAccount == null ? 
-                Ok("Error saving account to database.") : 
+                StatusCode(500, "Error saving account to database.") : 
                 Ok(new JObject()
                     {
                         { "Id", createdAccount.Id },
@@ -126,6 +127,59 @@
                         { "AccountType", ((int)createdAccount.AccountType) },
                         { "UserId", createdAccount.UserId },                      
                     }.ToString());
+        }
+
+        /// <summary>
+        /// Creates an account for a user.
+        /// </summary>
+        [HttpGet]
+        [Route("/api/Checkbook/Accounts/user/{userId}/GetAll")]
+        public IActionResult GetAllAccountsFromUser(string userId)
+        {
+            var userIdGuid = Guid.Empty;
+
+            if (!Validation.GuidIsValid(userId, out Guid guid))
+            {
+                return BadRequest("Invalid user Id.");
+            }
+            else
+            {
+                userIdGuid = guid;
+            }
+
+            if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
+            {
+                return NotFound($"User '{userIdGuid}' not found.");
+            }
+
+            var accounts = new Account[]{ };
+
+            try
+            {
+                accounts = this.accountManager.GetUserAccounts(userIdGuid);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Failed to retrieve accounts from database.");
+            }
+
+            var accountJArray = new JArray();
+
+            foreach (var account in accounts)
+            {
+                accountJArray.Add(new JObject()
+                {
+                    { "AccountId", account.Id },
+                    { "AccountName", account.Name },
+                    { "OwnerId", account.UserId },
+                    { "AccountBalance", this.accountManager.CalculateAccountBalance(account) }
+                });
+            } 
+
+            return Ok(new JObject()
+            {
+                { "Accounts", accountJArray }
+            }.ToString());
         }
     }
 }

@@ -55,8 +55,8 @@
         /// <param name="userId">The user's id.</param>
         public Account[] GetUserAccounts(Guid userId) 
         {
-            //static test repo code
-            return TestRepo.Accounts
+            return this.appDbContext
+                .Accounts
                 .Where(account => account.UserId == userId)
                 .ToArray();
         }
@@ -104,7 +104,7 @@
                     { "Name", transaction.Name },
                     { "Amount", transactionAmount },
                     { "TransactionType", transactionType },
-                    { "Owner", this.userDataManager.CreateShortUserJobjectFromUser(account.User) },
+                    { "Owner", this.userDataManager.CreatetUserJObjectFromUser(account.User) },
                     { "ExpenseCategory", expenseCategory },
                     { "IncomeCategory", incomeCategory },
                     { "DateTime", transaction.DateTime },
@@ -120,15 +120,20 @@
         /// Calculates the balance of a specified account.
         /// </summary>
         /// <param name="accountId">The account id.</param>
-        public double CalculateAccountBalance(Guid accountId)
+        public double CalculateAccountBalance(Account account)
         {
+            if (this.GetTransactionsByAccount(account.Id).Length == 0)
+            {
+                return account.StartingBalance;
+            }
+
             double totalincome = 0;
             double totalexpense = 0;
 
-            var incomeList = this.GetTransactionsByAccount(accountId)
+            var incomeList = this.GetTransactionsByAccount(account.Id)
                 .Where(t => t.TransactionType == TransactionType.Income);
 
-            var expenseList = this.GetTransactionsByAccount(accountId)
+            var expenseList = this.GetTransactionsByAccount(account.Id)
                 .Where(t => t.TransactionType == TransactionType.Expense ||
                             t.TransactionType == TransactionType.Transfer);
 
@@ -141,25 +146,28 @@
                 totalexpense += expense.Amount;
             }
 
-            return GetAccountById(accountId)
+            return GetAccountById(account.Id)
                 .StartingBalance 
                 + totalincome 
                 - totalexpense;
         }
+
+
 
         /// <summary>
         /// Creates an account for a user.
         /// </summary>
         /// <param name="userId">The user's id.</param>
         /// <param name="request">The user's account request.</param>
-        public async Task<Account> CreateAccount(Guid userId, CreateAccountRequest request)
+        public async Task<Account> CreateAccount(User user, CreateAccountRequest request)
         {
             var account = new Account
             {
                 Name = request.Name,
                 AccountType = (AccountType)Enum.Parse(typeof(AccountType), request.AccountType),
                 StartingBalance = request.StartingBalance,
-                UserId = userId
+                UserId = user.Id,
+                User = user
             };
 
             appDbContext.Accounts.Add(account);

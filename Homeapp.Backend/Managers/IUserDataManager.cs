@@ -14,7 +14,7 @@
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public JObject CreateShortUserJobjectFromUser(User user);
+        public JObject CreatetUserJObjectFromUser(User user);
 
 
         /// <summary>

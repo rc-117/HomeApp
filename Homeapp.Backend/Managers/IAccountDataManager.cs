@@ -41,14 +41,14 @@ namespace Homeapp.Backend.Managers
         /// Calculates the balance of a specified account.
         /// </summary>
         /// <param name="accountId">The account id.</param>
-        public double CalculateAccountBalance(Guid accountId);
+        public double CalculateAccountBalance(Account account);
 
         /// <summary>
         /// Creates an account for a user.
         /// </summary>
         /// <param name="userId">The user's id.</param>
         /// <param name="request">The user's account request.</param>
-        public Task<Account> CreateAccount(Guid userId, CreateAccountRequest request);
+        public Task<Account> CreateAccount(User user, CreateAccountRequest request);
 
     }
 }

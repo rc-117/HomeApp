@@ -23,14 +23,14 @@
         /// Creates a JObject from a user, exluding the user's password hash.
         /// </summary>
         /// <param name="user">The user.</param>
-        public JObject CreateShortUserJobjectFromUser(User user)
+        public JObject CreatetUserJObjectFromUser(User user)
         {
             return new JObject
             {
-                { "UserId", user.Id },
-                { "UserEmail", user.EmailAddress },
-                { "UserFirstName", user.FirstName },
-                { "UserLastName", user.LastName }
+                { "Id", user.Id },
+                { "Email", user.EmailAddress },
+                { "FirstName", user.FirstName },
+                { "LastName", user.LastName }
             };
         }
 
