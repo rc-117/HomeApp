@@ -44,15 +44,11 @@
         [Route("/api/Checkbook/Accounts/accountId/{accountId}/Get")]
         public IActionResult GetAccount(string accountId)
         {
-            var accountGuid = Guid.Empty;
+            var accountGuid = Guid.TryParse(accountId, out Guid guid) == true ? guid : Guid.Empty;
 
-            if (!Validation.GuidIsValid(accountId, out Guid guid))
+            if (accountGuid == Guid.Empty)
             {
                 return BadRequest("Invalid account Id.");
-            }
-            else
-            {
-                accountGuid = guid;
             }
 
             var account = this.accountManager.GetAccountById(accountGuid);
@@ -65,8 +61,7 @@
             {
                 return Unauthorized($"User unauthorized to view the specified account.");
             }
-
-  
+              
             var responseBody = new JObject()
             {
                 { "AccountId", account.Id },
@@ -98,15 +93,11 @@
             string userId,
             [FromBody] CreateAccountRequest accountRequest)
         {
-            var userIdGuid = Guid.Empty;
+            var userIdGuid = Guid.TryParse(userId, out Guid guid) == true ? guid : Guid.Empty;
 
-            if (!Validation.GuidIsValid(userId, out Guid guid))
+            if (userIdGuid == Guid.Empty)
             {
                 return BadRequest("Invalid user Id.");
-            }
-            else
-            {
-                userIdGuid = guid;
             }
 
             if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
@@ -135,16 +126,12 @@
         [Route("/api/Checkbook/Accounts/user/{userId}/GetAll")]
         public IActionResult GetAllAccountsFromUser(string userId)
         {
-            var userIdGuid = Guid.Empty;
+            var userIdGuid = Guid.TryParse(userId, out Guid guid) == true ? guid : Guid.Empty;
 
-            if (!Validation.GuidIsValid(userId, out Guid guid))
+            if (userIdGuid == Guid.Empty)
             {
                 return BadRequest("Invalid user Id.");
-            }
-            else
-            {
-                userIdGuid = guid;
-            }
+            }            
 
             if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
             {
