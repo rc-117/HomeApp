@@ -1,5 +1,6 @@
 ﻿namespace Homeapp.Backend.Controllers
 {
+    using Homeapp.Backend.Db;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Tools;
     using Homeapp.Test;
@@ -14,6 +15,7 @@
     using System.Net.Http.Headers;
     using System.Security.Claims;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The user operation controller.
@@ -22,19 +24,24 @@
     public class UserOperationController : HomeappControllerBase
     {
         private JWTSettings jwtSettings;
+        private AppDbContext appDbContext;
 
         /// <summary>
         /// Initializes the UserOperationController
         /// </summary>
-        public UserOperationController(IOptions<JWTSettings> jwtSettings)
+        public UserOperationController
+            (IOptions<JWTSettings> jwtSettings,
+            AppDbContext appDbContext)
         {
             this.jwtSettings = jwtSettings.Value;
+            this.appDbContext = appDbContext;
         }
 
         /// <summary>
         /// Gets a JWT token for the user.
         /// </summary>
         [AllowAnonymous]
+        [HttpGet]
         [Route("api/Users/login")]
         public IActionResult LoginUser()
         {
@@ -89,5 +96,24 @@
             return Ok(userWithToken);
         }
 
+        /// <summary>
+        /// Registers a new user into the application database.
+        /// </summary>
+        //[HttpPut]
+        //[Route("api/Users/register")]
+        //public Task<IActionResult> RegisterUser()
+        //{
+        // TO DO after making registerUserAndNewHouseHold action          
+        //}
+
+        /// <summary>
+        /// Registers a new user into the application database.
+        /// </summary>
+        [HttpPut]
+        [Route("api/Users/registerUserAndHousehold")]
+        public Task<IActionResult> RegisterUserAndHousehold()
+        {
+            
+        }
     }
 }

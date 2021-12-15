@@ -1,21 +1,12 @@
-﻿namespace Homeapp.Backend.Identity
+﻿namespace Homeapp.Backend.Identity.Requests
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
-    /// Class containing all users in a household.
+    /// Class containing properties to create a new Household object.
     /// </summary>
-    /// <remarks>
-    /// Users are required to register their user into at least one household.
-    /// </remarks>
-    public class Household
+    public class CreateHouseholdRequest
     {
-        /// <summary>
-        /// The unique id of the household.
-        /// </summary>
-        public Guid Id { get; set; }
-
         /// <summary>
         /// The name of the household.
         /// </summary>
@@ -25,11 +16,6 @@
         /// Groupings of users within the household.
         /// </summary>
         public List<HouseholdGroup> HouseholdGroups { get; set; }
-
-        /// <summary>
-        /// List of users in the household.
-        /// </summary>
-        public List<User> Users { get; set; }
 
         /// <summary>
         /// Hash of the household password.

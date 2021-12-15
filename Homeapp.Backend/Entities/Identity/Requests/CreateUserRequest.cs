@@ -1,20 +1,13 @@
-﻿namespace Homeapp.Backend.Identity
+﻿namespace Homeapp.Backend.Identity.Requests
 {
     using Newtonsoft.Json;
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
-    /// The user class.
+    /// Class containing properties to create a new User in the application database.
     /// </summary>
-    public class User
+    public class CreateUserRequest
     {
-        /// <summary>
-        /// The unique Id of the user.
-        /// </summary>
-        [JsonProperty]
-        public Guid Id { get; set; }
-
         /// <summary>
         /// The user's email address.
         /// </summary>
@@ -24,6 +17,7 @@
         /// <summary>
         /// Hash of the user's password.
         /// </summary>
+        [JsonProperty]
         public string PasswordHash { get; set; }
 
         /// <summary>
@@ -44,19 +38,19 @@
         public Gender Gender { get; set; }
 
         /// <summary>
-        /// The list of households that the user is a member of.
+        /// The household that the user is requesting to join.
         /// </summary>
         /// <remarks>
-        /// The user must be a member of at least one household.
+        /// The user must be a member of at least one household, so on user creation the user must create or request to join at least one existing household.
         /// </remarks>
         [JsonProperty]
-        public List<Household> Households { get; set; }
+        public Household Household { get; set; }
 
         /// <summary>
-        /// The list of household groups that the user is a member of.
+        /// The household group that the user requesting to join.
         /// </summary>
         /// The user is not required to be a member of any household group.
         [JsonProperty]
-        public List<HouseholdGroup> HouseholdGroups { get; set; }
+        public HouseholdGroup HouseholdGroup { get; set; }
     }
 }
