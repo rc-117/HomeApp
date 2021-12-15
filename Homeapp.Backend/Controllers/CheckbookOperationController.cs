@@ -172,11 +172,31 @@
         /// Creates a transaction record in a specified account owned by the user.
         /// </summary>
         /// <param name="accountId"></param>
-        [HttpPut]
-        [Route("/api/Checkbook/Accounts/accountId/{accountId}/Transactions/Create")]
-        public async Task<IActionResult> CreateAccountTransaction(string accountId)
-        {
-            throw new NotImplementedException();
-        }
+        //[HttpPut]
+        //[Route("/api/Checkbook/Accounts/userId/{userId}/accountId/{accountId}/Transactions/Create")]
+        //public async Task<IActionResult> CreateAccountTransaction
+        //    (string userId,
+        //    string accountId)
+        //{
+        //    var userIdGuid = Guid.TryParse(userId, out Guid guid) == true ? guid : Guid.Empty;
+        //    var accountIdGuid = Guid.TryParse(userId, out Guid accountGuid) == true ? accountGuid : Guid.Empty;
+
+        //    if (userIdGuid == Guid.Empty)
+        //    {
+        //        return BadRequest("Invalid user Id.");
+        //    }
+        //    else if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
+        //    {
+        //        return NotFound($"User '{userIdGuid}' not found.");
+        //    }
+        //    //else if (this)
+        //    //{
+        //        // This needs to check if requesting user is in a list of authorized users for the account
+        //    //}
+        //    if (accountIdGuid == Guid.Empty)
+        //    {
+        //        return BadRequest("Invalid account Id.");
+        //    }
+        //}
     }
 }
