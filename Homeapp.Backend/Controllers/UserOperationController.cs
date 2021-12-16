@@ -121,7 +121,27 @@
                 return BadRequest($"Email '{request.EmailAddress}' is already in use.");
             }
 
+            if (!Validation.HouseholdExists(request.RequestedHouseholdId, this.appDbContext))
+            {
+                return NotFound($"Household with id '{request.RequestedHouseholdId}' was not found.");
+            }
 
+            if (!Validation.RequestedHouseholdPasswordIsValid
+                (request.RequestedHouseholdId,
+                request.PasswordHash,
+                this.appDbContext))
+            {
+                return Unauthorized($"Invalid household password.");
+            }
+
+            var result = await this.userDataManager.SaveUserToDb(request);
+
+            if (result == null)
+            {
+                return StatusCode(500, "An error occured while saving the user to the database.");
+            }
+            
+            return Ok(result);
         }
 
         /// <summary>

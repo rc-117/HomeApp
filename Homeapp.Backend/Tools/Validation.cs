@@ -42,5 +42,23 @@
 
             return userWithExistingEmail != null;
         }
+
+        public static bool HouseholdExists(Guid householdId, AppDbContext appDbContext)
+        {
+            var existingHousehold = appDbContext.Households.FirstOrDefault(h => h.Id == householdId);
+
+            return existingHousehold != null;
+        }
+
+        public static bool RequestedHouseholdPasswordIsValid
+            (Guid householdId, 
+            string passwordHash,
+            AppDbContext appDbContext)
+        {
+            return appDbContext
+                .Households
+                .FirstOrDefault(h => h.Id == householdId)
+                .PasswordHash == passwordHash;
+        }
     }
 }

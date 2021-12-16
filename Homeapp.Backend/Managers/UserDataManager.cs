@@ -155,8 +155,36 @@
                 Gender = request.Gender
             };
 
-            //Continue here 12 16 2021
-            //Get household id and household password hash from the above request and verify the user is allowed to register into the household. 
+            var userHoushold = new UserHousehold()
+            {
+                Household = this.appDbContext.Households
+                .FirstOrDefault(h => h.Id == request.RequestedHouseholdId),
+                User = user
+            };
+
+            user.Households.Add(userHoushold);
+
+            try
+            {
+                this.appDbContext.Users.Add(user);
+                this.appDbContext.Households
+                    .FirstOrDefault(h => h.Id == request.RequestedHouseholdId)
+                    .Users
+                    .Add(userHoushold);
+
+                await this.appDbContext.SaveChangesAsync();
+
+                return new JObject()
+                {
+                    { "Id", user.Id },
+                    { "Name", $"{user.FirstName} {user.LastName}" },
+                    { "EmailAddress", $"{user.EmailAddress}" }
+                }.ToString();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         #region helper methods

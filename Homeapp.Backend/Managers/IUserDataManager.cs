@@ -30,5 +30,11 @@
         /// </summary>
         /// <param name="request"></param>
         public Task<string> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request);
+
+        /// <summary>
+        /// Creates and saves a User to the application database.
+        /// </summary>
+        /// <param name="request">The incoming request.</param>
+        public Task<string> SaveUserToDb(CreateUserRequest request);
     }
 }
