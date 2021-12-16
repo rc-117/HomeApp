@@ -2,6 +2,7 @@
 {
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Identity;
+    using Homeapp.Backend.Identity.Requests;
     using Homeapp.Backend.Tools;
     using Homeapp.Test;
     using Microsoft.AspNetCore.Authorization;
@@ -111,9 +112,17 @@
         /// </summary>
         [HttpPut]
         [Route("api/Users/registerUserAndHousehold")]
-        public Task<IActionResult> RegisterUserAndHousehold()
+        public Task<IActionResult> RegisterUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
         {
             
         }
+
+        #region Private helper methods
+        private bool NoUsersOrHouseHoldsExist()
+        {
+            return this.appDbContext.Users.Count() < 1 || 
+                this.appDbContext.Households.Count() < 1; 
+        }
+        #endregion
     }
 }

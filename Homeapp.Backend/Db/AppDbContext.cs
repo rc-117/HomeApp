@@ -13,7 +13,9 @@
 
         //Identity dbSets
         public DbSet<User> Users { get; set; }
-
+        public DbSet<Household> Households { get; set; }
+        public DbSet<HouseholdGroup> HouseholdGroups { get; set; }
+        
         // Checkbook dbSets
         public DbSet<Account> Accounts { get; set; }
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
