@@ -1,7 +1,10 @@
 ﻿namespace Homeapp.Backend.Tools
 {
+    using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
+    using Homeapp.Backend.Identity;
     using System;
+    using System.Linq;
 
     /// <summary>
     /// The validation class for the application.
@@ -31,6 +34,13 @@
                 bytes = null;
                 return false;
             }
+        }
+
+        public static bool EmailIsAlreadyInUse(string email, AppDbContext appDbContext)
+        {
+            User userWithExistingEmail = appDbContext.Users.FirstOrDefault(u => u.EmailAddress == email);
+
+            return userWithExistingEmail != null;
         }
     }
 }

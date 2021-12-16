@@ -119,6 +119,11 @@
         [Route("api/Users/registerUserAndHousehold")]
         public async Task<IActionResult> RegisterUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
         {
+            if(Validation.EmailIsAlreadyInUse(request.UserRequest.EmailAddress, this.appDbContext))
+            {
+                return BadRequest($"Email '{request.UserRequest.EmailAddress}' is already in use.");
+            }
+
             var result = await this.userDataManager.SaveUserAndHouseholdToDb(request);
 
             if (result == null)

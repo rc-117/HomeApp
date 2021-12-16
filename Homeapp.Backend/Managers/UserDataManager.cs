@@ -79,7 +79,8 @@
             };
 
             //Joins
-            user.Households = new List<UserHousehold>()
+            
+            var userHousehold = new List<UserHousehold>()
             {
                 new UserHousehold()
                 {
@@ -88,14 +89,9 @@
                 }
             };
 
-            household.Users = new List<UserHousehold>()
-            {
-                new UserHousehold()
-                {
-                    User = user,
-                    Household = household
-                }
-            };
+            user.Households = userHousehold;
+
+            household.Users = userHousehold;
 
             this.appDbContext.Households.Add(household);
 
