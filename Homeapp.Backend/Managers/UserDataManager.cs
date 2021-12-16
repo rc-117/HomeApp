@@ -3,7 +3,6 @@
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Identity.Requests;
-    using Homeapp.Backend.Identity.Responses;
     using Homeapp.Test;
     using Newtonsoft.Json.Linq;
     using System;
@@ -56,7 +55,7 @@
         /// Creates and saves a User and Household to the application database.
         /// </summary>
         /// <param name="request"></param>
-        public async Task<CreateUserAndHouseholdResponse> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request)
+        public async Task<string> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request)
         {
             var householdGroups = 
                 request.HouseholdRequest.HouseholdGroups == null ? 
@@ -117,24 +116,27 @@
                 var householdGroupArray = householdGroups == null ? 
                     null : CreateHouseholdGroupJArrayResponse(householdGroups);
 
-                return new CreateUserAndHouseholdResponse
+
+                return new JObject
                 {
-                    Household = new JObject()
-                    {
-                        { "Name", request.HouseholdRequest.Name },
-                        { "HouseholdGroups", householdGroupArray }
+                    { "Household", new JObject()
+                        {
+                            { "Name", request.HouseholdRequest.Name },
+                            { "HouseholdGroups", householdGroupArray }
+                        }
                     },
-                    User = new JObject()
-                    {
-                        { "Name", string.Format
-                            ("{0} {1}",
-                            user.FirstName,
-                            user.LastName)
-                        },
-                        { "Gender", Enum.GetName(typeof(Gender), user.Gender) },
-                        { "EmailAddress", user.EmailAddress }
-                    }
-                };
+                    { "User", new JObject()
+                        {
+                            { "Name", string.Format
+                                ("{0} {1}",
+                                user.FirstName,
+                                user.LastName)
+                            },
+                            { "Gender", Enum.GetName(typeof(Gender), user.Gender) },
+                            { "EmailAddress", user.EmailAddress }
+                        }
+                    }                    
+                }.ToString();
             }
             catch (Exception)
             {

@@ -2,7 +2,6 @@
 {
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Identity.Requests;
-    using Homeapp.Backend.Identity.Responses;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Threading.Tasks;
@@ -30,6 +29,6 @@
         /// Creates and saves a User and Household to the application database.
         /// </summary>
         /// <param name="request"></param>
-        public Task<CreateUserAndHouseholdResponse> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request);
+        public Task<string> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request);
     }
 }

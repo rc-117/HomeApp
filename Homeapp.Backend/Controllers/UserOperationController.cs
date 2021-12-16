@@ -39,6 +39,7 @@
         {
             this.jwtSettings = jwtSettings.Value;
             this.appDbContext = appDbContext;
+            this.userDataManager = userDataManager;
         }
 
         /// <summary>
@@ -125,7 +126,7 @@
                 return StatusCode(500, "Error saving new user and household to database.");
             }
 
-            return Ok(result);
+            return Ok(result.ToString());
         }
 
         #region Private helper methods
