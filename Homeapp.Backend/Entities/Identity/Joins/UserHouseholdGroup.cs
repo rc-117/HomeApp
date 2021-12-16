@@ -8,6 +8,11 @@
     public class UserHouseholdGroup
     {
         /// <summary>
+        /// Unique id of the join.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
         /// The unique id of the user.
         /// </summary>
         public Guid UserId { get; set; }
