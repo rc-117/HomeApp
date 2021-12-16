@@ -55,13 +55,13 @@
         /// The user must be a member of at least one household.
         /// </remarks>
         [JsonProperty]
-        public List<Household> Households { get; set; }
+        public List<UserHousehold> Households { get; set; }
 
         /// <summary>
         /// The list of household groups that the user is a member of.
         /// </summary>
         /// The user is not required to be a member of any household group.
         [JsonProperty]
-        public List<HouseholdGroup> HouseholdGroups { get; set; }
+        public List<UserHouseholdGroup> HouseholdGroups { get; set; }
     }
 }

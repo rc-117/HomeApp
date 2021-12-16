@@ -76,8 +76,26 @@
                 FirstName = request.UserRequest.FirstName,
                 LastName = request.UserRequest.LastName,
                 Gender = request.UserRequest.Gender,
-                Households = new List<Household>() { household },
                 HouseholdGroups = null
+            };
+
+            //Joins
+            user.Households = new List<UserHousehold>()
+            {
+                new UserHousehold()
+                {
+                    User = user,
+                    Household = household
+                }
+            };
+
+            household.Users = new List<UserHousehold>()
+            {
+                new UserHousehold()
+                {
+                    User = user,
+                    Household = household
+                }
             };
 
             this.appDbContext.Households.Add(household);

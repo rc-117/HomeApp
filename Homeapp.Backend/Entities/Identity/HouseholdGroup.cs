@@ -21,6 +21,6 @@
         /// <summary>
         /// List of users in the household group.
         /// </summary>
-        public List<User> Users { get; set; }
+        public List<UserHouseholdGroup> Users { get; set; }
     }
 }
