@@ -102,18 +102,32 @@
         }
 
         /// <summary>
-        /// Registers a new user into the application database.
+        /// Registers a new user into the application database and assigns them to an existing household.
         /// </summary>
-        //[HttpPut]
-        //[Route("api/Users/register")]
-        //public Task<IActionResult> RegisterUser()
-        //{
-        // TO DO after making registerUserAndNewHouseHold action          
-        //}
+        /// <param name="request">The incomg request.</param>
+        [AllowAnonymous]
+        [HttpPut]
+        [Route("api/Users/register")]
+        public async Task<IActionResult> RegisterUser([FromBody]CreateUserRequest request)
+        {
+            if (NoUsersOrHouseHoldsExist())
+            {
+                return BadRequest
+                    ("No households exist to register a user into. Please use method 'RegisterUserAndHousehold' to register both a new user and household.");
+            }
+
+            if (Validation.EmailIsAlreadyInUse(request.EmailAddress, this.appDbContext))
+            {
+                return BadRequest($"Email '{request.EmailAddress}' is already in use.");
+            }
+
+
+        }
 
         /// <summary>
         /// Registers a new user into the application database.
         /// </summary>
+        /// <param name="request">The incoming request.</param>
         [AllowAnonymous]
         [HttpPut]
         [Route("api/Users/registerUserAndHousehold")]

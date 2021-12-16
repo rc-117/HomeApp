@@ -1,6 +1,7 @@
 ﻿namespace Homeapp.Backend.Identity.Requests
 {
     using Newtonsoft.Json;
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -35,22 +36,19 @@
         /// <summary>
         /// The user's gender.
         /// </summary>
+        [JsonProperty]
         public Gender Gender { get; set; }
 
         /// <summary>
-        /// The household that the user is requesting to join.
+        /// The id of the household the user is requesting to join.
         /// </summary>
-        /// <remarks>
-        /// The user must be a member of one household, so on user creation the user must create or request to join an existing household.
-        /// </remarks>
         [JsonProperty]
-        public Household Household { get; set; }
+        public Guid RequestedHouseholdId { get; set; }
 
         /// <summary>
-        /// The household group that the user requesting to join.
+        /// The password hash of the household the user is attempting to join.
         /// </summary>
-        /// The user is not required to be a member of any household group.
         [JsonProperty]
-        public HouseholdGroup HouseholdGroup { get; set; }
+        public string RequestedHousholdPasswordHash { get; set; }
     }
 }

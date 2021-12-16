@@ -54,7 +54,7 @@
         /// <summary>
         /// Creates and saves a User and Household to the application database.
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="request">The incoming request.</param>
         public async Task<string> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request)
         {
             var householdGroups = 
@@ -138,6 +138,25 @@
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Creates and saves a User to the application database.
+        /// </summary>
+        /// <param name="request">The incoming request.</param>
+        public async Task<string> SaveUserToDb(CreateUserRequest request)
+        {
+            var user = new User()
+            {
+                EmailAddress = request.EmailAddress,
+                PasswordHash = request.PasswordHash,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Gender = request.Gender
+            };
+
+            //Continue here 12 16 2021
+            //Get household id and household password hash from the above request and verify the user is allowed to register into the household. 
         }
 
         #region helper methods
