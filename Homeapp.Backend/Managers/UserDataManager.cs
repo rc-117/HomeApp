@@ -1,22 +1,29 @@
 ﻿namespace Homeapp.Backend.Managers
 {
+    using Homeapp.Backend.Db;
     using Homeapp.Backend.Identity;
+    using Homeapp.Backend.Identity.Requests;
+    using Homeapp.Backend.Identity.Responses;
     using Homeapp.Test;
     using Newtonsoft.Json.Linq;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The user data manager.
     /// </summary>
     public class UserDataManager : IUserDataManager
     {
+        private AppDbContext appDbContext;
+
         /// <summary>
         /// Initializes the user data manager class.
         /// </summary>
-        public UserDataManager()
+        public UserDataManager(AppDbContext appDbContext)
         {
-
+            this.appDbContext = appDbContext;
         }
 
         /// <summary>
@@ -44,5 +51,94 @@
             return TestRepo.Users
                 .FirstOrDefault(u => u.Id == userId);
         }
+
+        /// <summary>
+        /// Creates and saves a User and Household to the application database.
+        /// </summary>
+        /// <param name="request"></param>
+        public async Task<CreateUserAndHouseholdResponse> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request)
+        {
+            var householdGroups = 
+                request.HouseholdRequest.HouseholdGroups == null ? 
+                null : request.HouseholdRequest.HouseholdGroups;
+
+            var household = new Household
+            {
+                Name = request.HouseholdRequest.Name,
+                HouseholdGroups = householdGroups,
+                PasswordHash = request.HouseholdRequest.PasswordHash
+            };
+
+            var user = new User
+            {
+                EmailAddress = request.UserRequest.EmailAddress,
+                PasswordHash = request.UserRequest.PasswordHash,
+                FirstName = request.UserRequest.FirstName,
+                LastName = request.UserRequest.LastName,
+                Gender = request.UserRequest.Gender,
+                Households = new List<Household>() { household },
+                HouseholdGroups = null
+            };
+
+            this.appDbContext.Households.Add(household);
+
+            if (householdGroups != null)
+            {
+                foreach (var householdGroup in householdGroups)
+                {
+                    this.appDbContext.HouseholdGroups.Add(householdGroup);
+                }
+            }
+            
+            this.appDbContext.Users.Add(user);
+
+            try
+            {
+                await this.appDbContext.SaveChangesAsync();
+                
+                var householdGroupArray = householdGroups == null ? 
+                    null : CreateHouseholdGroupJArrayResponse(householdGroups);
+
+                return new CreateUserAndHouseholdResponse
+                {
+                    Household = new JObject()
+                    {
+                        { "Name", request.HouseholdRequest.Name },
+                        { "HouseholdGroups", householdGroupArray }
+                    },
+                    User = new JObject()
+                    {
+                        { "Name", string.Format
+                            ("{0} {1}",
+                            user.FirstName,
+                            user.LastName)
+                        },
+                        { "Gender", Enum.GetName(typeof(Gender), user.Gender) },
+                        { "EmailAddress", user.EmailAddress }
+                    }
+                };
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        #region helper methods
+        private JArray CreateHouseholdGroupJArrayResponse(List<HouseholdGroup> groups)
+        {
+            var array = new JArray();
+
+            foreach (var group in groups)
+            {
+                array.Add(new JObject()
+                {
+                    { "Name", group.Name }
+                });
+            }
+
+            return array;
+        }
+        #endregion
     }
 }

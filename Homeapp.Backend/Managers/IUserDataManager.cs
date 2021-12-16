@@ -1,8 +1,11 @@
 ﻿namespace Homeapp.Backend.Managers
 {
     using Homeapp.Backend.Identity;
+    using Homeapp.Backend.Identity.Requests;
+    using Homeapp.Backend.Identity.Responses;
     using Newtonsoft.Json.Linq;
     using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The user data manager.
@@ -22,5 +25,11 @@
         /// </summary>
         /// <param name="userId">The user id.</param>
         public User GetUserFromUserId(Guid userId);
+
+        /// <summary>
+        /// Creates and saves a User and Household to the application database.
+        /// </summary>
+        /// <param name="request"></param>
+        public Task<CreateUserAndHouseholdResponse> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request);
     }
 }

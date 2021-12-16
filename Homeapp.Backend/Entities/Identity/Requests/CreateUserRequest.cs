@@ -41,7 +41,7 @@
         /// The household that the user is requesting to join.
         /// </summary>
         /// <remarks>
-        /// The user must be a member of at least one household, so on user creation the user must create or request to join at least one existing household.
+        /// The user must be a member of one household, so on user creation the user must create or request to join an existing household.
         /// </remarks>
         [JsonProperty]
         public Household Household { get; set; }

@@ -44,6 +44,11 @@
         public Gender Gender { get; set; }
 
         /// <summary>
+        /// The unique id of the household the user belongs to.
+        /// </summary>
+        public Guid HouseholdId { get; set; }
+
+        /// <summary>
         /// The list of households that the user is a member of.
         /// </summary>
         /// <remarks>

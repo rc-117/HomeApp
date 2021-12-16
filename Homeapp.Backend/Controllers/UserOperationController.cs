@@ -3,6 +3,7 @@
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Identity.Requests;
+    using Homeapp.Backend.Managers;
     using Homeapp.Backend.Tools;
     using Homeapp.Test;
     using Microsoft.AspNetCore.Authorization;
@@ -26,13 +27,15 @@
     {
         private JWTSettings jwtSettings;
         private AppDbContext appDbContext;
+        private IUserDataManager userDataManager;
 
         /// <summary>
         /// Initializes the UserOperationController
         /// </summary>
         public UserOperationController
             (IOptions<JWTSettings> jwtSettings,
-            AppDbContext appDbContext)
+            AppDbContext appDbContext,
+            IUserDataManager userDataManager)
         {
             this.jwtSettings = jwtSettings.Value;
             this.appDbContext = appDbContext;
@@ -110,11 +113,19 @@
         /// <summary>
         /// Registers a new user into the application database.
         /// </summary>
+        [AllowAnonymous]
         [HttpPut]
         [Route("api/Users/registerUserAndHousehold")]
-        public Task<IActionResult> RegisterUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
+        public async Task<IActionResult> RegisterUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
         {
-            
+            var result = await this.userDataManager.SaveUserAndHouseholdToDb(request);
+
+            if (result == null)
+            {
+                return StatusCode(500, "Error saving new user and household to database.");
+            }
+
+            return Ok(result);
         }
 
         #region Private helper methods
