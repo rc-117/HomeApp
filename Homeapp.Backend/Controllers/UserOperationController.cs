@@ -128,7 +128,7 @@
 
             if (!Validation.RequestedHouseholdPasswordIsValid
                 (request.RequestedHouseholdId,
-                request.PasswordHash,
+                request.RequestedHousholdPasswordHash,
                 this.appDbContext))
             {
                 return Unauthorized($"Invalid household password.");

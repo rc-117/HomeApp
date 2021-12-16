@@ -152,7 +152,8 @@
                 PasswordHash = request.PasswordHash,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                Gender = request.Gender
+                Gender = request.Gender,
+                Households = new List<UserHousehold>()
             };
 
             var userHoushold = new UserHousehold()
