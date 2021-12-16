@@ -12,6 +12,14 @@
     public interface IUserDataManager
     {
         /// <summary>
+        /// Gets a user from the database using a given email and password combination.
+        /// </summary>
+        /// <param name="email">The email address.</param>
+        /// <param name="password">The password hash.</param>
+        /// <returns></returns>
+        public User GetUserWithEmailAndPassword(string email, string password);
+
+        /// <summary>
         /// Creates a JObject from a user, exluding the user's password hash.
         /// </summary>
         /// <param name="user"></param>

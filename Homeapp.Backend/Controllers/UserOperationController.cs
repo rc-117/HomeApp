@@ -55,8 +55,6 @@
                 return BadRequest("Authorization header was not found.");
             }
 
-
-
             var authenticationHeaderValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
             var bytes = new byte[] { };
             if (Validation.StringIsBase64Compatible
@@ -74,10 +72,18 @@
             string email = credentials[0];
             string passwordHash = credentials[1];
 
-            //Test user from dummy repo
-            User user = TestRepo.Users.Where(u =>
-                u.EmailAddress == email && u.PasswordHash == passwordHash)
-                .FirstOrDefault();
+            if (!Validation.EmailIsAlreadyInUse(email, this.appDbContext))
+            {
+                return NotFound("Account not found.");
+            }
+
+            if (!Validation.UserEmailPasswordComboIsValid
+                (email, passwordHash, this.appDbContext))
+            {
+                return Unauthorized("Invalid username or password.");
+            }
+
+            var user = this.userDataManager.GetUserWithEmailAndPassword(email, passwordHash);
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(this.jwtSettings.SecretKey); ;
@@ -85,8 +91,11 @@
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.EmailAddress),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.EmailAddress),
+                    new Claim(ClaimTypes.GivenName, user.FirstName),
+                    new Claim(ClaimTypes.Surname, user.LastName),
+                    new Claim(ClaimTypes.Gender, Enum.GetName(typeof(Gender), user.Gender))
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(5),
                 SigningCredentials = new SigningCredentials

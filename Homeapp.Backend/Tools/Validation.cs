@@ -60,5 +60,23 @@
                 .FirstOrDefault(h => h.Id == householdId)
                 .PasswordHash == passwordHash;
         }
+
+        /// <summary>
+        /// Checks if a given email password combination is valid.
+        /// </summary>
+        /// <param name="email">The given email address.</param>
+        /// <param name="passwordHash">The given password hash.</param>
+        /// <param name="appDbContext">The app database context.</param>
+        /// <returns></returns>
+        public static bool UserEmailPasswordComboIsValid
+            (string email,
+            string passwordHash,
+            AppDbContext appDbContext)
+        {
+            return appDbContext
+                .Users
+                .FirstOrDefault(u => u.EmailAddress == email)
+                .PasswordHash == passwordHash;
+        }
     }
 }
