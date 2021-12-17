@@ -112,7 +112,7 @@
 
             var userHouseholdGroup = new UserHouseholdGroup();
 
-            if (householdGroups.Count < 1)
+            if (householdGroups.Count > 1)
             {
                 user.HouseholdGroups = new List<UserHouseholdGroup>();
 
@@ -126,6 +126,7 @@
                             User = user,
                         };
 
+                        householdGroups[i].Users = new List<UserHouseholdGroup>();
                         householdGroups[i].Users.Add(userHouseholdGroup);
                         user.HouseholdGroups.Add(userHouseholdGroup);
                     }
