@@ -143,6 +143,16 @@
                 return Unauthorized($"Invalid household password.");
             }
 
+            if (!Validation.DateIntArrayIsValid(request.Birthday))
+            {
+                return BadRequest("Invalid date value. Integer array must be in m/d/yyyy format.");
+            }
+
+            if (!Validation.BirthdayIsValid(this.GetDateFromIntArray(request.Birthday)))
+            {
+                return BadRequest("Invalid birthday received.");
+            }
+
             var result = await this.userDataManager.SaveUserToDb(request);
 
             if (result == null)
@@ -165,6 +175,16 @@
             if(Validation.EmailIsAlreadyInUse(request.UserRequest.EmailAddress, this.appDbContext))
             {
                 return BadRequest($"Email '{request.UserRequest.EmailAddress}' is already in use.");
+            }
+
+            if (!Validation.DateIntArrayIsValid(request.UserRequest.Birthday))
+            {
+                return BadRequest("Invalid date value. Integer array must be in m/d/yyyy format.");
+            }
+
+            if (!Validation.BirthdayIsValid(this.GetDateFromIntArray(request.UserRequest.Birthday)))
+            {
+                return BadRequest("Invalid birthday received.");
             }
 
             var result = await this.userDataManager.SaveUserAndHouseholdToDb(request);

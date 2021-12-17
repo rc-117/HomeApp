@@ -44,6 +44,11 @@
         public Gender Gender { get; set; }
 
         /// <summary>
+        /// The user's birthday.
+        /// </summary>
+        public DateTime Birthday { get; set; }
+
+        /// <summary>
         /// The list of households that the user is a member of.
         /// </summary>
         /// <remarks>

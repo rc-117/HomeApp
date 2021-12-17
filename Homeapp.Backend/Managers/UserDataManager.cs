@@ -13,7 +13,7 @@
     /// <summary>
     /// The user data manager.
     /// </summary>
-    public class UserDataManager : IUserDataManager
+    public class UserDataManager : HomeappDataManagerBase, IUserDataManager
     {
         private AppDbContext appDbContext;
 
@@ -87,6 +87,7 @@
                 PasswordHash = request.UserRequest.PasswordHash,
                 FirstName = request.UserRequest.FirstName,
                 LastName = request.UserRequest.LastName,
+                Birthday = this.GetDateFromIntArray(request.UserRequest.Birthday),
                 Gender = request.UserRequest.Gender,
                 HouseholdGroups = null
             };
@@ -142,6 +143,7 @@
                                 user.LastName)
                             },
                             { "Gender", Enum.GetName(typeof(Gender), user.Gender) },
+                            { "Birthday", user.Birthday.ToLongDateString() },
                             { "EmailAddress", user.EmailAddress }
                         }
                     }                    
@@ -165,6 +167,7 @@
                 PasswordHash = request.PasswordHash,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
+                Birthday = this.GetDateFromIntArray(request.Birthday),
                 Gender = request.Gender,
                 Households = new List<UserHousehold>()
             };
@@ -192,6 +195,7 @@
                 {
                     { "Id", user.Id },
                     { "Name", $"{user.FirstName} {user.LastName}" },
+                    { "Birthday", user.Birthday.ToLongDateString() },
                     { "EmailAddress", $"{user.EmailAddress}" }
                 }.ToString();
             }

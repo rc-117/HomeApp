@@ -34,6 +34,11 @@
         public string LastName { get; set; }
 
         /// <summary>
+        /// The user's birthday in m/d/yyyy format.
+        /// </summary>
+        public int[] Birthday { get; set; }
+
+        /// <summary>
         /// The user's gender.
         /// </summary>
         [JsonProperty]

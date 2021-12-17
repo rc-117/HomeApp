@@ -12,7 +12,7 @@
     /// <summary>
     /// The Account Manager.
     /// </summary>
-    public class AccountDataManager : IAccountDataManager
+    public class AccountDataManager : HomeappDataManagerBase, IAccountDataManager
     {
         /// <summary>
         /// The user data manager.
