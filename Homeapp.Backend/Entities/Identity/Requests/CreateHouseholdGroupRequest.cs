@@ -13,6 +13,11 @@
         public string Name { get; set; }
 
         /// <summary>
+        /// Indicates whether or not to add the requesting user to this group.
+        /// </summary>
+        public bool AddRequestingUserToGroup { get; set; }
+
+        /// <summary>
         /// List of users to add to the household group.
         /// </summary>
         public List<User> Users { get; set; }

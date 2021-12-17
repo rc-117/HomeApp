@@ -110,28 +110,33 @@
                 }
             };
 
-            var userHouseholdGroup = new UserHouseholdGroup()
-            {
-                HouseholdGroup = householdGroups[0],
-                User = user,
-            };
+            var userHouseholdGroup = new UserHouseholdGroup();
 
-            foreach (var householdGroup in householdGroups)
+            if (householdGroups.Count < 1)
             {
-                if (householdGroup.Users.Count > 0)
+                user.HouseholdGroups = new List<UserHouseholdGroup>();
+
+                for (int i = 0; i < request.HouseholdRequest.HouseholdGroupRequests.Count(); i++)
                 {
-                    householdGroup.Users.Add(userHouseholdGroup);
+                    if (request.HouseholdRequest.HouseholdGroupRequests[i].AddRequestingUserToGroup)
+                    {
+                        userHouseholdGroup= new UserHouseholdGroup()
+                        {
+                            HouseholdGroup = householdGroups[i],
+                            User = user,
+                        };
+
+                        householdGroups[i].Users.Add(userHouseholdGroup);
+                        user.HouseholdGroups.Add(userHouseholdGroup);
+                    }
                 }
             }
 
             user.Households = userHousehold;
-            user.HouseholdGroups = 
-                householdGroups.Count < 1 ? 
-                null : new List<UserHouseholdGroup>() { userHouseholdGroup };
+            
             household.Users = userHousehold;
             household.HouseholdGroups = householdGroups.Count < 1 ? 
                 null : householdGroups;
-
 
             this.appDbContext.Households.Add(household);
 
