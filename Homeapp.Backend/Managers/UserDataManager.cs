@@ -70,16 +70,23 @@
         /// <param name="request">The incoming request.</param>
         public async Task<string> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request)
         {
-            var householdGroups = 
-                request.HouseholdRequest.HouseholdGroups == null ? 
-                null : request.HouseholdRequest.HouseholdGroups;
-
-            var household = new Household
+            var household = new Household()
             {
                 Name = request.HouseholdRequest.Name,
-                HouseholdGroups = householdGroups,
+                HouseholdGroups = null,
                 PasswordHash = request.HouseholdRequest.PasswordHash
             };
+
+            var householdGroups = new List<HouseholdGroup>();
+
+            foreach (var householdGroup in request.HouseholdRequest.HouseholdGroupRequests)
+            {
+                householdGroups.Add(new HouseholdGroup()
+                {
+                    Name = householdGroup.Name,
+                    Household = household
+                }); 
+            }
 
             var user = new User
             {
@@ -103,9 +110,28 @@
                 }
             };
 
-            user.Households = userHousehold;
+            var userHouseholdGroup = new UserHouseholdGroup()
+            {
+                HouseholdGroup = householdGroups[0],
+                User = user,
+            };
 
+            foreach (var householdGroup in householdGroups)
+            {
+                if (householdGroup.Users.Count > 0)
+                {
+                    householdGroup.Users.Add(userHouseholdGroup);
+                }
+            }
+
+            user.Households = userHousehold;
+            user.HouseholdGroups = 
+                householdGroups.Count < 1 ? 
+                null : new List<UserHouseholdGroup>() { userHouseholdGroup };
             household.Users = userHousehold;
+            household.HouseholdGroups = householdGroups.Count < 1 ? 
+                null : householdGroups;
+
 
             this.appDbContext.Households.Add(household);
 

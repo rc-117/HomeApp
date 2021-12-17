@@ -1,5 +1,6 @@
 ﻿namespace Homeapp.Backend.Identity.Requests
 {
+    using Newtonsoft.Json;
     using System.Collections.Generic;
 
     /// <summary>
@@ -10,12 +11,14 @@
         /// <summary>
         /// The name of the household.
         /// </summary>
+        [JsonProperty]
         public string Name { get; set; }
-
+        
         /// <summary>
-        /// Groupings of users within the household.
+        /// The household group request properties.
         /// </summary>
-        public List<HouseholdGroup> HouseholdGroups { get; set; }
+        [JsonProperty]
+        public CreateHouseholdGroupRequest[] HouseholdGroupRequests { get; set; }
 
         /// <summary>
         /// Hash of the household password.
@@ -23,6 +26,7 @@
         /// <remarks>
         /// Used to register a new user into an existing household.
         /// </remarks>
+        [JsonProperty]
         public string PasswordHash { get; set; }
     }
 }

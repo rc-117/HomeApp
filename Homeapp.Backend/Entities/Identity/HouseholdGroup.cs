@@ -19,6 +19,16 @@
         public string Name { get; set; }
 
         /// <summary>
+        /// The unique id of the household containing this group.
+        /// </summary>
+        public Guid HouseholdId { get; set; }
+
+        /// <summary>
+        /// The household containing the group.
+        /// </summary>
+        public Household Household { get; set; }
+
+        /// <summary>
         /// List of users in the household group.
         /// </summary>
         public List<UserHouseholdGroup> Users { get; set; }
