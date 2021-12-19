@@ -197,6 +197,26 @@
             return Ok(result.ToString());
         }
 
+        /// <summary>
+        /// Gets all users and groups from within a household.
+        /// </summary>
+        /// <param name="householdId">The household id, passed in from the route.</param>
+        [HttpGet]
+        [Route("api/Households/householdId/{householdId}/GetUsersAndGroups")]
+        public async Task<IActionResult> GetUsersAndGroupsFromHousehold(string householdId)
+        {
+            var householdGuid = Guid.TryParse(householdId, out Guid guid) == true ? guid : Guid.Empty;
+
+            if (householdGuid == Guid.Empty)
+            {
+                return BadRequest("Invalid account Id.");
+            }
+
+            var users = this.userDataManager.GetUsersFromHousehold(householdGuid);
+            var groups = //continue this 12 19 2021
+
+        }
+
         #region Private helper methods
         private bool NoUsersOrHouseHoldsExist()
         {

@@ -13,6 +13,8 @@
 
         //Identity dbSets
         public DbSet<User> Users { get; set; }
+        public DbSet<UserHousehold> UserHouseholds { get; set; }
+        public DbSet<UserHouseholdGroup> UserHouseholdGroups { get; set; }
         public DbSet<Household> Households { get; set; }
         public DbSet<HouseholdGroup> HouseholdGroups { get; set; }
         

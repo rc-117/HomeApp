@@ -4,6 +4,7 @@
     using Homeapp.Backend.Identity.Requests;
     using Newtonsoft.Json.Linq;
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -44,5 +45,19 @@
         /// </summary>
         /// <param name="request">The incoming request.</param>
         public Task<string> SaveUserToDb(CreateUserRequest request);
+
+        /// <summary>
+        /// Gets all users from a household using the household id.
+        /// </summary>
+        /// <param name="householdId">The household id</param>
+        /// <returns>A list of users. Returns null if the household id does not exist, or there are no users.</returns>
+        public List<User> GetUsersFromHousehold(Guid householdId);
+
+        /// <summary>
+        /// Gets all household groups from a household using the household id.
+        /// </summary>
+        /// <param name="householdId">The household id</param>
+        /// <returns>A list of household groups. Returns null if the household id does not exist, or there are no users.</returns>
+        public List<HouseholdGroup> GetGroupsFromHousehold(Guid householdId);
     }
 }

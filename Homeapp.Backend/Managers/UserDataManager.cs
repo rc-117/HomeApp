@@ -237,6 +237,50 @@
             }
         }
 
+        /// <summary>
+        /// Gets all household groups from a household using the household id.
+        /// </summary>
+        /// <param name="householdId">The household id</param>
+        /// <returns>A list of household groups. Returns null if the household id does not exist, or there are no users.</returns>
+        public List<HouseholdGroup> GetGroupsFromHousehold(Guid householdId)
+        {
+            var householdGroups =
+                this.appDbContext
+                .HouseholdGroups
+                .Where(h => h.HouseholdId == householdId)
+                .ToList();
+
+            return householdGroups.Count == 0 ? null : householdGroups;
+        }
+
+        /// <summary>
+        /// Gets all users from a household using the household id.
+        /// </summary>
+        /// <param name="householdId">The household id</param>
+        /// <returns>A list of users. Returns null if the household id does not exist, or there are no users.</returns>
+        public List<User> GetUsersFromHousehold(Guid householdId)
+        {
+            var usersHouseholds =
+                this.appDbContext
+                .UserHouseholds
+                .Where(uh => uh.HouseholdId == householdId)
+                .ToList();
+
+            if (usersHouseholds.Count == 0)
+            {
+                return null;
+            }
+
+            var users = new List<User>();
+
+            foreach (var join in usersHouseholds)
+            {
+                users.Add(this.appDbContext.Users.FirstOrDefault(u => u.Id == join.UserId));
+            }
+
+            return users.Count == 0 ? null : users;
+        }
+
         #region helper methods
         private JArray CreateHouseholdGroupJArrayResponse(List<HouseholdGroup> groups)
         {
@@ -251,7 +295,7 @@
             }
 
             return array;
-        }
+        }    
         #endregion
     }
 }
