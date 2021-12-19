@@ -207,7 +207,7 @@
         public IActionResult GetUsersAndGroupsFromHousehold(string householdId, string householdGroupId)
         {
             var householdGuid = Guid.TryParse(householdId, out Guid guid) == true ? guid : Guid.Empty;
-            var householdGroupGuid = Guid.TryParse(householdId, out Guid groupGuid) == true ? groupGuid : Guid.Empty;
+            var householdGroupGuid = Guid.TryParse(householdGroupId, out Guid groupGuid) == true ? groupGuid : Guid.Empty;
 
             if (householdGuid == Guid.Empty)
             {
@@ -229,14 +229,17 @@
             var userJArray = new JArray();
             var groupJArray = new JArray();
 
-            foreach (var group in this.userDataManager.GetGroupsFromHousehold(householdGroupGuid))
+            foreach (var group in groups)
             {
                 var userIds = "";
 
-                foreach (var user in this.userDataManager.GetHouseholdGroupUsers(householdGroupGuid))
+                if (this.userDataManager.GetHouseholdGroupUsers(group.Id) != null)
                 {
-                    userIds += $"{user.Id};";
-                }
+                    foreach (var user in this.userDataManager.GetHouseholdGroupUsers(group.Id))
+                    {
+                        userIds += $"{user.Id};";
+                    }
+                }                
 
                 groupJArray.Add(new JObject()
                 {
@@ -261,7 +264,7 @@
             {
                 { "Groups", groupJArray },
                 { "Users", userJArray }
-            });
+            }.ToString());
         }
 
         #region Private helper methods
