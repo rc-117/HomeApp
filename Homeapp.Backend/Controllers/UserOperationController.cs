@@ -203,31 +203,37 @@
         /// </summary>
         /// <param name="householdId">The household id, passed in from the route.</param>
         [HttpGet]
-        [Route("api/Households/householdId/{householdId}/GetUsersAndGroups")]
-        public IActionResult GetUsersAndGroupsFromHousehold(string householdId)
+        [Route("api/Households/householdId/{householdId}/householdGroupId/{householdGroupId}/GetUsersAndGroups")]
+        public IActionResult GetUsersAndGroupsFromHousehold(string householdId, string householdGroupId)
         {
             var householdGuid = Guid.TryParse(householdId, out Guid guid) == true ? guid : Guid.Empty;
+            var householdGroupGuid = Guid.TryParse(householdId, out Guid groupGuid) == true ? groupGuid : Guid.Empty;
 
             if (householdGuid == Guid.Empty)
             {
-                return BadRequest("Invalid account Id.");
+                return BadRequest("Invalid household Id.");
+            }
+            else if (householdGroupGuid == Guid.Empty)
+            {
+                return BadRequest("Invalid household group Id.");
             }
 
             if (this.userDataManager.GetHouseholdWithId(householdGuid) == null)
             {
                 return NotFound($"Household with id '{householdGuid}' was not found.");
-            }
+            }//write code in the user data manager to check if household group exists
+            
 
             var groups = this.userDataManager.GetGroupsFromHousehold(householdGuid);
 
             var userJArray = new JArray();
             var groupJArray = new JArray();
 
-            foreach (var group in this.userDataManager.GetGroupsFromHousehold(householdGuid))
+            foreach (var group in this.userDataManager.GetGroupsFromHousehold(householdGroupGuid))
             {
                 var userIds = "";
 
-                foreach (var user in this.userDataManager.GetHouseholdGroupUsers(householdGuid))
+                foreach (var user in this.userDataManager.GetHouseholdGroupUsers(householdGroupGuid))
                 {
                     userIds += $"{user.Id};";
                 }

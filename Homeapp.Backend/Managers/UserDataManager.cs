@@ -74,7 +74,8 @@
             {
                 Name = request.HouseholdRequest.Name,
                 HouseholdGroups = null,
-                PasswordHash = request.HouseholdRequest.PasswordHash
+                PasswordHash = request.HouseholdRequest.PasswordHash,
+                Users = new List<UserHousehold>()
             };
 
             var householdGroups = new List<HouseholdGroup>();
@@ -96,23 +97,21 @@
                 LastName = request.UserRequest.LastName,
                 Birthday = this.GetDateFromIntArray(request.UserRequest.Birthday),
                 Gender = request.UserRequest.Gender,
-                HouseholdGroups = null
+                Households = new List<UserHousehold>(),
+                HouseholdGroups = new List<UserHouseholdGroup>()
             };
 
             //Joins
-            
-            var userHousehold = new List<UserHousehold>()
+
+            var userHousehold = new UserHousehold()
             {
-                new UserHousehold()
-                {
-                    User = user,
-                    Household = household
-                }
+                User = user,
+                Household = household
             };
 
-            var userHouseholdGroup = new UserHouseholdGroup();
+            var userHouseholdGroups = new List<UserHouseholdGroup>();
 
-            if (householdGroups.Count > 1)
+            if (householdGroups.Count > 0)
             {
                 user.HouseholdGroups = new List<UserHouseholdGroup>();
 
@@ -120,7 +119,7 @@
                 {
                     if (request.HouseholdRequest.HouseholdGroupRequests[i].AddRequestingUserToGroup)
                     {
-                        userHouseholdGroup= new UserHouseholdGroup()
+                        var userHouseholdGroup= new UserHouseholdGroup()
                         {
                             HouseholdGroup = householdGroups[i],
                             User = user,
@@ -129,13 +128,14 @@
                         householdGroups[i].Users = new List<UserHouseholdGroup>();
                         householdGroups[i].Users.Add(userHouseholdGroup);
                         user.HouseholdGroups.Add(userHouseholdGroup);
+                        userHouseholdGroups.Add(userHouseholdGroup);
                     }
                 }
             }
 
-            user.Households = userHousehold;
-            
-            household.Users = userHousehold;
+            user.Households.Add(userHousehold);
+
+            household.Users.Add(userHousehold);
             household.HouseholdGroups = householdGroups.Count < 1 ? 
                 null : householdGroups;
 
@@ -148,7 +148,8 @@
                     this.appDbContext.HouseholdGroups.Add(householdGroup);
                 }
             }
-            
+
+            this.appDbContext.UserHouseholdGroups.AddRange(userHouseholdGroups);
             this.appDbContext.Users.Add(user);
 
             try
@@ -301,7 +302,7 @@
         {
             var joins = this.appDbContext
                 .UserHouseholdGroups
-                .Where(h => h.Id == householdGroupId).ToList();
+                .Where(h => h.HouseholdGroupId == householdGroupId).ToList();
 
             var users = new List<User>();
 
