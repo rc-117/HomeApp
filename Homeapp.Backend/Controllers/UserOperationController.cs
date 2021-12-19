@@ -11,6 +11,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Options;
     using Microsoft.IdentityModel.Tokens;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
@@ -203,7 +204,7 @@
         /// <param name="householdId">The household id, passed in from the route.</param>
         [HttpGet]
         [Route("api/Households/householdId/{householdId}/GetUsersAndGroups")]
-        public async Task<IActionResult> GetUsersAndGroupsFromHousehold(string householdId)
+        public IActionResult GetUsersAndGroupsFromHousehold(string householdId)
         {
             var householdGuid = Guid.TryParse(householdId, out Guid guid) == true ? guid : Guid.Empty;
 
@@ -212,9 +213,49 @@
                 return BadRequest("Invalid account Id.");
             }
 
-            var users = this.userDataManager.GetUsersFromHousehold(householdGuid);
-            var groups = //continue this 12 19 2021
+            if (this.userDataManager.GetHouseholdWithId(householdGuid) == null)
+            {
+                return NotFound($"Household with id '{householdGuid}' was not found.");
+            }
 
+            var groups = this.userDataManager.GetGroupsFromHousehold(householdGuid);
+
+            var userJArray = new JArray();
+            var groupJArray = new JArray();
+
+            foreach (var group in this.userDataManager.GetGroupsFromHousehold(householdGuid))
+            {
+                var userIds = "";
+
+                foreach (var user in this.userDataManager.GetHouseholdGroupUsers(householdGuid))
+                {
+                    userIds += $"{user.Id};";
+                }
+
+                groupJArray.Add(new JObject()
+                {
+                    { "Id", group.Id },
+                    { "Name", group.Name },
+                    { "Users", userIds },
+                });
+            }
+
+            foreach (var user in this.userDataManager.GetUsersFromHousehold(householdGuid))
+            {
+                userJArray.Add(new JObject()
+                {
+                    { "Id", user.Id },
+                    { "FirstName", user.FirstName },
+                    { "LastName", user.LastName },
+                    { "Email", user.EmailAddress },
+                });
+            }
+
+            return Ok(new JObject()
+            {
+                { "Groups", groupJArray },
+                { "Users", userJArray }
+            });
         }
 
         #region Private helper methods

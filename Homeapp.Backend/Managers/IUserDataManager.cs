@@ -59,5 +59,18 @@
         /// <param name="householdId">The household id</param>
         /// <returns>A list of household groups. Returns null if the household id does not exist, or there are no users.</returns>
         public List<HouseholdGroup> GetGroupsFromHousehold(Guid householdId);
+
+        /// <summary>
+        /// Gets a household from the database using its id.
+        /// </summary>
+        /// <param name="householdId">The household id.</param>
+        /// <returns>A household object. Returns null if nothing is found.</returns>
+        public Household GetHouseholdWithId(Guid householdId);
+
+        /// <summary>
+        /// Gets a list of users from a household group.
+        /// </summary>
+        /// <param name="householdId">The household group id.</param>
+        public List<User> GetHouseholdGroupUsers(Guid householdGroupId);
     }
 }
