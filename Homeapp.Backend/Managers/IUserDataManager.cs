@@ -79,7 +79,7 @@
         /// <param name="householdId">The household id.</param>
         /// <param name="householdGroupId">The household group id.</param>
         /// <param name="userId">The user id.</param>
-        public async Task<UserHouseholdGroup> AddUserToHouseholdGroup
+        public Task<UserHouseholdGroup> AddUserToHouseholdGroup
             (Guid householdId,
             Guid householdGroupId,
             Guid userId);
