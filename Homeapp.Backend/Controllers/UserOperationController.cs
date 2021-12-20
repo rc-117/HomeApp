@@ -327,7 +327,7 @@
 
             var result = await this.userDataManager.AddUserToHouseholdGroup(householdGuid, householdGroupGuid, userGuid);
 
-            return Ok(result);
+            return Ok();
         }
 
         #region Private helper methods

@@ -336,7 +336,7 @@
             var householdGroup = 
                 this.appDbContext
                 .HouseholdGroups
-                .FirstOrDefault(h => h.Id == householdId);
+                .FirstOrDefault(h => h.Id == householdGroupId);
 
             var user = this.appDbContext
                 .Users
@@ -344,8 +344,10 @@
 
             var userHousholdGroup = new UserHouseholdGroup
             {
+                HouseholdGroupId= householdGroup.Id,
                 HouseholdGroup = householdGroup,
-                User = user
+                User = user,
+                UserId = user.Id
             };
 
             try
