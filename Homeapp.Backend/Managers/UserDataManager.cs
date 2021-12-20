@@ -322,6 +322,45 @@
             return users.Count() == 0 ? null : users;
         }
 
+        /// <summary>
+        /// Gets a specified user to a specified household group.
+        /// </summary>
+        /// <param name="householdId">The household id.</param>
+        /// <param name="householdGroupId">The household group id.</param>
+        /// <param name="userId">The user id.</param>
+        public async Task<UserHouseholdGroup> AddUserToHouseholdGroup
+            (Guid householdId, 
+            Guid householdGroupId,
+            Guid userId)
+        {
+            var householdGroup = 
+                this.appDbContext
+                .HouseholdGroups
+                .FirstOrDefault(h => h.Id == householdId);
+
+            var user = this.appDbContext
+                .Users
+                .FirstOrDefault(u => u.Id == userId);
+
+            var userHousholdGroup = new UserHouseholdGroup
+            {
+                HouseholdGroup = householdGroup,
+                User = user
+            };
+
+            try
+            {
+                this.appDbContext.UserHouseholdGroups.Add(userHousholdGroup);
+                await this.appDbContext.SaveChangesAsync();
+
+                return userHousholdGroup;
+            }
+            catch (Exception)
+            {
+                return null;                
+            }
+        }
+
         #region helper methods
         private JArray CreateHouseholdGroupJArrayResponse(List<HouseholdGroup> groups)
         {

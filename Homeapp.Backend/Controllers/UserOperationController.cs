@@ -202,6 +202,7 @@
         /// Gets all users and groups from within a household.
         /// </summary>
         /// <param name="householdId">The household id, passed in from the route.</param>
+        /// <param name="householdGroupId">The household group id, passed in from the route.</param>
         [HttpGet]
         [Route("api/Households/householdId/{householdId}/householdGroupId/{householdGroupId}/GetUsersAndGroups")]
         public IActionResult GetUsersAndGroupsFromHousehold(string householdId, string householdGroupId)
@@ -265,6 +266,68 @@
                 { "Groups", groupJArray },
                 { "Users", userJArray }
             }.ToString());
+        }
+
+        /// <summary>
+        /// Adds a specified user to a specified household group.
+        /// </summary>
+        /// <param name="householdId">The household id, passed in from the route.</param>
+        /// <param name="householdGroupId">The household group id, passed in from the route.</param>
+        /// <param name="userId">The id of the user to add to the household group.</param>
+        [HttpPut]
+        [Route("api/Households/householdId/{householdId}/householdGroupId/{householdGroupId}/userId/{userId}/AddUser")]
+        public async Task<IActionResult> AddUserToHouseholdGroup
+            (string householdId, 
+            string householdGroupId,
+            string userId)
+        {
+            var householdGuid = Guid.TryParse(householdId, out Guid guid) == true ? guid : Guid.Empty;
+            var householdGroupGuid = Guid.TryParse(householdGroupId, out Guid groupGuid) == true ? groupGuid : Guid.Empty;
+            var userGuid = Guid.TryParse(userId, out Guid userIdGuid) == true ? userIdGuid : Guid.Empty;
+
+            if (householdGuid == Guid.Empty)
+            {
+                return BadRequest("Invalid household Id.");
+            }
+            else if (householdGroupGuid == Guid.Empty)
+            {
+                return BadRequest("Invalid household group Id.");
+            }
+            else if (userGuid == Guid.Empty)
+            {
+                return BadRequest("Invalid user Id.");
+            }
+
+            if (!Validation.HouseholdExists(householdGuid, this.appDbContext))
+            {
+                return NotFound($"Houshold with id '{householdGuid}' was not found.");
+            }
+            else if (!Validation.HouseholdGroupExists(householdGroupGuid, this.appDbContext))
+            {
+                return NotFound($"Houshold group with id '{householdGroupGuid}' was not found.");
+            }
+            else if (!Validation.UserExists(userGuid, this.appDbContext))
+            {
+                return NotFound($"User with id '{userGuid}' was not found.");
+            }
+
+            if (!Validation.GroupIsInHousehold(householdGroupGuid, householdGuid, this.appDbContext))
+            {
+                return NotFound($"Group with id '{householdGroupGuid}' does not exist in household with id '{householdGuid}'");
+            }
+
+            if (!Validation.UserIsInHousehold(this.GetUserId(), householdGuid, this.appDbContext))
+            {
+                return Unauthorized($"Requesting user is unauthorized to make changes to household: '{householdGuid}'");
+            }
+            else if (!Validation.UserIsInHousehold(userGuid, householdGuid, this.appDbContext))
+            {
+                return Unauthorized($"User with id '{userGuid}' is not in in household: '{householdGuid}'. Request denied.");
+            }
+
+            var result = await this.userDataManager.AddUserToHouseholdGroup(householdGuid, householdGroupGuid, userGuid);
+
+            return Ok(result);
         }
 
         #region Private helper methods

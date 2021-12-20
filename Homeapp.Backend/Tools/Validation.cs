@@ -50,6 +50,42 @@
             return existingHousehold != null;
         }
 
+        public static bool HouseholdGroupExists(Guid groupId, AppDbContext appDbContext)
+        {
+            var existingHouseholdGroup = appDbContext.HouseholdGroups.FirstOrDefault(u => u.Id == groupId);
+
+            return existingHouseholdGroup != null;
+        }
+
+        public static bool GroupIsInHousehold(Guid groupId, Guid householdId, AppDbContext appDbContext)
+        {
+            var existingHouseholdGroup = 
+                appDbContext
+                .HouseholdGroups
+                .Where(h => h.Id == groupId)
+                .FirstOrDefault(h => h.HouseholdId == householdId);
+
+            return existingHouseholdGroup != null;
+        }
+
+        public static bool UserIsInHousehold(Guid userId, Guid householdId, AppDbContext appDbContext)
+        {
+            var existingUser =
+                appDbContext
+                .UserHouseholds
+                .Where(h => h.HouseholdId == householdId)
+                .FirstOrDefault(h => h.UserId == userId);
+
+            return existingUser != null;
+        }
+
+        public static bool UserExists(Guid userId, AppDbContext appDbContext)
+        {
+            var existingUserId = appDbContext.Users.FirstOrDefault(u => u.Id == userId);
+
+            return existingUserId != null;
+        }
+
         public static bool RequestedHouseholdPasswordIsValid
             (Guid householdId, 
             string passwordHash,
@@ -121,5 +157,7 @@
                 dateArray[1] < 0 || dateArray[1] > 31 ? false :
                 dateArray[2] < 0 ? false : true));
         }
+
+
     }
 }
