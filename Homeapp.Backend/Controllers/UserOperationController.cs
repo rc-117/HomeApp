@@ -204,19 +204,14 @@
         /// <param name="householdId">The household id, passed in from the route.</param>
         /// <param name="householdGroupId">The household group id, passed in from the route.</param>
         [HttpGet]
-        [Route("api/Households/householdId/{householdId}/householdGroupId/{householdGroupId}/GetUsersAndGroups")]
-        public IActionResult GetUsersAndGroupsFromHousehold(string householdId, string householdGroupId)
+        [Route("api/Households/householdId/{householdId}/GetUsersAndGroups")]
+        public IActionResult GetUsersAndGroupsFromHousehold(string householdId)
         {
             var householdGuid = Guid.TryParse(householdId, out Guid guid) == true ? guid : Guid.Empty;
-            var householdGroupGuid = Guid.TryParse(householdGroupId, out Guid groupGuid) == true ? groupGuid : Guid.Empty;
-
+            
             if (householdGuid == Guid.Empty)
             {
                 return BadRequest("Invalid household Id.");
-            }
-            else if (householdGroupGuid == Guid.Empty)
-            {
-                return BadRequest("Invalid household group Id.");
             }
 
             if (this.userDataManager.GetHouseholdWithId(householdGuid) == null)
@@ -224,7 +219,6 @@
                 return NotFound($"Household with id '{householdGuid}' was not found.");
             }//write code in the user data manager to check if household group exists
             
-
             var groups = this.userDataManager.GetGroupsFromHousehold(householdGuid);
 
             var userJArray = new JArray();
