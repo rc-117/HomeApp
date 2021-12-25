@@ -76,13 +76,33 @@
             }
         }
 
-        public static bool HouseholdGroupExists(Guid groupId, AppDbContext appDbContext)
+        /// <summary>
+        /// Validates that a group exists.
+        /// </summary>
+        /// <param name="groupId">The group id to look for.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void HouseholdGroupExists(Guid groupId, AppDbContext appDbContext)
         {
             var existingHouseholdGroup = appDbContext.HouseholdGroups.FirstOrDefault(u => u.Id == groupId);
 
-            return existingHouseholdGroup != null;
+            if (existingHouseholdGroup == null)
+            {
+                throw new HttpResponseException(
+                   new HttpResponseMessage(HttpStatusCode.NotFound)
+                   {
+                       Content = new StringContent($"Household group with id '{groupId}' was not found."),
+                       ReasonPhrase = HttpReasonPhrase
+                           .GetPhrase(ReasonPhrase.HouseholdGroupNotFound)
+                   });
+            }
         }
 
+        /// <summary>
+        /// Validates that a group is in a household.
+        /// </summary>
+        /// <param name="groupId">The group id to look for.</param>
+        /// <param name="householdId">The household id to look in.</param>
+        /// <param name="appDbContext">The application database context.</param>
         public static void GroupIsInHousehold(Guid groupId, Guid householdId, AppDbContext appDbContext)
         {
             var existingHouseholdGroup = 
