@@ -34,25 +34,60 @@
             } 
         }
 
-        public static bool StringIsBase64Compatible(string value, out byte[] bytes)
+        /// <summary>
+        /// Validates that a string can be converted into base 64 bytes.
+        /// </summary>
+        /// <param name="value">The string to check.</param>
+        /// <param name="errorMessage">The error message to use in the HttpResponse.</param>
+        /// <param name="bytes">The out result.</param>
+        public static void StringIsBase64Compatible(
+            string value,
+            string errorMessage,
+            out byte[] bytes)
         {
             try
             {
                 bytes = Convert.FromBase64String(value);
-                return true;
             }
             catch (Exception)
             {
                 bytes = null;
-                return false;
+
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        Content = new StringContent(errorMessage),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.InvalidRequest)
+                    });
             }
         }
 
-        public static bool EmailIsAlreadyInUse(string email, AppDbContext appDbContext)
+        /// <summary>
+        /// Checks if a specified email address is already in use.
+        /// </summary>
+        /// <param name="email">The email to look for.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        /// <param name="errorMessage">The error message to use in the HttpResponse.</param>
+        public static void EmailIsAlreadyInUse(
+            string email, 
+            AppDbContext appDbContext, 
+            string errorMessage,
+            HttpStatusCode statusCode,
+            ReasonPhrase reasonPhrase)
         {
             User userWithExistingEmail = appDbContext.Users.FirstOrDefault(u => u.EmailAddress == email);
 
-            return userWithExistingEmail != null;
+            if (userWithExistingEmail == null)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(statusCode)
+                    {
+                        Content = new StringContent(errorMessage),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(reasonPhrase)
+                    });
+            }
         }
 
         /// <summary>
@@ -154,6 +189,12 @@
             }
         }
 
+        /// <summary>
+        /// Checks whether or not a user id exists in the database.
+        /// </summary>
+        /// <param name="userId">The user id to check.</param>
+        /// <param name="appDbContext">The application database context object.</param>
+        /// <exception cref="HttpResponseException"></exception>
         public static void UserExists(Guid userId, AppDbContext appDbContext)
         {
             var existingUserId = appDbContext.Users.FirstOrDefault(u => u.Id == userId);
@@ -170,15 +211,30 @@
             } 
         }
 
-        public static bool RequestedHouseholdPasswordIsValid
+        /// <summary>
+        /// Validates that a household password is valid.
+        /// </summary>
+        /// <param name="householdId">The household id.</param>
+        /// <param name="passwordHash">The password hash to check.</param>
+        /// <param name="appDbContext">The application database context object.</param>
+        public static void RequestedHouseholdPasswordIsValid
             (Guid householdId, 
             string passwordHash,
             AppDbContext appDbContext)
         {
-            return appDbContext
+            if (appDbContext
                 .Households
                 .FirstOrDefault(h => h.Id == householdId)
-                .PasswordHash == passwordHash;
+                .PasswordHash != passwordHash)
+            {
+                throw new HttpResponseException(
+                   new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                   {
+                       Content = new StringContent($"Invalid household password."),
+                       ReasonPhrase = HttpReasonPhrase
+                           .GetPhrase(ReasonPhrase.InvalidHouseholdPassword)
+                   });
+            }
         }
 
         /// <summary>
@@ -186,60 +242,96 @@
         /// </summary>
         /// <param name="email">The given email address.</param>
         /// <param name="passwordHash">The given password hash.</param>
-        /// <param name="appDbContext">The app database context.</param>
-        /// <returns></returns>
-        public static bool UserEmailPasswordComboIsValid
+        /// <param name="appDbContext">The application database context object.</param>
+        public static void UserEmailPasswordComboIsValid
             (string email,
             string passwordHash,
             AppDbContext appDbContext)
         {
-            return appDbContext
+            if (appDbContext
                 .Users
                 .FirstOrDefault(u => u.EmailAddress == email)
-                .PasswordHash == passwordHash;
+                .PasswordHash != passwordHash)
+            {
+                throw new HttpResponseException(
+                   new HttpResponseMessage(HttpStatusCode.NotFound)
+                   {
+                       Content = new StringContent("Invalid user email or password."),
+                       ReasonPhrase = HttpReasonPhrase
+                           .GetPhrase(ReasonPhrase.InvalidUserCredentials)
+                   });
+            }             
         }
 
         /// <summary>
         /// Checks if an int array can be converted to a DateTimeObject.
         /// </summary>
         /// <param name="dateArray">The int array.</param>
-        public static bool IntArrayIsDateTimeConvertible(int[] dateArray)
+        public static void IntArrayIsDateTimeConvertible(int[] dateArray)
         {
-            if (DateIntArrayIsValid(dateArray))
+            var isValid = dateArray.Count() != 3 ? false :
+                (dateArray[0] < 0 || dateArray[0] > 12 ? false : (
+                dateArray[1] < 0 || dateArray[1] > 31 ? false :
+                dateArray[2] < 0 ? false : true));
+
+            if (isValid)
             {
                 try
                 {
-                    var dateTime = new DateTime(dateArray[2], dateArray[0], dateArray[1]);
-                    
-                    return true;
+                    var dateTime = new DateTime(dateArray[2], dateArray[0], dateArray[1]);                    
                 }
                 catch (Exception)
                 {
-                    return false;
+                    throw new HttpResponseException(
+                        new HttpResponseMessage(HttpStatusCode.BadRequest)
+                        {
+                            Content = new StringContent("An invalid date array was provided. Integer array must be in m/d/yyyy format."),
+                            ReasonPhrase = HttpReasonPhrase
+                                .GetPhrase(ReasonPhrase.InvalidDateArray)
+                        });
                 }
-            }
-            return false;
+            }            
         }
 
         /// <summary>
         /// Checks if a given birthday is valid.
         /// </summary>
         /// <param name="birthday">The birthday DateTime object.</param>
-        public static bool BirthdayIsValid(DateTime birthday)
+        public static void BirthdayIsValid(DateTime birthday)
         {
-            return birthday.Date < DateTime.Now.Date;            
+            if (birthday.Date > DateTime.Now.Date)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        Content = new StringContent("An invalid birthdate was provided. The DOB must be in the past."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.InvalidBirthday)
+                    });
+            } 
         }
 
         /// <summary>
         /// Checks if an int array has valid m/d/yyy values.
         /// </summary>
         /// <param name="dateArray">The int array.</param>
-        public static bool DateIntArrayIsValid(int[] dateArray)
+        public static void DateIntArrayIsValid(int[] dateArray)
         {
-            return dateArray.Count() != 3 ? false :
+            var isValid = dateArray.Count() != 3 ? false :
                 (dateArray[0] < 0 || dateArray[0] > 12 ? false : (
                 dateArray[1] < 0 || dateArray[1] > 31 ? false :
                 dateArray[2] < 0 ? false : true));
+
+            if (!isValid)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        Content = new StringContent("An invalid date array was provided. Integer array must be in m/d/yyyy format."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.InvalidDateArray)
+                    });
+            }
         }
 
         /// <summary>

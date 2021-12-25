@@ -15,6 +15,7 @@
     using System;
     using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
+    using System.Net;
     using System.Net.Http.Headers;
     using System.Security.Claims;
     using System.Text;
@@ -57,33 +58,30 @@
             }
 
             var authenticationHeaderValue = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-            var bytes = new byte[] { };
-            if (Validation.StringIsBase64Compatible
-                (authenticationHeaderValue.Parameter, 
-                out byte[] byteArray))
-            {
-                bytes = byteArray;
-            }
-            else
-            {
-                return BadRequest("Invalid request.");
-            }
+            
+            Validation.StringIsBase64Compatible(
+                authenticationHeaderValue.Parameter,
+                "The request is invalid and could not be processed",
+                out byte[] byteArray);
+
+            var bytes = byteArray;
 
             string[] credentials = Encoding.UTF8.GetString(bytes).Split(":");
             string email = credentials[0];
             string passwordHash = credentials[1];
 
-            if (!Validation.EmailIsAlreadyInUse(email, this.appDbContext))
-            {
-                return NotFound("Account not found.");
-            }
-
-            if (!Validation.UserEmailPasswordComboIsValid
-                (email, passwordHash, this.appDbContext))
-            {
-                return Unauthorized("Invalid username or password.");
-            }
-
+            Validation.EmailIsAlreadyInUse(
+                email: email, 
+                appDbContext: this.appDbContext,
+                errorMessage: $"User with email {email} was not found.",
+                statusCode: HttpStatusCode.NotFound,
+                reasonPhrase: ReasonPhrase.UserNotFound);
+            
+            Validation.UserEmailPasswordComboIsValid(
+                email: email, 
+                passwordHash: passwordHash, 
+                appDbContext: this.appDbContext);
+            
             var user = this.userDataManager.GetUserWithEmailAndPassword(email, passwordHash);
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -126,33 +124,25 @@
                     ("No households exist to register a user into. Please use method 'RegisterUserAndHousehold' to register both a new user and household.");
             }
 
-            if (Validation.EmailIsAlreadyInUse(request.EmailAddress, this.appDbContext))
-            {
-                return BadRequest($"Email '{request.EmailAddress}' is already in use.");
-            }
+            Validation.EmailIsAlreadyInUse(
+                email: request.EmailAddress,
+                appDbContext: this.appDbContext,
+                errorMessage: $"Email '{request.EmailAddress}' is already in use.",
+                statusCode: HttpStatusCode.BadRequest,
+                reasonPhrase: ReasonPhrase.EmailAlreadyInUse);
+            
+            Validation.HouseholdExists(
+                householdId: request.RequestedHouseholdId, 
+                appDbContext: this.appDbContext);
 
-            if (!Validation.HouseholdExists(request.RequestedHouseholdId, this.appDbContext))
-            {
-                return NotFound($"Household with id '{request.RequestedHouseholdId}' was not found.");
-            }
+            Validation.RequestedHouseholdPasswordIsValid(
+                householdId: request.RequestedHouseholdId,
+                passwordHash: request.RequestedHousholdPasswordHash,
+                appDbContext: this.appDbContext);
 
-            if (!Validation.RequestedHouseholdPasswordIsValid
-                (request.RequestedHouseholdId,
-                request.RequestedHousholdPasswordHash,
-                this.appDbContext))
-            {
-                return Unauthorized($"Invalid household password.");
-            }
+            Validation.DateIntArrayIsValid(request.Birthday);
 
-            if (!Validation.DateIntArrayIsValid(request.Birthday))
-            {
-                return BadRequest("Invalid date value. Integer array must be in m/d/yyyy format.");
-            }
-
-            if (!Validation.BirthdayIsValid(this.GetDateFromIntArray(request.Birthday)))
-            {
-                return BadRequest("Invalid birthday received.");
-            }
+            Validation.BirthdayIsValid(this.GetDateFromIntArray(request.Birthday));
 
             var result = await this.userDataManager.SaveUserToDb(request);
 
@@ -173,20 +163,16 @@
         [Route("api/Users/registerUserAndHousehold")]
         public async Task<IActionResult> RegisterUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
         {
-            if(Validation.EmailIsAlreadyInUse(request.UserRequest.EmailAddress, this.appDbContext))
-            {
-                return BadRequest($"Email '{request.UserRequest.EmailAddress}' is already in use.");
-            }
+            Validation.EmailIsAlreadyInUse(
+                email: request.UserRequest.EmailAddress,
+                appDbContext: this.appDbContext,
+                statusCode: HttpStatusCode.BadRequest,
+                errorMessage: $"Email '{request.UserRequest.EmailAddress}' is already in use.",
+                reasonPhrase: ReasonPhrase.EmailAlreadyInUse);
 
-            if (!Validation.DateIntArrayIsValid(request.UserRequest.Birthday))
-            {
-                return BadRequest("Invalid date value. Integer array must be in m/d/yyyy format.");
-            }
-
-            if (!Validation.BirthdayIsValid(this.GetDateFromIntArray(request.UserRequest.Birthday)))
-            {
-                return BadRequest("Invalid birthday received.");
-            }
+            Validation.DateIntArrayIsValid(request.UserRequest.Birthday);
+            Validation.BirthdayIsValid(this.GetDateFromIntArray(request.UserRequest.Birthday));
+            
 
             var result = await this.userDataManager.SaveUserAndHouseholdToDb(request);
 
@@ -207,17 +193,15 @@
         [Route("api/Households/householdId/{householdId}/GetUsersAndGroups")]
         public IActionResult GetUsersAndGroupsFromHousehold(string householdId)
         {
-            var householdGuid = Guid.TryParse(householdId, out Guid guid) == true ? guid : Guid.Empty;
+            Validation.GuidIsValid(householdId, "Invalid household id.");
             
-            if (householdGuid == Guid.Empty)
-            {
-                return BadRequest("Invalid household Id.");
-            }
-
-            if (this.userDataManager.GetHouseholdWithId(householdGuid) == null)
-            {
-                return NotFound($"Household with id '{householdGuid}' was not found.");
-            }//write code in the user data manager to check if household group exists
+            var householdGuid = Guid.Parse(householdId);
+            
+            Validation.HouseholdExists(
+                householdId: householdGuid,
+                appDbContext: this.appDbContext);
+            
+            //write code in the user data manager to check if household group exists
             
             var groups = this.userDataManager.GetGroupsFromHousehold(householdGuid);
 
@@ -275,17 +259,34 @@
             string householdGroupId,
             string userId)
         {
-            Validation.GuidIsValid(householdId, "Invalid household id.");
-            Validation.GuidIsValid(householdGroupId, "Invalid household group id.");
-            Validation.GuidIsValid(userId, "Invalid user id.");
+            Validation.GuidIsValid(
+                guid: householdId, 
+                errorMessage: "Invalid household id.");
+
+            Validation.GuidIsValid(
+                guid: householdGroupId, 
+                errorMessage: "Invalid household group id.");
+
+            Validation.GuidIsValid(
+                guid: userId, 
+                errorMessage: "Invalid user id.");
 
             var householdGuid = Guid.Parse(householdId);
             var householdGroupGuid = Guid.Parse(householdGroupId);
             var userGuid = Guid.Parse(userId);
 
-            Validation.HouseholdExists(householdGuid, this.appDbContext);
-            Validation.HouseholdGroupExists(householdGroupGuid, this.appDbContext);
-            Validation.UserExists(userGuid, this.appDbContext);
+            Validation.HouseholdExists(
+                householdId: householdGuid,
+                appDbContext: this.appDbContext);
+
+            Validation.HouseholdGroupExists(
+                groupId: householdGroupGuid, 
+                appDbContext: this.appDbContext);
+
+            Validation.UserExists(
+                userId: userGuid,
+                appDbContext: this.appDbContext);
+
             Validation.GroupIsInHousehold(householdGroupGuid, householdGuid, this.appDbContext);
             Validation.UserIsInHousehold(
                 this.GetUserId(), 
