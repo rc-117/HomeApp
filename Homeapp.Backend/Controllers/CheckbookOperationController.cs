@@ -57,11 +57,9 @@
             {
                 return NotFound($"Account with Id '{accountId}' was not found");
             }
-            else if (!Validation.AccountBelongsToUser(this.GetUserId(), account))
-            {
-                return Unauthorized($"User unauthorized to view the specified account.");
-            }
-              
+            Validation.AccountBelongsToUser(this.GetUserId(), account);
+
+
             var responseBody = new JObject()
             {
                 { "AccountId", account.Id },

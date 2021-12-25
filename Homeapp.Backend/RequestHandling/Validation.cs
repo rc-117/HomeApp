@@ -5,6 +5,9 @@
     using Homeapp.Backend.Identity;
     using System;
     using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Web.Http;
 
     /// <summary>
     /// The validation class for the application.
@@ -17,9 +20,18 @@
         /// <param name="userId">The logged in user's id.</param>
         /// <param name="account">The account to check.</param>
         /// <returns></returns>
-        public static bool AccountBelongsToUser(Guid userId, Account account)
+        public static void AccountBelongsToUser(Guid userId, Account account)
         {
-            return userId == account.UserId;
+            if (userId != account.UserId)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                    {
+                        Content = new StringContent("User unauthorized to access account."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.UserUnauthorized)
+                    }); ;
+            } 
         }
 
         public static bool StringIsBase64Compatible(string value, out byte[] bytes)
@@ -43,11 +55,25 @@
             return userWithExistingEmail != null;
         }
 
-        public static bool HouseholdExists(Guid householdId, AppDbContext appDbContext)
+        /// <summary>
+        /// Checks if a specified household exists in the database.
+        /// </summary>
+        /// <param name="householdId">The household id to look for.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void HouseholdExists(Guid householdId, AppDbContext appDbContext)
         {
             var existingHousehold = appDbContext.Households.FirstOrDefault(h => h.Id == householdId);
-
-            return existingHousehold != null;
+            
+            if (existingHousehold == null)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent($"Houshold with id '{householdId}' was not found."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.HouseholdNotFound)
+                    });
+            }
         }
 
         public static bool HouseholdGroupExists(Guid groupId, AppDbContext appDbContext)
@@ -57,7 +83,7 @@
             return existingHouseholdGroup != null;
         }
 
-        public static bool GroupIsInHousehold(Guid groupId, Guid householdId, AppDbContext appDbContext)
+        public static void GroupIsInHousehold(Guid groupId, Guid householdId, AppDbContext appDbContext)
         {
             var existingHouseholdGroup = 
                 appDbContext
@@ -65,10 +91,30 @@
                 .Where(h => h.Id == groupId)
                 .FirstOrDefault(h => h.HouseholdId == householdId);
 
-            return existingHouseholdGroup != null;
+            if (existingHouseholdGroup == null)
+            {
+                throw new HttpResponseException(
+                   new HttpResponseMessage(HttpStatusCode.NotFound)
+                   {
+                       Content = new StringContent($"Group with id '{groupId}' does not exist in household with id '{householdId}'"),
+                       ReasonPhrase = HttpReasonPhrase
+                           .GetPhrase(ReasonPhrase.HouseholdGroupNotFound)
+                   });
+            }
         }
 
-        public static bool UserIsInHousehold(Guid userId, Guid householdId, AppDbContext appDbContext)
+        /// <summary>
+        /// Validates that a user is in a household.
+        /// </summary>
+        /// <param name="userId">The user id to check.</param>
+        /// <param name="householdId">The household id to look in.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        /// <param name="errorMessage">The error message to use in the HTTP response message in the event of an error.</param>
+        public static void UserIsInHousehold(
+            Guid userId, 
+            Guid householdId, 
+            AppDbContext appDbContext, 
+            string errorMessage)
         {
             var existingUser =
                 appDbContext
@@ -76,14 +122,32 @@
                 .Where(h => h.HouseholdId == householdId)
                 .FirstOrDefault(h => h.UserId == userId);
 
-            return existingUser != null;
+            if (existingUser == null)
+            {
+                throw new HttpResponseException(
+                   new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                   {
+                       Content = new StringContent(errorMessage),
+                       ReasonPhrase = HttpReasonPhrase
+                           .GetPhrase(ReasonPhrase.UserUnauthorized)
+                   });
+            }
         }
 
-        public static bool UserExists(Guid userId, AppDbContext appDbContext)
+        public static void UserExists(Guid userId, AppDbContext appDbContext)
         {
             var existingUserId = appDbContext.Users.FirstOrDefault(u => u.Id == userId);
 
-            return existingUserId != null;
+            if (existingUserId == null)
+            {
+                throw new HttpResponseException(
+                   new HttpResponseMessage(HttpStatusCode.NotFound)
+                   {
+                       Content = new StringContent($"User with id '{userId}' was not found."),
+                       ReasonPhrase = HttpReasonPhrase
+                           .GetPhrase(ReasonPhrase.UserNotFound)
+                   });
+            } 
         }
 
         public static bool RequestedHouseholdPasswordIsValid
@@ -158,6 +222,23 @@
                 dateArray[2] < 0 ? false : true));
         }
 
-
+        /// <summary>
+        /// Checks if a string can be converted to a GUID.
+        /// </summary>
+        /// <param name="guid">The string to check.</param>
+        /// <param name="errorMessage">The error message to use in the response body.</param>
+        public static void GuidIsValid(string guid, string errorMessage)
+        {
+            if (!Guid.TryParse(guid, out Guid result))
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        Content = new StringContent(errorMessage),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.InvalidGuid)
+                    });
+            }            
+        }
     }
 }
