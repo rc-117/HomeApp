@@ -1,6 +1,7 @@
 using Homeapp.Backend.Db;
 using Homeapp.Backend.Identity;
 using Homeapp.Backend.Managers;
+using Homeapp.Backend.RequestHandling;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,8 @@ namespace Homeapp.Backend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<ExceptionHandlingMiddleware>();
+
             var authorizationPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
                 .Build();
@@ -87,6 +90,8 @@ namespace Homeapp.Backend
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseAuthentication();
 

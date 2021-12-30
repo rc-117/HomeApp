@@ -78,7 +78,7 @@
         {
             User userWithExistingEmail = appDbContext.Users.FirstOrDefault(u => u.EmailAddress == email);
 
-            if (userWithExistingEmail == null)
+            if (userWithExistingEmail != null)
             {
                 throw new HttpResponseException(
                     new HttpResponseMessage(statusCode)
