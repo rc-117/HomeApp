@@ -44,21 +44,19 @@
         [Route("/api/Checkbook/Accounts/accountId/{accountId}/Get")]
         public IActionResult GetAccount(string accountId)
         {
-            var accountGuid = Guid.TryParse(accountId, out Guid guid) == true ? guid : Guid.Empty;
+            Validation.GuidIsValid(guid: accountId, errorMessage: "Invalid account Id.");
 
-            if (accountGuid == Guid.Empty)
-            {
-                return BadRequest("Invalid account Id.");
-            }
+            var accountGuid = Guid.Parse(accountId);
+
+            Validation.CheckbookAccountExists(
+                Id: accountGuid,
+                accountManager: this.accountManager);
 
             var account = this.accountManager.GetAccountById(accountGuid);
 
-            if (account == null)
-            {
-                return NotFound($"Account with Id '{accountId}' was not found");
-            }
-            Validation.AccountBelongsToUser(this.GetUserId(), account);
-
+            Validation.AccountBelongsToUser(
+                userId: this.GetUserId(),
+                account: account);
 
             var responseBody = new JObject()
             {
@@ -67,10 +65,10 @@
                 { "AccountType", Enum.GetName(typeof(AccountType), account.AccountType) },
                 { "AccountBalance", this.accountManager.CalculateAccountBalance(account) },
                 { "AccountOwner", new JObject() {
-                        { "UserId", account.UserId },
-                        { "UserEmail", account.User.EmailAddress },
-                        { "UserFirstName", account.User.FirstName },
-                        { "UserLastName", account.User.LastName }
+                        { "Id", account.UserId },
+                        { "Email", account.User.EmailAddress },
+                        { "FirstName", account.User.FirstName },
+                        { "LastName", account.User.LastName }
                     }
                 },
                 { 
@@ -91,12 +89,11 @@
             string userId,
             [FromBody] CreateAccountRequest accountRequest)
         {
-            var userIdGuid = Guid.TryParse(userId, out Guid guid) == true ? guid : Guid.Empty;
+            Validation.GuidIsValid(
+                guid: userId,
+                errorMessage: "Invalid user id received.");
 
-            if (userIdGuid == Guid.Empty)
-            {
-                return BadRequest("Invalid user Id.");
-            }
+            var userIdGuid = Guid.Parse(userId);
 
             if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
             {

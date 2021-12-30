@@ -58,6 +58,11 @@
         /// <summary>
         /// The provided birthday in invalid.
         /// </summary>
-        InvalidBirthday
+        InvalidBirthday,
+
+        /// <summary>
+        /// The Checkbook account could not be found.
+        /// </summary>
+        CheckbookAccountNotFound
     }
 }

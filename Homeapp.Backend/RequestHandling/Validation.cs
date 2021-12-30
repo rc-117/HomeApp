@@ -3,6 +3,7 @@
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
+    using Homeapp.Backend.Managers;
     using System;
     using System.Linq;
     using System.Net;
@@ -66,10 +67,15 @@
         /// <summary>
         /// Checks if a specified email address is already in use.
         /// </summary>
+        /// <param name="checkIfExists">Set to 'true' to throw an exception if the email exists. 
+        /// Set to 'false' to throw an exception if the email does not exist.</param>
         /// <param name="email">The email to look for.</param>
         /// <param name="appDbContext">The application database context.</param>
         /// <param name="errorMessage">The error message to use in the HttpResponse.</param>
+        /// <param name="statusCode">The status code to provide in the response.</param>
+        /// <param name="reasonPhrase">The reason phrase to provide in the response.</param>
         public static void EmailIsAlreadyInUse(
+            bool checkIfExists,
             string email, 
             AppDbContext appDbContext, 
             string errorMessage,
@@ -78,16 +84,34 @@
         {
             User userWithExistingEmail = appDbContext.Users.FirstOrDefault(u => u.EmailAddress == email);
 
-            if (userWithExistingEmail != null)
+            if (checkIfExists)
             {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(statusCode)
-                    {
-                        Content = new StringContent(errorMessage),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(reasonPhrase)
-                    });
+                if (userWithExistingEmail != null)
+                {
+                    throw new HttpResponseException(
+                        new HttpResponseMessage(statusCode)
+                        {
+                            Content = new StringContent(errorMessage),
+                            ReasonPhrase = HttpReasonPhrase
+                                .GetPhrase(reasonPhrase)
+                        });
+                }
             }
+            else
+            {
+                if (userWithExistingEmail == null)
+                {
+                    throw new HttpResponseException(
+                        new HttpResponseMessage(statusCode)
+                        {
+                            Content = new StringContent(errorMessage),
+                            ReasonPhrase = HttpReasonPhrase
+                                .GetPhrase(reasonPhrase)
+                        });
+                }
+            }
+
+
         }
 
         /// <summary>
@@ -351,6 +375,26 @@
                             .GetPhrase(ReasonPhrase.InvalidGuid)
                     });
             }            
+        }
+
+        /// <summary>
+        /// Validates that a specified checkbook account exists in the database.
+        /// </summary>
+        /// <param name="Id">The Id of the checkbook.</param>
+        /// <param name="accountManager">The account data manager.</param>
+        public static void CheckbookAccountExists(Guid Id, IAccountDataManager accountManager)
+        {
+            var account = accountManager.GetAccountById(Id);
+            if (account == null)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent($"Checkbook account with id '{Id}' was not found."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.CheckbookAccountNotFound)
+                    });
+            }
         }
     }
 }

@@ -5,7 +5,7 @@
     using System;
 
     /// <summary>
-    /// An object containing properties to create an account.
+    /// An object containing properties to create a checkbook account.
     /// </summary>
     public class CreateAccountRequest
     {

@@ -71,6 +71,7 @@
             string passwordHash = credentials[1];
 
             Validation.EmailIsAlreadyInUse(
+                checkIfExists: false,
                 email: email, 
                 appDbContext: this.appDbContext,
                 errorMessage: $"User with email {email} was not found.",
@@ -125,6 +126,7 @@
             }
 
             Validation.EmailIsAlreadyInUse(
+                checkIfExists: true,
                 email: request.EmailAddress,
                 appDbContext: this.appDbContext,
                 errorMessage: $"Email '{request.EmailAddress}' is already in use.",
@@ -164,6 +166,7 @@
         public async Task<IActionResult> RegisterUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
         {
             Validation.EmailIsAlreadyInUse(
+                checkIfExists: true,
                 email: request.UserRequest.EmailAddress,
                 appDbContext: this.appDbContext,
                 statusCode: HttpStatusCode.BadRequest,
