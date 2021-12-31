@@ -42,6 +42,7 @@
         /// <summary>
         /// The owning user's id.
         /// </summary>
+        [JsonProperty]
         public Guid UserId { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿namespace Homeapp.Backend.Controllers
 {
+    using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Managers;
@@ -25,16 +26,19 @@
     {
         private IAccountDataManager accountManager;
         private IUserDataManager userDataManager;
+        private AppDbContext appDbContext;
 
         /// <summary>
         /// Initializes CheckbookOperationController.
         /// </summary>
         public CheckbookOperationController(
             IAccountDataManager accountManager,
-            IUserDataManager userDataManager)
+            IUserDataManager userDataManager,
+            AppDbContext appDbContext)
         {
             this.accountManager = accountManager;
             this.userDataManager = userDataManager;
+            this.appDbContext = appDbContext;
         }
 
         /// <summary>
@@ -95,10 +99,9 @@
 
             var userIdGuid = Guid.Parse(userId);
 
-            if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
-            {
-                return NotFound($"User '{userIdGuid}' not found.");
-            }
+            Validation.UserExists(
+                userId: userIdGuid,
+                appDbContext: this.appDbContext);
 
             var user = this.userDataManager.GetUserFromUserId(userIdGuid);
             var createdAccount = await this.accountManager.CreateAccount(user, accountRequest);
@@ -121,18 +124,16 @@
         [Route("/api/Checkbook/Accounts/user/{userId}/GetAll")]
         public IActionResult GetAllAccountsFromUser(string userId)
         {
-            var userIdGuid = Guid.TryParse(userId, out Guid guid) == true ? guid : Guid.Empty;
+            Validation.GuidIsValid(
+                guid: userId,
+                errorMessage: "Invalid user id received.");
 
-            if (userIdGuid == Guid.Empty)
-            {
-                return BadRequest("Invalid user Id.");
-            }            
+            var userIdGuid = Guid.Parse(userId);
 
-            if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
-            {
-                return NotFound($"User '{userIdGuid}' not found.");
-            }
-
+            Validation.UserExists(
+                userId: userIdGuid, 
+                appDbContext: this.appDbContext);
+            
             var accounts = new Account[]{ };
 
             try
@@ -141,7 +142,7 @@
             }
             catch (Exception)
             {
-                return StatusCode(500, "Failed to retrieve accounts from database.");
+                return StatusCode(500, "Failed to retrieve checkbook accounts from database. Please try the request again.");
             }
 
             var accountJArray = new JArray();
