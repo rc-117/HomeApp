@@ -38,7 +38,6 @@
         [JsonProperty]
         public User User { get; set; }
 
-
         /// <summary>
         /// The owning user's id.
         /// </summary>
