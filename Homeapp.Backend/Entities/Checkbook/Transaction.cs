@@ -86,5 +86,11 @@
         /// </summary>
         [JsonProperty]
         public bool IsCleared { get; set; }
+
+        /// <summary>
+        /// Object containing a list of entities that have access to this resource.
+        /// </summary>
+        [JsonProperty]
+        public SharedEntities SharedEntities { get; set; }
     }
 }

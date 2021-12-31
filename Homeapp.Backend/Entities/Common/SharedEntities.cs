@@ -1,8 +1,9 @@
-﻿using Homeapp.Backend.Identity;
-using System.Collections.Generic;
-
-namespace Homeapp.Backend.Entities
+﻿namespace Homeapp.Backend.Entities
 {
+    using Homeapp.Backend.Identity;
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Object containing a list of entities that have access to a resource.
     /// </summary>
@@ -14,19 +15,34 @@ namespace Homeapp.Backend.Entities
         public int Id { get; set; }
 
         /// <summary>
-        /// The list of households that the resource will give access to.
+        /// The list of households ids that the resource will give read access to.
         /// </summary>
-        public List<Household> Households { get; set; }
+        public List<Guid> ReadHouseholdIds { get; set; }
 
         /// <summary>
-        /// The list of household groups that the resource will give access to.
+        /// The list of household group ids that the resource will give read access to.
         /// </summary>
-        public List<HouseholdGroup> HouseholdGroups { get; set; }
+        public List<Guid> ReadHouseholdGroupIds { get; set; }
 
         /// <summary>
-        /// The list of users that the resource will give access to.
+        /// The list of user ids that the resource will give read access to.
         /// </summary>
-        public List<User> Users { get; set; }
+        public List<Guid> ReadUserIds { get; set; }
+
+        /// <summary>
+        /// The list of households ids that the resource will give read and edit access to.
+        /// </summary>
+        public List<Guid> EditHouseholdIds { get; set; }
+
+        /// <summary>
+        /// The list of household group ids that the resource will give read and edit access to.
+        /// </summary>
+        public List<Guid> EditHouseholdGroupIds { get; set; }
+
+        /// <summary>
+        /// The list of user ids that the resource will give read and edit access to.
+        /// </summary>
+        public List<Guid> EditUserIds { get; set; }
     }
 }
 
