@@ -1,12 +1,12 @@
 ﻿namespace Homeapp.Backend.Entities
 {
     using Homeapp.Backend.Identity;
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
     /// Object containing a list of entities that have access to a resource.
     /// </summary>
+    /// <remarks>Lists are seperated with semi colon ;</remarks>
     public class SharedEntities
     {
         /// <summary>
@@ -17,37 +17,31 @@
         /// <summary>
         /// The list of households ids that the resource will give read access to.
         /// </summary>
-        public List<Guid> ReadHouseholdIds { get; set; }
+        public string ReadHouseholdIds { get; set; }
 
         /// <summary>
         /// The list of household group ids that the resource will give read access to.
         /// </summary>
-        public List<Guid> ReadHouseholdGroupIds { get; set; }
+        public string ReadHouseholdGroupIds { get; set; }
 
         /// <summary>
         /// The list of user ids that the resource will give read access to.
         /// </summary>
-        public List<Guid> ReadUserIds { get; set; }
+        public string ReadUserIds { get; set; }
 
         /// <summary>
         /// The list of households ids that the resource will give read and edit access to.
         /// </summary>
-        public List<Guid> EditHouseholdIds { get; set; }
+        public string EditHouseholdIds { get; set; }
 
         /// <summary>
         /// The list of household group ids that the resource will give read and edit access to.
         /// </summary>
-        public List<Guid> EditHouseholdGroupIds { get; set; }
+        public string EditHouseholdGroupIds { get; set; }
 
         /// <summary>
         /// The list of user ids that the resource will give read and edit access to.
         /// </summary>
-        public List<Guid> EditUserIds { get; set; }
+        public string EditUserIds { get; set; }
     }
 }
-
-// Relationship will be:
-// Any resource (checbkook account, recurring expense, etc) will have a 'SharedEntities' property
-// - SharedEntitiesId
-// - SharedEntities
-// The above is for EF core

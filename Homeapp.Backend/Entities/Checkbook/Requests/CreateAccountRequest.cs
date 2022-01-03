@@ -1,5 +1,6 @@
 ﻿namespace Homeapp.Backend.Entities
 {
+    using Homeapp.Backend.Entities.Common.Requests;
     using Homeapp.Backend.Identity;
     using Newtonsoft.Json;
     using System;
@@ -26,5 +27,11 @@
         /// </summary>
         [JsonProperty]
         public double StartingBalance { get; set; }
+
+        /// <summary>
+        /// Contains permission metadata for the account.
+        /// </summary>
+        [JsonProperty]
+        public SharedEntitiesRequest SharedEntitiesRequest { get; set; }
     }
 }

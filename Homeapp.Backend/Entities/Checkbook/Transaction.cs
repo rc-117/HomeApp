@@ -88,6 +88,12 @@
         public bool IsCleared { get; set; }
 
         /// <summary>
+        /// The unique id of the SharedIdentities object.
+        /// </summary>
+        [JsonProperty]
+        public int SharedEntitiesId { get; set; }
+
+        /// <summary>
         /// Object containing a list of entities that have access to this resource.
         /// </summary>
         [JsonProperty]

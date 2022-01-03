@@ -26,18 +26,25 @@
     {
         private IAccountDataManager accountManager;
         private IUserDataManager userDataManager;
+        private ISharedEntityDataManager sharedEntityDataManager;
         private AppDbContext appDbContext;
 
         /// <summary>
         /// Initializes CheckbookOperationController.
         /// </summary>
+        /// <param name="accountManager">The account data manager.</param>
+        /// <param name="userDataManager">The user data manager.</param>
+        /// <param name="sharedEntityDataManager">The shared entity data manager.</param>
+        /// <param name="appDbContext">The application database context.</param>
         public CheckbookOperationController(
             IAccountDataManager accountManager,
             IUserDataManager userDataManager,
+            ISharedEntityDataManager sharedEntityDataManager,
             AppDbContext appDbContext)
         {
             this.accountManager = accountManager;
             this.userDataManager = userDataManager;
+            this.sharedEntityDataManager = sharedEntityDataManager;
             this.appDbContext = appDbContext;
         }
 
@@ -89,7 +96,7 @@
         /// </summary>
         [HttpPut]
         [Route("/api/Checkbook/Accounts/user/{userId}/Create")]
-        public async Task<IActionResult> CreateAccountForUser(
+        public async Task<IActionResult> CreateChecbookAccountForUser(
             string userId,
             [FromBody] CreateAccountRequest accountRequest)
         {
@@ -104,16 +111,30 @@
                 appDbContext: this.appDbContext);
 
             var user = this.userDataManager.GetUserFromUserId(userIdGuid);
-            var createdAccount = await this.accountManager.CreateAccount(user, accountRequest);
+
+            var sharedEntities =
+                await this.sharedEntityDataManager.CreateNewSharedEntitiesRecord(
+                    request: accountRequest.SharedEntitiesRequest);
+
+            var createdAccount = await this.accountManager.CreateAccount(
+                user: user, 
+                request: accountRequest,
+                sharedEntities: sharedEntities);
             
-            return createdAccount == null ? 
-                StatusCode(500, "Error saving account to database.") : 
-                Ok(new JObject()
+            return Ok(new JObject()
                     {
                         { "Id", createdAccount.Id },
                         { "Name", createdAccount.Name },
                         { "AccountType", ((int)createdAccount.AccountType) },
-                        { "UserId", createdAccount.UserId },                      
+                        { "UserId", createdAccount.UserId },
+                        { "AllowedUsers", new JObject(){
+                            { "ReadHouseholds", createdAccount.SharedEntities.ReadHouseholdIds },
+                            { "ReadHouseholdGroups", createdAccount.SharedEntities.ReadHouseholdGroupIds },
+                            { "ReadUsers", createdAccount.SharedEntities.ReadUserIds },
+                            { "EditHouseholds", createdAccount.SharedEntities.EditHouseholdIds },
+                            { "EditHouseholdGroups", createdAccount.SharedEntities.EditHouseholdGroupIds },
+                            { "EditUsers", createdAccount.SharedEntities.EditUserIds },
+                        }}
                     }.ToString());
         }
 
@@ -122,7 +143,7 @@
         /// </summary>
         [HttpGet]
         [Route("/api/Checkbook/Accounts/user/{userId}/GetAll")]
-        public IActionResult GetAllAccountsFromUser(string userId)
+        public IActionResult GetAllChecbookAccountsFromUser(string userId)
         {
             Validation.GuidIsValid(
                 guid: userId,

@@ -63,6 +63,11 @@
         /// <summary>
         /// The Checkbook account could not be found.
         /// </summary>
-        CheckbookAccountNotFound
+        CheckbookAccountNotFound,
+
+        /// <summary>
+        /// There was an error saving an entity/entities to the database.
+        /// </summary>
+        ErrorSavingToDatabase
     }
 }

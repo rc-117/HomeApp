@@ -46,9 +46,11 @@ namespace Homeapp.Backend.Managers
         /// <summary>
         /// Creates an account for a user.
         /// </summary>
-        /// <param name="userId">The user's id.</param>
+        /// <param name="user">The user.</param>
         /// <param name="request">The user's account request.</param>
-        public Task<Account> CreateAccount(User user, CreateAccountRequest request);
+        /// <param name="sharedEntities"></param>
+        /// <param name="sharedEntities">The object containing the allowed entities for this account.</param>
+        public Task<Account> CreateAccount(User user, CreateAccountRequest request, SharedEntities sharedEntities);
 
     }
 }

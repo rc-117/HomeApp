@@ -3,11 +3,15 @@
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
+    using Homeapp.Backend.Tools;
     using Homeapp.Test;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Linq;
+    using System.Net;
+    using System.Net.Http;
     using System.Threading.Tasks;
+    using System.Web.Http;
 
     /// <summary>
     /// The Account Manager.
@@ -155,9 +159,13 @@
         /// <summary>
         /// Creates an account for a user.
         /// </summary>
-        /// <param name="userId">The user's id.</param>
+        /// <param name="user">The user.</param>
         /// <param name="request">The user's account request.</param>
-        public async Task<Account> CreateAccount(User user, CreateAccountRequest request)
+        /// <param name="sharedEntities">The object containing the allowed entities for this account.</param>
+        public async Task<Account> CreateAccount(
+            User user, 
+            CreateAccountRequest request, 
+            SharedEntities sharedEntities)
         {
             var account = new Account
             {
@@ -168,6 +176,8 @@
                 User = user
             };
 
+            account.SharedEntities = sharedEntities;
+
             appDbContext.Accounts.Add(account);
 
             try
@@ -176,7 +186,13 @@
             }
             catch (Exception)
             {
-                account = null;                
+                throw new HttpResponseException(
+                   new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                   {
+                       Content = new StringContent("There was an error when saving the account to database."),
+                       ReasonPhrase = HttpReasonPhrase
+                           .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                   });
             }
 
             return account;

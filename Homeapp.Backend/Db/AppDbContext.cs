@@ -23,5 +23,8 @@
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<IncomeCategory> IncomeCategories { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+
+        //Common
+        public DbSet<SharedEntities> SharedEntities { get; set; }
     }
 }
