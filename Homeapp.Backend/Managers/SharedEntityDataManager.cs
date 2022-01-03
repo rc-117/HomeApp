@@ -16,7 +16,7 @@ namespace Homeapp.Backend.Managers
     /// <summary>
     /// The shared entity data manager.
     /// </summary>
-    public class SharedEntityDataManager
+    public class SharedEntityDataManager : ISharedEntityDataManager
     {
         private AppDbContext appDbContext;
 
@@ -37,12 +37,12 @@ namespace Homeapp.Backend.Managers
         {
             var sharedEntities =  new SharedEntities
             {
-                ReadHouseholdIds = this.ConvertGuidArrayToString(request.ReadHouseholdIds),
-                ReadHouseholdGroupIds = this.ConvertGuidArrayToString(request.ReadHouseholdGroupIds),
-                ReadUserIds = this.ConvertGuidArrayToString(request.ReadUserIds),
-                EditHouseholdIds = this.ConvertGuidArrayToString(request.EditHouseholdIds),
-                EditHouseholdGroupIds = this.ConvertGuidArrayToString(request.EditHouseholdGroupIds),
-                EditUserIds = this.ConvertGuidArrayToString(request.EditUserIds)
+                ReadHouseholdIds = this.ConvertStringArrayToString(request.ReadHouseholdIds),
+                ReadHouseholdGroupIds = this.ConvertStringArrayToString(request.ReadHouseholdGroupIds),
+                ReadUserIds = this.ConvertStringArrayToString(request.ReadUserIds),
+                EditHouseholdIds = this.ConvertStringArrayToString(request.EditHouseholdIds),
+                EditHouseholdGroupIds = this.ConvertStringArrayToString(request.EditHouseholdGroupIds),
+                EditUserIds = this.ConvertStringArrayToString(request.EditUserIds)
             };
 
             appDbContext.SharedEntities.Add(sharedEntities);
@@ -54,9 +54,9 @@ namespace Homeapp.Backend.Managers
             catch (Exception)
             {
                 throw new HttpResponseException(
-                   new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                   new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
                    {
-                       Content = new StringContent("There was an error when saving the shared entities record to the database."),
+                       Content = new StringContent("There was an error when saving the shared entities record to the database. Please try again."),
                        ReasonPhrase = HttpReasonPhrase
                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
                    });
@@ -87,6 +87,38 @@ namespace Homeapp.Backend.Managers
         /// </summary>
         /// <param name="guidList">The list of guids to convert.</param>
         private string ConvertGuidListToString(List<Guid> guidList)
+        {
+            var stringList = "";
+
+            foreach (var guid in guidList)
+            {
+                stringList += guid.ToString() + ";";
+            }
+
+            return stringList;
+        }
+
+        /// <summary>
+        /// Converts an array of strings into an array of guids.
+        /// </summary>
+        /// <param name="guidList">The string array of guids to convert.</param>
+        private Guid[] ConvertStringArrayToGuidArray(string[] guidList)
+        {
+            var stringList = new List<Guid>();
+
+            foreach (var guid in guidList)
+            {
+                stringList.Add(Guid.Parse(guid));
+            }
+
+            return stringList.ToArray();
+        }
+
+        /// <summary>
+        /// Converts an array of guid strings into a single semi colon separated string.
+        /// </summary>
+        /// <param name="guidList">The string array of guids to convert.</param>
+        private string ConvertStringArrayToString(string[] guidList)
         {
             var stringList = "";
 

@@ -2,9 +2,11 @@
 {
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
+    using Homeapp.Backend.Entities.Common.Requests;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Managers;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
@@ -396,5 +398,226 @@
                     });
             }
         }
+
+        /// <summary>
+        /// Validates that an array of strings contains valid guid values.
+        /// </summary>
+        /// <param name="array">The array to check.</param>
+        public static void StringArrayContainsValidGuids(string[] array)
+        {
+            if (array.Length == 0)
+            {
+                return;
+            }
+
+            var invalidGuid = "";
+            var exception = new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        Content = new StringContent($"Invalid id received: '{invalidGuid}'"),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.InvalidGuid)
+                    });
+
+            foreach (var guid in array)
+            {   
+                if (!Guid.TryParse(guid, out Guid result))
+                {
+                    invalidGuid = guid;
+                    throw exception;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Confirms that a SharedEntities request contains valid values.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void SharedEntitiesRequestIsValid(SharedEntitiesRequest request, AppDbContext appDbContext)
+        {
+            Validation.StringArrayContainsValidGuids(request.ReadHouseholdIds);
+            Validation.StringArrayContainsValidGuids(request.ReadHouseholdGroupIds);
+            Validation.StringArrayContainsValidGuids(request.ReadUserIds);
+            Validation.StringArrayContainsValidGuids(request.EditHouseholdIds);
+            Validation.StringArrayContainsValidGuids(request.EditHouseholdGroupIds);
+            Validation.StringArrayContainsValidGuids(request.EditUserIds);
+
+            Validation.HouseholdIdArrayContainsExistingIds(
+                ids: Validation.ConvertStringArrayToGuidArray(request.ReadHouseholdIds),
+                appDbContext: appDbContext);
+
+            Validation.HouseholdGroupIdArrayContainsExistingIds(
+                ids: Validation.ConvertStringArrayToGuidArray(request.ReadHouseholdGroupIds),
+                appDbContext: appDbContext);
+
+            Validation.UserIdArrayContainsExistingIds(
+                ids: Validation.ConvertStringArrayToGuidArray(request.ReadUserIds),
+                appDbContext: appDbContext);
+
+            Validation.HouseholdIdArrayContainsExistingIds(
+                ids: Validation.ConvertStringArrayToGuidArray(request.EditHouseholdIds),
+                appDbContext: appDbContext);
+
+            Validation.HouseholdGroupIdArrayContainsExistingIds(
+                ids: Validation.ConvertStringArrayToGuidArray(request.EditHouseholdGroupIds),
+                appDbContext: appDbContext);
+
+            Validation.UserIdArrayContainsExistingIds(
+                ids: Validation.ConvertStringArrayToGuidArray(request.EditUserIds),
+                appDbContext: appDbContext);
+        }
+
+        /// <summary>
+        /// Confirms that all household ids in an array exist in the database.
+        /// </summary>
+        /// <param name="ids">The list of ids to check.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void HouseholdIdArrayContainsExistingIds(Guid[] ids, AppDbContext appDbContext)
+        {
+            foreach (var id in ids)
+            {
+                if (appDbContext.Households
+                    .FirstOrDefault(h => h.Id == id) == null)
+                {
+                    throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent($"Household with id '{id}' was not found."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.HouseholdNotFound)
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Confirms that all household group ids in an array exist in the database.
+        /// </summary>
+        /// <param name="ids">The list of ids to check.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void HouseholdGroupIdArrayContainsExistingIds(Guid[] ids, AppDbContext appDbContext)
+        {
+            foreach (var id in ids)
+            {
+                if (appDbContext.HouseholdGroups
+                    .FirstOrDefault(h => h.Id == id) == null)
+                {
+                    throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent($"Household group with id '{id}' was not found."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.HouseholdGroupNotFound)
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// Confirms that all user ids in an array exist in the database.
+        /// </summary>
+        /// <param name="ids">The list of ids to check.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void UserIdArrayContainsExistingIds(Guid[] ids, AppDbContext appDbContext)
+        {
+            foreach (var id in ids)
+            {
+                if (appDbContext.Users
+                    .FirstOrDefault(u => u.Id == id) == null)
+                {
+                    throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.NotFound)
+                    {
+                        Content = new StringContent($"User with id '{id}' was not found."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.UserNotFound)
+                    });
+                }
+            }
+        }
+
+        #region Helper methods
+        /// <summary>
+        /// Converts an array of guids into a semi colon seperated string.
+        /// </summary>
+        /// <param name="guidList">The list of guids to convert.</param>
+        private static string ConvertGuidArrayToString(Guid[] guidList)
+        {
+            var stringList = "";
+
+            foreach (var guid in guidList)
+            {
+                stringList += guid.ToString() + ";";
+            }
+
+            return stringList;
+        }
+
+        /// <summary>
+        /// Converts a list of guids into a semi colon seperated string.
+        /// </summary>
+        /// <param name="guidList">The list of guids to convert.</param>
+        private static string ConvertGuidListToString(List<Guid> guidList)
+        {
+            var stringList = "";
+
+            foreach (var guid in guidList)
+            {
+                stringList += guid.ToString() + ";";
+            }
+
+            return stringList;
+        }
+
+        /// <summary>
+        /// Converts an array of strings into an array of guids.
+        /// </summary>
+        /// <param name="guidList">The string array of guids to convert.</param>
+        private static Guid[] ConvertStringArrayToGuidArray(string[] guidList)
+        {
+            var stringList = new List<Guid>();
+
+            foreach (var guid in guidList)
+            {
+                stringList.Add(Guid.Parse(guid));
+            }
+
+            return stringList.ToArray();
+        }
+
+        /// <summary>
+        /// Converts an array of guid strings into a single semi colon separated string.
+        /// </summary>
+        /// <param name="guidList">The string array of guids to convert.</param>
+        private static string ConvertStringArrayToString(string[] guidList)
+        {
+            var stringList = "";
+
+            foreach (var guid in guidList)
+            {
+                stringList += guid.ToString() + ";";
+            }
+
+            return stringList;
+        }
+
+        /// <summary>
+        /// Converts a string into a list of guids.
+        /// </summary>
+        /// <param name="guids">The string containing a list of guids separated with semicolon.</param>
+        private static List<Guid> ConvertStringToGuidList(string guids)
+        {
+            var stringList = guids.Split(';');
+            List<Guid> guidsList = new List<Guid>();
+
+            foreach (var guid in stringList)
+            {
+                guidsList.Add(Guid.Parse(guid));
+            }
+
+            return guidsList;
+        }
+        #endregion
     }
 }

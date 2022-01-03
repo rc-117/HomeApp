@@ -1,9 +1,10 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Homeapp.Backend.Migrations
 {
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -45,6 +46,24 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SharedEntities",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ReadHouseholdIds = table.Column<string>(nullable: true),
+                    ReadHouseholdGroupIds = table.Column<string>(nullable: true),
+                    ReadUserIds = table.Column<string>(nullable: true),
+                    EditHouseholdIds = table.Column<string>(nullable: true),
+                    EditHouseholdGroupIds = table.Column<string>(nullable: true),
+                    EditUserIds = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SharedEntities", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -54,7 +73,7 @@ namespace Homeapp.Backend.Migrations
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
                     Gender = table.Column<int>(nullable: false),
-                    HouseholdId = table.Column<Guid>(nullable: false)
+                    Birthday = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -67,7 +86,7 @@ namespace Homeapp.Backend.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
-                    HouseholdId = table.Column<Guid>(nullable: true)
+                    HouseholdId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -77,7 +96,7 @@ namespace Homeapp.Backend.Migrations
                         column: x => x.HouseholdId,
                         principalTable: "Households",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -88,11 +107,18 @@ namespace Homeapp.Backend.Migrations
                     Name = table.Column<string>(nullable: true),
                     AccountType = table.Column<int>(nullable: false),
                     StartingBalance = table.Column<double>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: false)
+                    UserId = table.Column<Guid>(nullable: false),
+                    SharedEntitiesId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Accounts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Accounts_SharedEntities_SharedEntitiesId",
+                        column: x => x.SharedEntitiesId,
+                        principalTable: "SharedEntities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Accounts_Users_UserId",
                         column: x => x.UserId,
@@ -102,7 +128,7 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserHousehold",
+                name: "UserHouseholds",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
@@ -111,15 +137,15 @@ namespace Homeapp.Backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserHousehold", x => x.Id);
+                    table.PrimaryKey("PK_UserHouseholds", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserHousehold_Households_HouseholdId",
+                        name: "FK_UserHouseholds_Households_HouseholdId",
                         column: x => x.HouseholdId,
                         principalTable: "Households",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserHousehold_Users_UserId",
+                        name: "FK_UserHouseholds_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -127,7 +153,7 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserHouseholdGroup",
+                name: "UserHouseholdGroups",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
@@ -136,15 +162,15 @@ namespace Homeapp.Backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserHouseholdGroup", x => x.Id);
+                    table.PrimaryKey("PK_UserHouseholdGroups", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserHouseholdGroup_HouseholdGroups_HouseholdGroupId",
+                        name: "FK_UserHouseholdGroups_HouseholdGroups_HouseholdGroupId",
                         column: x => x.HouseholdGroupId,
                         principalTable: "HouseholdGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserHouseholdGroup_Users_UserId",
+                        name: "FK_UserHouseholdGroups_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -165,7 +191,8 @@ namespace Homeapp.Backend.Migrations
                     DateTime = table.Column<DateTime>(nullable: false),
                     RecurringType = table.Column<int>(nullable: false),
                     AccountId = table.Column<Guid>(nullable: false),
-                    IsCleared = table.Column<bool>(nullable: false)
+                    IsCleared = table.Column<bool>(nullable: false),
+                    SharedEntitiesId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -189,12 +216,23 @@ namespace Homeapp.Backend.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Transactions_SharedEntities_SharedEntitiesId",
+                        column: x => x.SharedEntitiesId,
+                        principalTable: "SharedEntities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Transactions_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Accounts_SharedEntitiesId",
+                table: "Accounts",
+                column: "SharedEntitiesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_UserId",
@@ -222,28 +260,33 @@ namespace Homeapp.Backend.Migrations
                 column: "IncomeCategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Transactions_SharedEntitiesId",
+                table: "Transactions",
+                column: "SharedEntitiesId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_UserId",
                 table: "Transactions",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserHousehold_HouseholdId",
-                table: "UserHousehold",
-                column: "HouseholdId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserHousehold_UserId",
-                table: "UserHousehold",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserHouseholdGroup_HouseholdGroupId",
-                table: "UserHouseholdGroup",
+                name: "IX_UserHouseholdGroups_HouseholdGroupId",
+                table: "UserHouseholdGroups",
                 column: "HouseholdGroupId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserHouseholdGroup_UserId",
-                table: "UserHouseholdGroup",
+                name: "IX_UserHouseholdGroups_UserId",
+                table: "UserHouseholdGroups",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserHouseholds_HouseholdId",
+                table: "UserHouseholds",
+                column: "HouseholdId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserHouseholds_UserId",
+                table: "UserHouseholds",
                 column: "UserId");
         }
 
@@ -253,10 +296,10 @@ namespace Homeapp.Backend.Migrations
                 name: "Transactions");
 
             migrationBuilder.DropTable(
-                name: "UserHousehold");
+                name: "UserHouseholdGroups");
 
             migrationBuilder.DropTable(
-                name: "UserHouseholdGroup");
+                name: "UserHouseholds");
 
             migrationBuilder.DropTable(
                 name: "Accounts");
@@ -269,6 +312,9 @@ namespace Homeapp.Backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "HouseholdGroups");
+
+            migrationBuilder.DropTable(
+                name: "SharedEntities");
 
             migrationBuilder.DropTable(
                 name: "Users");

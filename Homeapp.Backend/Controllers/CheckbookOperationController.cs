@@ -110,8 +110,14 @@
                 userId: userIdGuid,
                 appDbContext: this.appDbContext);
 
+            Validation.SharedEntitiesRequestIsValid(
+                request: accountRequest.SharedEntitiesRequest,
+                appDbContext: this.appDbContext);
+
             var user = this.userDataManager.GetUserFromUserId(userIdGuid);
 
+            // TODO: Write code somewhere here to undo creating this SharedEntities object if the
+            // CreateAccount method doesnt save to db for some reason
             var sharedEntities =
                 await this.sharedEntityDataManager.CreateNewSharedEntitiesRecord(
                     request: accountRequest.SharedEntitiesRequest);

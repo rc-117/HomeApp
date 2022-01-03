@@ -12,36 +12,36 @@
         /// The list of households ids that the resource will give read access to.
         /// </summary>
         [Required]
-        public Guid[] ReadHouseholdIds { get; set; }
+        public string[] ReadHouseholdIds { get; set; }
 
         /// <summary>
         /// The list of household group ids that the resource will give read access to.
         /// </summary>
         [Required]
-        public Guid[] ReadHouseholdGroupIds { get; set; }
+        public string[] ReadHouseholdGroupIds { get; set; }
 
         /// <summary>
         /// The list of user ids that the resource will give read access to.
         /// </summary>
         [Required]
-        public Guid[] ReadUserIds { get; set; }
+        public string[] ReadUserIds { get; set; }
 
         /// <summary>
         /// The list of households ids that the resource will give read and edit access to.
         /// </summary>
         [Required]
-        public Guid[] EditHouseholdIds { get; set; }
+        public string[] EditHouseholdIds { get; set; }
 
         /// <summary>
         /// The list of household group ids that the resource will give read and edit access to.
         /// </summary>
         [Required]
-        public Guid[] EditHouseholdGroupIds { get; set; }
+        public string[] EditHouseholdGroupIds { get; set; }
 
         /// <summary>
         /// The list of user ids that the resource will give read and edit access to.
         /// </summary>
         [Required]
-        public Guid[] EditUserIds { get; set; }
+        public string[] EditUserIds { get; set; }
     }
 }

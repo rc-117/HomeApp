@@ -167,7 +167,7 @@
             CreateAccountRequest request, 
             SharedEntities sharedEntities)
         {
-            var account = new Account
+            var account = new Account()
             {
                 Name = request.Name,
                 AccountType = (AccountType)Enum.Parse(typeof(AccountType), request.AccountType),

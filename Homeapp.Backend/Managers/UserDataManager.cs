@@ -3,12 +3,16 @@
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Identity.Requests;
+    using Homeapp.Backend.Tools;
     using Homeapp.Test;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
+    using System.Net.Http;
     using System.Threading.Tasks;
+    using System.Web.Http;
 
     /// <summary>
     /// The user data manager.
@@ -59,9 +63,20 @@
         /// <param name="userId">The user id.</param>
         public User GetUserFromUserId(Guid userId)
         {
-            //static repo code
-            return TestRepo.Users
-                .FirstOrDefault(u => u.Id == userId);
+            try
+            {
+                return this.appDbContext.Users.FirstOrDefault(u => u.Id == userId);
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                   new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                   {
+                       Content = new StringContent("There was an error when retrieving a user from the database. Please try the request again."),
+                       ReasonPhrase = HttpReasonPhrase
+                           .GetPhrase(ReasonPhrase.ErrorRetrievingFromDatabase)
+                   });
+            }
         }
 
         /// <summary>

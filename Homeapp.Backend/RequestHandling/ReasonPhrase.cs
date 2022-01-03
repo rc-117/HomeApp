@@ -68,6 +68,11 @@
         /// <summary>
         /// There was an error saving an entity/entities to the database.
         /// </summary>
-        ErrorSavingToDatabase
+        ErrorSavingToDatabase,
+
+        /// <summary>
+        /// There was an error when retrieving an entity/entities from the database.
+        /// </summary>
+        ErrorRetrievingFromDatabase
     }
 }
