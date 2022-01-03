@@ -118,8 +118,7 @@
 
             // TODO: Write code somewhere here to undo creating this SharedEntities object if the
             // CreateAccount method doesnt save to db for some reason
-            var sharedEntities =
-                await this.sharedEntityDataManager.CreateNewSharedEntitiesRecord(
+            var sharedEntities = this.sharedEntityDataManager.CreateNewSharedEntitiesObject(
                     request: accountRequest.SharedEntitiesRequest);
 
             var createdAccount = await this.accountManager.CreateAccount(

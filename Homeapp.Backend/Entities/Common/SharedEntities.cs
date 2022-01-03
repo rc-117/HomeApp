@@ -1,6 +1,7 @@
 ﻿namespace Homeapp.Backend.Entities
 {
     using Homeapp.Backend.Identity;
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -12,7 +13,7 @@
         /// <summary>
         /// The unique id of this object.
         /// </summary>
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// The list of households ids that the resource will give read access to.

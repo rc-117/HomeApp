@@ -410,11 +410,9 @@
                 return;
             }
 
-            var invalidGuid = "";
             var exception = new HttpResponseException(
                     new HttpResponseMessage(HttpStatusCode.BadRequest)
                     {
-                        Content = new StringContent($"Invalid id received: '{invalidGuid}'"),
                         ReasonPhrase = HttpReasonPhrase
                             .GetPhrase(ReasonPhrase.InvalidGuid)
                     });
@@ -423,7 +421,7 @@
             {   
                 if (!Guid.TryParse(guid, out Guid result))
                 {
-                    invalidGuid = guid;
+                    exception.Response.Content = new StringContent($"Invalid id received: '{guid}'");
                     throw exception;
                 }
             }

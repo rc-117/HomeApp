@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Homeapp.Backend.Migrations
@@ -49,8 +48,7 @@ namespace Homeapp.Backend.Migrations
                 name: "SharedEntities",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<Guid>(nullable: false),
                     ReadHouseholdIds = table.Column<string>(nullable: true),
                     ReadHouseholdGroupIds = table.Column<string>(nullable: true),
                     ReadUserIds = table.Column<string>(nullable: true),
@@ -108,17 +106,18 @@ namespace Homeapp.Backend.Migrations
                     AccountType = table.Column<int>(nullable: false),
                     StartingBalance = table.Column<double>(nullable: false),
                     UserId = table.Column<Guid>(nullable: false),
-                    SharedEntitiesId = table.Column<int>(nullable: false)
+                    SharedEntitiesId = table.Column<int>(nullable: false),
+                    SharedEntitiesId1 = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Accounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Accounts_SharedEntities_SharedEntitiesId",
-                        column: x => x.SharedEntitiesId,
+                        name: "FK_Accounts_SharedEntities_SharedEntitiesId1",
+                        column: x => x.SharedEntitiesId1,
                         principalTable: "SharedEntities",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Accounts_Users_UserId",
                         column: x => x.UserId,
@@ -192,7 +191,8 @@ namespace Homeapp.Backend.Migrations
                     RecurringType = table.Column<int>(nullable: false),
                     AccountId = table.Column<Guid>(nullable: false),
                     IsCleared = table.Column<bool>(nullable: false),
-                    SharedEntitiesId = table.Column<int>(nullable: false)
+                    SharedEntitiesId = table.Column<int>(nullable: false),
+                    SharedEntitiesId1 = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -216,11 +216,11 @@ namespace Homeapp.Backend.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Transactions_SharedEntities_SharedEntitiesId",
-                        column: x => x.SharedEntitiesId,
+                        name: "FK_Transactions_SharedEntities_SharedEntitiesId1",
+                        column: x => x.SharedEntitiesId1,
                         principalTable: "SharedEntities",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Transactions_Users_UserId",
                         column: x => x.UserId,
@@ -230,9 +230,9 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_SharedEntitiesId",
+                name: "IX_Accounts_SharedEntitiesId1",
                 table: "Accounts",
-                column: "SharedEntitiesId");
+                column: "SharedEntitiesId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_UserId",
@@ -260,9 +260,9 @@ namespace Homeapp.Backend.Migrations
                 column: "IncomeCategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_SharedEntitiesId",
+                name: "IX_Transactions_SharedEntitiesId1",
                 table: "Transactions",
-                column: "SharedEntitiesId");
+                column: "SharedEntitiesId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_UserId",

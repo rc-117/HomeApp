@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Homeapp.Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220103202440_Initial")]
+    [Migration("20220103221814_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,9 @@ namespace Homeapp.Backend.Migrations
                     b.Property<int>("SharedEntitiesId")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("SharedEntitiesId1")
+                        .HasColumnType("char(36)");
+
                     b.Property<double>("StartingBalance")
                         .HasColumnType("double");
 
@@ -42,7 +45,7 @@ namespace Homeapp.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SharedEntitiesId");
+                    b.HasIndex("SharedEntitiesId1");
 
                     b.HasIndex("UserId");
 
@@ -79,9 +82,9 @@ namespace Homeapp.Backend.Migrations
 
             modelBuilder.Entity("Homeapp.Backend.Entities.SharedEntities", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("EditHouseholdGroupIds")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -139,6 +142,9 @@ namespace Homeapp.Backend.Migrations
                     b.Property<int>("SharedEntitiesId")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("SharedEntitiesId1")
+                        .HasColumnType("char(36)");
+
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
 
@@ -153,7 +159,7 @@ namespace Homeapp.Backend.Migrations
 
                     b.HasIndex("IncomeCategoryId");
 
-                    b.HasIndex("SharedEntitiesId");
+                    b.HasIndex("SharedEntitiesId1");
 
                     b.HasIndex("UserId");
 
@@ -271,9 +277,7 @@ namespace Homeapp.Backend.Migrations
                 {
                     b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
                         .WithMany()
-                        .HasForeignKey("SharedEntitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SharedEntitiesId1");
 
                     b.HasOne("Homeapp.Backend.Identity.User", "User")
                         .WithMany()
@@ -300,9 +304,7 @@ namespace Homeapp.Backend.Migrations
 
                     b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
                         .WithMany()
-                        .HasForeignKey("SharedEntitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SharedEntitiesId1");
 
                     b.HasOne("Homeapp.Backend.Identity.User", "User")
                         .WithMany()

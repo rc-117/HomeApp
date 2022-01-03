@@ -30,12 +30,15 @@ namespace Homeapp.Backend.Managers
         }
 
         /// <summary>
-        /// Uses a ShredEntitiesRequest object to create a SharedEntities record in the database.
+        /// Creates a new SharedEntities object from a request.
         /// </summary>
         /// <param name="request">The request.</param>
-        public async Task<SharedEntities> CreateNewSharedEntitiesRecord(SharedEntitiesRequest request)
+        /// <remarks>This does not persist the sharedentities object to the database. This only creates an instance of a SharedEntities object.
+        /// This method is to be used when creating other entities that require SharedEntities, and will the SharedEntities object is
+        /// to be persisted to the database through other data managers on entity creation.</remarks>
+        public SharedEntities CreateNewSharedEntitiesObject(SharedEntitiesRequest request)
         {
-            var sharedEntities =  new SharedEntities
+            var sharedEntities = new SharedEntities
             {
                 ReadHouseholdIds = this.ConvertStringArrayToString(request.ReadHouseholdIds),
                 ReadHouseholdGroupIds = this.ConvertStringArrayToString(request.ReadHouseholdGroupIds),
@@ -44,23 +47,6 @@ namespace Homeapp.Backend.Managers
                 EditHouseholdGroupIds = this.ConvertStringArrayToString(request.EditHouseholdGroupIds),
                 EditUserIds = this.ConvertStringArrayToString(request.EditUserIds)
             };
-
-            appDbContext.SharedEntities.Add(sharedEntities);
-
-            try
-            {
-                await appDbContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw new HttpResponseException(
-                   new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
-                   {
-                       Content = new StringContent("There was an error when saving the shared entities record to the database. Please try again."),
-                       ReasonPhrase = HttpReasonPhrase
-                           .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
-                   });
-            }
 
             return sharedEntities;
         }
