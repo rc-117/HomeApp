@@ -5,6 +5,7 @@ namespace Homeapp.Backend.Managers
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Entities.Common.Requests;
+    using Homeapp.Backend.Identity;
     using Homeapp.Backend.Tools;
     using Newtonsoft.Json.Linq;
     using System;
@@ -42,12 +43,12 @@ namespace Homeapp.Backend.Managers
         {
             var sharedEntities = new SharedEntities
             {
-                ReadHouseholdIds = this.ConvertStringArrayToString(request.ReadHouseholdIds),
-                ReadHouseholdGroupIds = this.ConvertStringArrayToString(request.ReadHouseholdGroupIds),
-                ReadUserIds = this.ConvertStringArrayToString(request.ReadUserIds),
-                EditHouseholdIds = this.ConvertStringArrayToString(request.EditHouseholdIds),
-                EditHouseholdGroupIds = this.ConvertStringArrayToString(request.EditHouseholdGroupIds),
-                EditUserIds = this.ConvertStringArrayToString(request.EditUserIds)
+                ReadHouseholdIds = StringGuidHandler.ConvertStringArrayToString(request.ReadHouseholdIds),
+                ReadHouseholdGroupIds = StringGuidHandler.ConvertStringArrayToString(request.ReadHouseholdGroupIds),
+                ReadUserIds = StringGuidHandler.ConvertStringArrayToString(request.ReadUserIds),
+                EditHouseholdIds = StringGuidHandler.ConvertStringArrayToString(request.EditHouseholdIds),
+                EditHouseholdGroupIds = StringGuidHandler.ConvertStringArrayToString(request.EditHouseholdGroupIds),
+                EditUserIds = StringGuidHandler.ConvertStringArrayToString(request.EditUserIds)
             };
 
             return sharedEntities;
@@ -61,12 +62,12 @@ namespace Homeapp.Backend.Managers
         {
             var sharedEntities = this.appDbContext.SharedEntities.FirstOrDefault(s => s.Id == id);
 
-            var readHouseholdArray = ConvertStringToJArrayOfGuids(sharedEntities.ReadHouseholdIds);
-            var readHouseholdGroupArray = ConvertStringToJArrayOfGuids(sharedEntities.ReadHouseholdGroupIds);
-            var readUserArray = ConvertStringToJArrayOfGuids(sharedEntities.ReadUserIds);
-            var editHouseholdArray = ConvertStringToJArrayOfGuids(sharedEntities.EditHouseholdIds);
-            var editHouseholdGroupArray = ConvertStringToJArrayOfGuids(sharedEntities.EditHouseholdGroupIds);
-            var editUserArray = ConvertStringToJArrayOfGuids(sharedEntities.EditUserIds);
+            var readHouseholdArray = ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdIds, searchHouseholds: true);
+            var readHouseholdGroupArray = ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdGroupIds, searchGroups: true);
+            var readUserArray = ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadUserIds, searchUsers: true);
+            var editHouseholdArray = ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditHouseholdIds, searchHouseholds: true);
+            var editHouseholdGroupArray = ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditHouseholdGroupIds, searchGroups: true);
+            var editUserArray = ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditUserIds, searchUsers: true);
 
             return new JObject()
             {   
@@ -79,93 +80,20 @@ namespace Homeapp.Backend.Managers
             };
         }
 
+
         #region Private helper methods
         /// <summary>
-        /// Converts an array of guids into a semi colon seperated string.
-        /// </summary>
-        /// <param name="guidList">The list of guids to convert.</param>
-        private string ConvertGuidArrayToString(Guid[] guidList)
-        {
-            var stringList = "";
-
-            foreach (var guid in guidList)
-            {
-                stringList += guid.ToString() + ";";
-            }
-
-            return stringList;
-        }
-
-        /// <summary>
-        /// Converts a list of guids into a semi colon seperated string.
-        /// </summary>
-        /// <param name="guidList">The list of guids to convert.</param>
-        private string ConvertGuidListToString(List<Guid> guidList)
-        {
-            var stringList = "";
-
-            foreach (var guid in guidList)
-            {
-                stringList += guid.ToString() + ";";
-            }
-
-            return stringList;
-        }
-
-        /// <summary>
-        /// Converts an array of strings into an array of guids.
-        /// </summary>
-        /// <param name="guidList">The string array of guids to convert.</param>
-        private Guid[] ConvertStringArrayToGuidArray(string[] guidList)
-        {
-            var stringList = new List<Guid>();
-
-            foreach (var guid in guidList)
-            {
-                stringList.Add(Guid.Parse(guid));
-            }
-
-            return stringList.ToArray();
-        }
-
-        /// <summary>
-        /// Converts an array of guid strings into a single semi colon separated string.
-        /// </summary>
-        /// <param name="guidList">The string array of guids to convert.</param>
-        private string ConvertStringArrayToString(string[] guidList)
-        {
-            var stringList = "";
-
-            foreach (var guid in guidList)
-            {
-                stringList += guid.ToString() + ";";
-            }
-
-            return stringList;
-        }
-
-        /// <summary>
-        /// Converts a string into a list of guids.
+        /// Converts a semi colon seperated string into a JArray of name/guid pairs.
         /// </summary>
         /// <param name="guids">The string containing a list of guids separated with semicolon.</param>
-        private List<Guid> ConvertStringToGuidList(string guids)
-        {
-            var stringList = guids.Split(';');
-            List<Guid> guidsList = new List<Guid>();
-
-            foreach (var guid in stringList)
-            {
-                guidsList.Add(Guid.Parse(guid));
-            }
-
-            return guidsList;
-        }
-
-        /// <summary>
-        /// Converts a string into a JArray of guids.
-        /// </summary>
-        /// <param name="guids">The string containing a list of guids separated with semicolon.</param>
-        private JArray ConvertStringToJArrayOfGuids(string guids)
+        /// <param name="searchHouseholds">Set to true to search Households in the database.</param>
+        /// <param name="searchGroups">Set to true to search Household groups in the database.</param>
+        /// <param name="searchUsers">Set to true to search Users in the database.</param>
+        private JArray ConvertStringToJArrayOfNameGuidPairs(
+            string guids, 
+            bool searchHouseholds = false, 
+            bool searchGroups = false, 
+            bool searchUsers = false)
         {
             if (string.IsNullOrWhiteSpace(guids))
             {
@@ -173,16 +101,51 @@ namespace Homeapp.Backend.Managers
             }
 
             var jArray = new JArray();
-            var stringList = guids.Split(';');
-            
-            foreach (var guid in stringList)
+            var nameList = new List<string>();
+            var guidList = guids.Split(';');
+
+            foreach (var guid in guidList)
             {
                 if (string.IsNullOrWhiteSpace(guid))
                 {
                     continue;
                 }
 
-                jArray.Add(Guid.Parse(guid));
+                if (searchHouseholds)
+                {
+                    var id = Guid.Parse(guid);
+                    var name = this.appDbContext.Households.FirstOrDefault(h => h.Id == id).Name;
+
+                    jArray.Add(new JObject()
+                    {
+                        { "Id", id },
+                        { "Name", name }
+                    });
+                }
+                else if (searchGroups)
+                {
+                    var id = Guid.Parse(guid);
+                    var name = this.appDbContext.HouseholdGroups.FirstOrDefault(h => h.Id == id).Name;
+
+                    jArray.Add(new JObject()
+                    {
+                        { "Id", id },
+                        { "Name", name }
+                    });
+                }
+                else if (searchUsers)
+                {
+                    var id = Guid.Parse(guid);
+                    var user = this.appDbContext.Users.FirstOrDefault(u => u.Id == id);
+
+                    jArray.Add(new JObject()
+                    {
+                        { "Id", user.Id },
+                        { "FirstName", user.FirstName },
+                        { "LastName", user.LastName },
+                        { "Gender", Enum.GetName(typeof(Gender), user.Gender) }
+                    });
+                }
             }
 
             return jArray;
