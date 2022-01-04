@@ -6,8 +6,10 @@ namespace Homeapp.Backend.Managers
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Entities.Common.Requests;
     using Homeapp.Backend.Tools;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
@@ -51,7 +53,33 @@ namespace Homeapp.Backend.Managers
             return sharedEntities;
         }
 
-        #region Helper methods
+        /// <summary>
+        /// Returns a JSON object containing shared/allowed entities for an item. Used for response handling.
+        /// </summary>
+        /// <param name="id">The id to select the SharedEntities record.</param>
+        public JObject GetSharedEntitiesJObjectFromId(Guid id)
+        {
+            var sharedEntities = this.appDbContext.SharedEntities.FirstOrDefault(s => s.Id == id);
+
+            var readHouseholdArray = ConvertStringToJArrayOfGuids(sharedEntities.ReadHouseholdIds);
+            var readHouseholdGroupArray = ConvertStringToJArrayOfGuids(sharedEntities.ReadHouseholdGroupIds);
+            var readUserArray = ConvertStringToJArrayOfGuids(sharedEntities.ReadUserIds);
+            var editHouseholdArray = ConvertStringToJArrayOfGuids(sharedEntities.EditHouseholdIds);
+            var editHouseholdGroupArray = ConvertStringToJArrayOfGuids(sharedEntities.EditHouseholdGroupIds);
+            var editUserArray = ConvertStringToJArrayOfGuids(sharedEntities.EditUserIds);
+
+            return new JObject()
+            {   
+                { "ReadHousholds", readHouseholdArray },
+                { "ReadHousholdGroups", readHouseholdGroupArray },
+                { "ReadUsers", readUserArray },
+                { "EditHousholds", editHouseholdArray},
+                { "EditHousholdGroups", editHouseholdGroupArray},
+                { "EditUsers", editUserArray }   
+            };
+        }
+
+        #region Private helper methods
         /// <summary>
         /// Converts an array of guids into a semi colon seperated string.
         /// </summary>
@@ -131,6 +159,33 @@ namespace Homeapp.Backend.Managers
             }
 
             return guidsList;
+        }
+
+        /// <summary>
+        /// Converts a string into a JArray of guids.
+        /// </summary>
+        /// <param name="guids">The string containing a list of guids separated with semicolon.</param>
+        private JArray ConvertStringToJArrayOfGuids(string guids)
+        {
+            if (string.IsNullOrWhiteSpace(guids))
+            {
+                return new JArray();
+            }
+
+            var jArray = new JArray();
+            var stringList = guids.Split(';');
+            
+            foreach (var guid in stringList)
+            {
+                if (string.IsNullOrWhiteSpace(guid))
+                {
+                    continue;
+                }
+
+                jArray.Add(Guid.Parse(guid));
+            }
+
+            return jArray;
         }
         #endregion
     }

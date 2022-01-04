@@ -48,8 +48,7 @@
         /// <returns>An account, if any. Returns null if no account is found.</returns>
         public Account GetAccountById(Guid accountId)
         {
-            //static test repo code
-            return TestRepo.Accounts
+            return this.appDbContext.Accounts
                 .FirstOrDefault(account => account.Id == accountId);
         }
 

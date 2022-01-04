@@ -63,7 +63,11 @@
                 Id: accountGuid,
                 accountManager: this.accountManager);
 
-            var account = this.accountManager.GetAccountById(accountGuid);
+            var account = this.accountManager.GetAccountById(
+                accountId: accountGuid);
+
+            var owner = this.userDataManager.GetUserFromUserId(
+                userId: account.UserId);
 
             Validation.AccountBelongsToUser(
                 userId: this.GetUserId(),
@@ -76,14 +80,15 @@
                 { "AccountType", Enum.GetName(typeof(AccountType), account.AccountType) },
                 { "AccountBalance", this.accountManager.CalculateAccountBalance(account) },
                 { "AccountOwner", new JObject() {
-                        { "Id", account.UserId },
-                        { "Email", account.User.EmailAddress },
-                        { "FirstName", account.User.FirstName },
-                        { "LastName", account.User.LastName }
+                        { "Id", owner.Id },
+                        { "Email", owner.EmailAddress },
+                        { "FirstName", owner.FirstName },
+                        { "LastName", owner.LastName },
+                        { "Gender", Enum.GetName(typeof(Gender), owner.Gender) }
                     }
                 },
-                { 
-                    "AccountTransactions", this.accountManager.GetTransactionsJObjectByAccount(account.Id)
+                {
+                   "AllowedUsers", this.sharedEntityDataManager.GetSharedEntitiesJObjectFromId(account.SharedEntitiesId)
                 }
             };
 
