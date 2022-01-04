@@ -172,16 +172,14 @@
                 Name = request.Name,
                 AccountType = (AccountType)Enum.Parse(typeof(AccountType), request.AccountType),
                 StartingBalance = request.StartingBalance,
-                User = user
+                UserId = user.Id,
             };
 
             account.SharedEntities = sharedEntities;
 
-            appDbContext.Accounts.Add(account);
-            appDbContext.SharedEntities.Add(sharedEntities);
-
             try
             {
+                appDbContext.Accounts.Add(account);
                 await appDbContext.SaveChangesAsync();
             }
             catch (Exception)

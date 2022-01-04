@@ -106,18 +106,17 @@ namespace Homeapp.Backend.Migrations
                     AccountType = table.Column<int>(nullable: false),
                     StartingBalance = table.Column<double>(nullable: false),
                     UserId = table.Column<Guid>(nullable: false),
-                    SharedEntitiesId = table.Column<int>(nullable: false),
-                    SharedEntitiesId1 = table.Column<Guid>(nullable: true)
+                    SharedEntitiesId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Accounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Accounts_SharedEntities_SharedEntitiesId1",
-                        column: x => x.SharedEntitiesId1,
+                        name: "FK_Accounts_SharedEntities_SharedEntitiesId",
+                        column: x => x.SharedEntitiesId,
                         principalTable: "SharedEntities",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Accounts_Users_UserId",
                         column: x => x.UserId,
@@ -230,9 +229,9 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_SharedEntitiesId1",
+                name: "IX_Accounts_SharedEntitiesId",
                 table: "Accounts",
-                column: "SharedEntitiesId1");
+                column: "SharedEntitiesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_UserId",

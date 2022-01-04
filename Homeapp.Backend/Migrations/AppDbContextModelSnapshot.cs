@@ -29,10 +29,7 @@ namespace Homeapp.Backend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("SharedEntitiesId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("SharedEntitiesId1")
+                    b.Property<Guid>("SharedEntitiesId")
                         .HasColumnType("char(36)");
 
                     b.Property<double>("StartingBalance")
@@ -43,7 +40,7 @@ namespace Homeapp.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SharedEntitiesId1");
+                    b.HasIndex("SharedEntitiesId");
 
                     b.HasIndex("UserId");
 
@@ -275,7 +272,9 @@ namespace Homeapp.Backend.Migrations
                 {
                     b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
                         .WithMany()
-                        .HasForeignKey("SharedEntitiesId1");
+                        .HasForeignKey("SharedEntitiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Homeapp.Backend.Identity.User", "User")
                         .WithMany()

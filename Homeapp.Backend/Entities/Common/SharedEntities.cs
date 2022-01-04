@@ -1,9 +1,7 @@
 ﻿namespace Homeapp.Backend.Entities
 {
-    using Homeapp.Backend.Identity;
     using System;
-    using System.Collections.Generic;
-
+    
     /// <summary>
     /// Object containing a list of entities that have access to a resource.
     /// </summary>

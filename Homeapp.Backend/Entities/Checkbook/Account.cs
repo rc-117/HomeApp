@@ -33,22 +33,22 @@
         public double StartingBalance { get; set; }
 
         /// <summary>
-        /// The user who owns the account.
-        /// </summary>
-        [JsonProperty]
-        public User User { get; set; }
-
-        /// <summary>
         /// The owning user's id.
         /// </summary>
         [JsonProperty]
         public Guid UserId { get; set; }
 
         /// <summary>
+        /// The user who owns the account.
+        /// </summary>
+        [JsonProperty]
+        public User User { get; set; }
+
+        /// <summary>
         /// The unique id of the SharedIdentities object.
         /// </summary>
         [JsonProperty]
-        public int SharedEntitiesId { get; set; }
+        public Guid SharedEntitiesId { get; set; }
 
         /// <summary>
         /// Object containing a list of entities that have access to this resource.
