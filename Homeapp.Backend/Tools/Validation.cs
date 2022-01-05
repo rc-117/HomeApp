@@ -288,37 +288,7 @@
                    });
             }             
         }
-
-        /// <summary>
-        /// Checks if an int array can be converted to a DateTimeObject.
-        /// </summary>
-        /// <param name="dateArray">The int array.</param>
-        public static void IntArrayIsDateTimeConvertible(int[] dateArray)
-        {
-            var isValid = dateArray.Count() != 3 ? false :
-                (dateArray[0] < 0 || dateArray[0] > 12 ? false : (
-                dateArray[1] < 0 || dateArray[1] > 31 ? false :
-                dateArray[2] < 0 ? false : true));
-
-            if (isValid)
-            {
-                try
-                {
-                    var dateTime = new DateTime(dateArray[2], dateArray[0], dateArray[1]);                    
-                }
-                catch (Exception)
-                {
-                    throw new HttpResponseException(
-                        new HttpResponseMessage(HttpStatusCode.BadRequest)
-                        {
-                            Content = new StringContent("An invalid date array was provided. Integer array must be in m/d/yyyy format."),
-                            ReasonPhrase = HttpReasonPhrase
-                                .GetPhrase(ReasonPhrase.InvalidDateArray)
-                        });
-                }
-            }            
-        }
-
+                
         /// <summary>
         /// Checks if a given birthday is valid.
         /// </summary>
@@ -338,24 +308,19 @@
         }
 
         /// <summary>
-        /// Checks if an int array has valid m/d/yyy values.
+        /// Checks if a string can be converted into a DateTime value..
         /// </summary>
-        /// <param name="dateArray">The int array.</param>
-        public static void DateIntArrayIsValid(int[] dateArray)
+        /// <param name="date">The string to check.</param>
+        public static void DateStringIsValid(string date, string errorMessage)
         {
-            var isValid = dateArray.Count() != 3 ? false :
-                (dateArray[0] < 0 || dateArray[0] > 12 ? false : (
-                dateArray[1] < 0 || dateArray[1] > 31 ? false :
-                dateArray[2] < 0 ? false : true));
-
-            if (!isValid)
+            if (!DateTime.TryParse(date, out var dateTime))
             {
                 throw new HttpResponseException(
                     new HttpResponseMessage(HttpStatusCode.BadRequest)
                     {
-                        Content = new StringContent("An invalid date array was provided. Integer array must be in m/d/yyyy format."),
+                        Content = new StringContent(errorMessage),
                         ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.InvalidDateArray)
+                            .GetPhrase(ReasonPhrase.InvalidDate)
                     });
             }
         }

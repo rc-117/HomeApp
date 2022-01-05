@@ -110,8 +110,8 @@
                 PasswordHash = request.UserRequest.PasswordHash,
                 FirstName = request.UserRequest.FirstName,
                 LastName = request.UserRequest.LastName,
-                Birthday = this.GetDateFromIntArray(request.UserRequest.Birthday),
-                Gender = request.UserRequest.Gender,
+                Birthday = DateTime.Parse(request.UserRequest.Birthday),
+                Gender = (Gender)Enum.Parse(typeof(Gender), request.UserRequest.Gender),
                 Households = new List<UserHousehold>(),
                 HouseholdGroups = new List<UserHouseholdGroup>()
             };
@@ -215,8 +215,8 @@
                 PasswordHash = request.PasswordHash,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                Birthday = this.GetDateFromIntArray(request.Birthday),
-                Gender = request.Gender,
+                Birthday = DateTime.Parse(request.Birthday),
+                Gender = (Gender)Enum.Parse(typeof(Gender), request.Gender),
                 Households = new List<UserHousehold>()
             };
 

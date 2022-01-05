@@ -43,14 +43,14 @@
         /// The user's birthday in m/d/yyyy format.
         /// </summary>
         [Required(ErrorMessage = "Birthday is required.")]
-        public int[] Birthday { get; set; }
+        public string Birthday { get; set; }
 
         /// <summary>
         /// The user's gender.
         /// </summary>
         [JsonProperty]
         [Required(ErrorMessage = "Gender is required.")]
-        public Gender Gender { get; set; }
+        public string Gender { get; set; }
 
         /// <summary>
         /// The id of the household the user is requesting to join.

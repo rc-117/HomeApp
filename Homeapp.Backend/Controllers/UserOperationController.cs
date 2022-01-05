@@ -142,9 +142,11 @@
                 passwordHash: request.RequestedHousholdPasswordHash,
                 appDbContext: this.appDbContext);
 
-            Validation.DateIntArrayIsValid(request.Birthday);
+            Validation.DateStringIsValid(
+                date: request.Birthday,
+                errorMessage: $"Invalid date value received: '{request.Birthday}'");
 
-            Validation.BirthdayIsValid(this.GetDateFromIntArray(request.Birthday));
+            Validation.BirthdayIsValid(DateTime.Parse(request.Birthday));
 
             var result = await this.userDataManager.SaveUserToDb(request);
 
@@ -173,9 +175,12 @@
                 errorMessage: $"Email '{request.UserRequest.EmailAddress}' is already in use.",
                 reasonPhrase: ReasonPhrase.EmailAlreadyInUse);
 
-            Validation.DateIntArrayIsValid(request.UserRequest.Birthday);
-            Validation.BirthdayIsValid(this.GetDateFromIntArray(request.UserRequest.Birthday));
-            
+            Validation.DateStringIsValid(
+                date: request.UserRequest.Birthday,
+                errorMessage: $"Invalid date value received: '{request.UserRequest.Birthday}'");
+
+            Validation.BirthdayIsValid(DateTime.Parse(request.UserRequest.Birthday));
+
 
             var result = await this.userDataManager.SaveUserAndHouseholdToDb(request);
 

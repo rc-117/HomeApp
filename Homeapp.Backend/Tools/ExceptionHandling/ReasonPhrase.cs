@@ -51,9 +51,9 @@
         InvalidHouseholdPassword,
 
         /// <summary>
-        /// The provided date array is invalid.
+        /// The provided date is invalid.
         /// </summary>
-        InvalidDateArray,
+        InvalidDate,
 
         /// <summary>
         /// The provided birthday in invalid.
