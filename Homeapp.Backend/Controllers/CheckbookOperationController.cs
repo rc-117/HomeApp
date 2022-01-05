@@ -87,27 +87,20 @@
         /// Creates an account for a user.
         /// </summary>
         [HttpPut]
-        [Route("/api/Checkbook/Accounts/user/{userId}/Create")]
+        [Route("/api/Checkbook/Accounts/Create")]
         public async Task<IActionResult> CreateChecbookAccountForUser(
-            string userId,
             [FromBody] CreateAccountRequest accountRequest)
         {
-            Validation.GuidIsValid(
-                guid: userId,
-                errorMessage: "Invalid user id received.");
-
-            var userIdGuid = Guid.Parse(userId);
-
             Validation.UserExists(
-                userId: userIdGuid,
+                userId: this.GetUserId(),
                 appDbContext: this.appDbContext);
+
+            var user = this.userDataManager.GetUserFromUserId(userId: this.GetUserId());
 
             Validation.SharedEntitiesRequestIsValid(
                 request: accountRequest.SharedEntitiesRequest,
                 appDbContext: this.appDbContext);
-
-            var user = this.userDataManager.GetUserFromUserId(userIdGuid);
-
+            
             // TODO: Write code somewhere here to undo creating this SharedEntities object if the
             // CreateAccount method doesnt save to db for some reason
             var sharedEntities = this.sharedEntityDataManager.CreateNewSharedEntitiesObject(
@@ -118,21 +111,13 @@
                 request: accountRequest,
                 sharedEntities: sharedEntities);
             
-            return Ok(new JObject()
-                    {
-                        { "Id", createdAccount.Id },
-                        { "Name", createdAccount.Name },
-                        { "AccountType", ((int)createdAccount.AccountType) },
-                        { "UserId", createdAccount.UserId },
-                        { "AllowedUsers", new JObject(){
-                            { "ReadHouseholds", createdAccount.SharedEntities.ReadHouseholdIds },
-                            { "ReadHouseholdGroups", createdAccount.SharedEntities.ReadHouseholdGroupIds },
-                            { "ReadUsers", createdAccount.SharedEntities.ReadUserIds },
-                            { "EditHouseholds", createdAccount.SharedEntities.EditHouseholdIds },
-                            { "EditHouseholdGroups", createdAccount.SharedEntities.EditHouseholdGroupIds },
-                            { "EditUsers", createdAccount.SharedEntities.EditUserIds },
-                        }}
-                    }.ToString());
+            var response = OutputHandler.CreateCheckbookAccountJObject(
+                account: createdAccount,
+                accountOwner: user,
+                accountDataManager: accountManager,
+                sharedEntityDataManager: this.sharedEntityDataManager);
+                
+            return Ok(response.ToString());
         }
 
         /// <summary>
