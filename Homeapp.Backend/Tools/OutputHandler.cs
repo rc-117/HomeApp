@@ -1,14 +1,64 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-
-namespace Homeapp.Backend.Tools
+﻿namespace Homeapp.Backend.Tools
 {
+    using Homeapp.Backend.Entities;
+    using Homeapp.Backend.Identity;
+    using Homeapp.Backend.Managers;
+    using Newtonsoft.Json.Linq;
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Static public class containing methods for manipulating strings and guids.
     /// </summary>
-    public static class StringGuidHandler
+    public static class OutputHandler
     {
+        #region JObject creators
+        /// <summary>
+        /// Creates a JSON object containing user details
+        /// </summary>
+        /// <param name="user">The user</param>
+        public static JObject CreateUserJObject(User user)
+        {
+            return new JObject()
+            {
+                { "Id", user.Id },
+                { "FirstName", user.FirstName },
+                { "LastName", user.LastName },
+                { "Age", OutputHandler.GetAgeFromBirthday(user.Birthday) },
+                { "Gender", Enum.GetName(typeof(Gender), user.Gender) },
+                { "EmailAddress", user.EmailAddress },
+                { "Birthday", user.Birthday.ToLongDateString() }
+            };
+        }
+
+        /// <summary>
+        /// Creates a JSON object containing checkbook account details
+        /// </summary>
+        /// <param name="account">The checkbook account.</param>
+        /// <param name="accountOwner">The account owner.</param>
+        /// <param name="accountDataManager">The account data manager</param>
+        /// <param name="sharedEntityDataManager">The shared entities data manager.</param>
+        public static JObject CreateCheckbookAccountJObject(
+            Account account, 
+            User accountOwner, 
+            IAccountDataManager accountDataManager,
+            ISharedEntityDataManager sharedEntityDataManager)
+        {
+            return new JObject()
+            {
+                { "AccountId", account.Id },
+                { "AccountName", account.Name },
+                { "AccountType", Enum.GetName(typeof(AccountType), account.AccountType) },
+                { "AccountBalance", accountDataManager.CalculateAccountBalance(account) },
+                { "AccountOwner", OutputHandler.CreateUserJObject(accountOwner) },
+                {
+                   "AllowedUsers", sharedEntityDataManager.GetSharedEntitiesJObjectFromId(account.SharedEntitiesId)
+                }
+            };
+        }
+        #endregion
+
+        #region String/Guid handlers
         /// <summary>
         /// Converts an array of guids into a semi colon seperated string.
         /// </summary>
@@ -115,6 +165,29 @@ namespace Homeapp.Backend.Tools
             }
 
             return jArray;
+        }
+        #endregion
+
+        /// <summary>
+        /// Calculates a user's age using their birthdate
+        /// </summary>
+        /// <param name="birthday">The user's birthday</param>
+        public static int GetAgeFromBirthday(DateTime birthday)
+        {
+            if (DateTime.Now.Month < birthday.Month)
+            {
+                return DateTime.Now.Year - birthday.Year - 1;
+            }
+            else if (DateTime.Now.Month == birthday.Month)
+            {
+                return DateTime.Now.Day < birthday.Day ?
+                    DateTime.Now.Year - birthday.Year - 1 :
+                    DateTime.Now.Year - birthday.Year;
+            }
+            else
+            {
+                return DateTime.Now.Year - birthday.Year;
+            }
         }
     }
 }

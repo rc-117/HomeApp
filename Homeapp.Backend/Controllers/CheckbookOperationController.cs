@@ -73,24 +73,11 @@
                 userId: this.GetUserId(),
                 account: account);
 
-            var responseBody = new JObject()
-            {
-                { "AccountId", account.Id },
-                { "AccountName", account.Name },
-                { "AccountType", Enum.GetName(typeof(AccountType), account.AccountType) },
-                { "AccountBalance", this.accountManager.CalculateAccountBalance(account) },
-                { "AccountOwner", new JObject() {
-                        { "Id", owner.Id },
-                        { "Email", owner.EmailAddress },
-                        { "FirstName", owner.FirstName },
-                        { "LastName", owner.LastName },
-                        { "Gender", Enum.GetName(typeof(Gender), owner.Gender) }
-                    }
-                },
-                {
-                   "AllowedUsers", this.sharedEntityDataManager.GetSharedEntitiesJObjectFromId(account.SharedEntitiesId)
-                }
-            };
+            var responseBody = OutputHandler.CreateCheckbookAccountJObject(
+                account: account,
+                accountOwner: owner,
+                accountDataManager: this.accountManager,
+                sharedEntityDataManager: this.sharedEntityDataManager);
 
             return Ok(responseBody.ToString());
         }

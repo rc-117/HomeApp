@@ -43,12 +43,12 @@ namespace Homeapp.Backend.Managers
         {
             var sharedEntities = new SharedEntities
             {
-                ReadHouseholdIds = StringGuidHandler.ConvertStringArrayToString(request.ReadHouseholdIds),
-                ReadHouseholdGroupIds = StringGuidHandler.ConvertStringArrayToString(request.ReadHouseholdGroupIds),
-                ReadUserIds = StringGuidHandler.ConvertStringArrayToString(request.ReadUserIds),
-                EditHouseholdIds = StringGuidHandler.ConvertStringArrayToString(request.EditHouseholdIds),
-                EditHouseholdGroupIds = StringGuidHandler.ConvertStringArrayToString(request.EditHouseholdGroupIds),
-                EditUserIds = StringGuidHandler.ConvertStringArrayToString(request.EditUserIds)
+                ReadHouseholdIds = OutputHandler.ConvertStringArrayToString(request.ReadHouseholdIds),
+                ReadHouseholdGroupIds = OutputHandler.ConvertStringArrayToString(request.ReadHouseholdGroupIds),
+                ReadUserIds = OutputHandler.ConvertStringArrayToString(request.ReadUserIds),
+                EditHouseholdIds = OutputHandler.ConvertStringArrayToString(request.EditHouseholdIds),
+                EditHouseholdGroupIds = OutputHandler.ConvertStringArrayToString(request.EditHouseholdGroupIds),
+                EditUserIds = OutputHandler.ConvertStringArrayToString(request.EditUserIds)
             };
 
             return sharedEntities;
@@ -79,7 +79,6 @@ namespace Homeapp.Backend.Managers
                 { "EditUsers", editUserArray }   
             };
         }
-
 
         #region Private helper methods
         /// <summary>
@@ -138,13 +137,7 @@ namespace Homeapp.Backend.Managers
                     var id = Guid.Parse(guid);
                     var user = this.appDbContext.Users.FirstOrDefault(u => u.Id == id);
 
-                    jArray.Add(new JObject()
-                    {
-                        { "Id", user.Id },
-                        { "FirstName", user.FirstName },
-                        { "LastName", user.LastName },
-                        { "Gender", Enum.GetName(typeof(Gender), user.Gender) }
-                    });
+                    jArray.Add(OutputHandler.CreateUserJObject(user));
                 }
             }
 
