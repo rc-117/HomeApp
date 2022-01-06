@@ -18,23 +18,88 @@
     public static class Validation
     {
         /// <summary>
-        /// Checks if an account belongs to the logged in user.
+        /// Checks if the requesting user has read access to a resource.
         /// </summary>
-        /// <param name="userId">The logged in user's id.</param>
-        /// <param name="account">The account to check.</param>
-        /// <returns></returns>
-        public static void AccountBelongsToUser(Guid userId, Account account)
+        /// <param name="requestingUser">The requesting user.</param>
+        /// <param name="ownerId">The resource owner's id.</param>
+        /// <param name="sharedEntities">The sharedEntities record to check.</param>
+        /// <param name="errorMessage">The error message to use in the response message.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void UserHasReadAccessToResource(
+            User requestingUser, 
+            Guid ownerId, 
+            SharedEntities sharedEntities,
+            string errorMessage,
+            AppDbContext appDbContext)
         {
-            if (userId != account.UserId)
+            var userHasReadAccess = false;
+                        
+            var userHouseholds = requestingUser.Households;
+            var userHouseholdGroups = requestingUser.HouseholdGroups;
+
+            var readUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.ReadUserIds);
+            var readHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.ReadHouseholdIds);
+            var readHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.ReadHouseholdGroupIds);
+
+            var editUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.EditUserIds);
+            var editHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdIds);
+            var editHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdGroupIds);
+
+            if (requestingUser.Id == ownerId)
+            {
+                userHasReadAccess = true;
+            }
+            else if (readUsers.Contains(requestingUser.Id))
+            {
+                userHasReadAccess = true;
+            }
+            else if (editUsers.Contains(requestingUser.Id))
+            {
+                userHasReadAccess = true;
+            }
+            else 
+            {
+                foreach (var household in userHouseholds)
+                {
+                    if (readHouseholds.Contains(household.HouseholdId))
+                    {
+                        userHasReadAccess = true;
+                        break;
+                    }
+                    else if (editHouseholds.Contains(household.HouseholdId))
+                    {
+                        userHasReadAccess = true;
+                        break;
+                    }
+                }
+                if (!userHasReadAccess)
+                {
+                    foreach (var group in userHouseholdGroups)
+                    {
+                        if (readHouseholdGroups.Contains(group.HouseholdGroupId))
+                        {
+                            userHasReadAccess = true;
+                            break;
+                        }
+                        else if (editHouseholdGroups.Contains(group.HouseholdGroupId))
+                        {
+                            userHasReadAccess = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!userHasReadAccess)
             {
                 throw new HttpResponseException(
                     new HttpResponseMessage(HttpStatusCode.Unauthorized)
                     {
-                        Content = new StringContent("User unauthorized to access account."),
+                        Content = new StringContent(errorMessage),
                         ReasonPhrase = HttpReasonPhrase
                             .GetPhrase(ReasonPhrase.UserUnauthorized)
                     }); ;
-            } 
+            }
         }
 
         /// <summary>

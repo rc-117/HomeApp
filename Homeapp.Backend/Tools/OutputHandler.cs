@@ -129,11 +129,20 @@
         /// <param name="guids">The string containing a list of guids separated with semicolon.</param>
         public static List<Guid> ConvertStringToGuidList(string guids)
         {
+            if (string.IsNullOrWhiteSpace(guids))
+            {
+                return new List<Guid>();
+            }
+
             var stringList = guids.Split(';');
             List<Guid> guidsList = new List<Guid>();
 
             foreach (var guid in stringList)
             {
+                if (string.IsNullOrWhiteSpace(guid))
+                {
+                    continue;
+                }
                 guidsList.Add(Guid.Parse(guid));
             }
 

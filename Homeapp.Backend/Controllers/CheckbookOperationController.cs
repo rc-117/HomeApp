@@ -69,9 +69,16 @@
             var owner = this.userDataManager.GetUserFromUserId(
                 userId: account.UserId);
 
-            Validation.AccountBelongsToUser(
-                userId: this.GetUserId(),
-                account: account);
+            Validation.UserHasReadAccessToResource(
+                requestingUser: this.userDataManager
+                    .GetUserFromUserId(this.GetUserId()),
+                ownerId: account.UserId,
+                sharedEntities: 
+                    this.sharedEntityDataManager
+                    .GetSharedEntitiesObjectFromId(account.SharedEntitiesId),
+                errorMessage: 
+                    $"Requesting user does not have read access on account with id: '{account.Id}'.",
+                appDbContext: this.appDbContext);
 
             var responseBody = OutputHandler.CreateCheckbookAccountJObject(
                 account: account,

@@ -65,7 +65,11 @@
         {
             try
             {
-                return this.appDbContext.Users.FirstOrDefault(u => u.Id == userId);
+                var user = this.appDbContext.Users.FirstOrDefault(u => u.Id == userId);
+                user.Households = this.GetUserhouseholdByUserId(user.Id);
+                user.HouseholdGroups = this.GetUserhouseholdGroupByUserId(user.Id);
+
+                return user;
             }
             catch (Exception)
             {
@@ -392,7 +396,25 @@
             }
 
             return array;
-        }    
+        }
+        
+        /// <summary>
+        /// Gets a list of Userhousholds by user id.
+        /// </summary>
+        /// <param name="id">The user's id.</param>
+        private List<UserHousehold> GetUserhouseholdByUserId(Guid id)
+        {
+            return this.appDbContext.UserHouseholds.Where(u => id == u.UserId).ToList();
+        }
+
+        /// <summary>
+        /// Gets a list of Userhoushold groups by user id.
+        /// </summary>
+        /// <param name="id">The user's id.</param>
+        private List<UserHouseholdGroup> GetUserhouseholdGroupByUserId(Guid id)
+        {
+            return this.appDbContext.UserHouseholdGroups.Where(u => id == u.UserId).ToList(); 
+        }
         #endregion
     }
 }

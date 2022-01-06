@@ -55,6 +55,15 @@ namespace Homeapp.Backend.Managers
         }
 
         /// <summary>
+        /// Gets a SharedEntities object by its id.
+        /// </summary>
+        /// <param name="id">The id to select the SharedEntities record.</param>
+        public SharedEntities GetSharedEntitiesObjectFromId(Guid id)
+        {
+            return this.appDbContext.SharedEntities.FirstOrDefault(s => s.Id == id);
+        }
+
+        /// <summary>
         /// Returns a JSON object containing shared/allowed entities for an item. Used for response handling.
         /// </summary>
         /// <param name="id">The id to select the SharedEntities record.</param>
