@@ -24,13 +24,11 @@
         /// <param name="ownerId">The resource owner's id.</param>
         /// <param name="sharedEntities">The sharedEntities record to check.</param>
         /// <param name="errorMessage">The error message to use in the response message.</param>
-        /// <param name="appDbContext">The application database context.</param>
         public static void UserHasReadAccessToResource(
             User requestingUser, 
             Guid ownerId, 
             SharedEntities sharedEntities,
-            string errorMessage,
-            AppDbContext appDbContext)
+            string errorMessage)
         {
             var userHasReadAccess = false;
                         

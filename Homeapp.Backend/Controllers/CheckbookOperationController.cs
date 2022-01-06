@@ -77,8 +77,7 @@
                     this.sharedEntityDataManager
                     .GetSharedEntitiesObjectFromId(account.SharedEntitiesId),
                 errorMessage: 
-                    $"Requesting user does not have read access on account with id: '{account.Id}'.",
-                appDbContext: this.appDbContext);
+                    $"Requesting user does not have read access on account with id: '{account.Id}'.");
 
             var responseBody = OutputHandler.CreateCheckbookAccountJObject(
                 account: account,
