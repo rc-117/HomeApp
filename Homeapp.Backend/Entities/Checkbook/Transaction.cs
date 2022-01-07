@@ -42,12 +42,12 @@
         /// <summary>
         /// The id of the user who owns this transaction.
         /// </summary>
-        public Guid UserId { get; set; }
+        public Guid OwnerId { get; set; }
 
         /// <summary>
         /// The user who owns this transaction.
         /// </summary>
-        public User User { get; set; }
+        public User Owner { get; set; }
 
         /// <summary>
         /// The expense category, if applicable.

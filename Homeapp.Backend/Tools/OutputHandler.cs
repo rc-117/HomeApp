@@ -1,18 +1,56 @@
 ﻿namespace Homeapp.Backend.Tools
 {
+    using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Managers;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Static public class containing methods for manipulating strings and guids.
     /// </summary>
     public static class OutputHandler
     {
-        #region JObject creators
+        #region Common JObject creators
+        /// <summary>
+        /// Returns a JSON object containing shared/allowed entities for an item. Used for response handling.
+        /// </summary>
+        /// <param name="id">The id to select the SharedEntities record.</param>
+        /// <param name="sharedEntityDataManager">The shared entity data manager.</param>
+        /// <param name="userDataManager">The user data manager.</param>
+        public static JObject GetSharedEntitiesJObjectFromId(Guid id, ISharedEntityDataManager sharedEntityDataManager, IUserDataManager userDataManager)
+        {
+            var sharedEntities = sharedEntityDataManager.GetSharedEntitiesObjectFromId(id);
+
+            var readHouseholdArray = 
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
+            var readHouseholdGroupArray = 
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdGroupIds, searchGroups: true, userDataManager: userDataManager);
+            var readUserArray = 
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadUserIds, searchUsers: true, userDataManager: userDataManager);
+            var editHouseholdArray = 
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
+            var editHouseholdGroupArray = 
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditHouseholdGroupIds, searchGroups: true, userDataManager: userDataManager);
+            var editUserArray = 
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditUserIds, searchUsers: true, userDataManager: userDataManager);
+
+            return new JObject()
+            {
+                { "ReadHousholds", readHouseholdArray },
+                { "ReadHousholdGroups", readHouseholdGroupArray },
+                { "ReadUsers", readUserArray },
+                { "EditHousholds", editHouseholdArray},
+                { "EditHousholdGroups", editHouseholdGroupArray},
+                { "EditUsers", editUserArray }
+            };
+        }
+        #endregion
+
+        #region Identity JObject Creators
         /// <summary>
         /// Creates a JSON object containing user details
         /// </summary>
@@ -30,7 +68,9 @@
                 { "Birthday", user.Birthday.ToLongDateString() }
             };
         }
+        #endregion
 
+        #region Checkbook JObject Creators
         /// <summary>
         /// Creates a JSON object containing checkbook account details
         /// </summary>
@@ -38,11 +78,13 @@
         /// <param name="accountOwner">The account owner.</param>
         /// <param name="accountDataManager">The account data manager</param>
         /// <param name="sharedEntityDataManager">The shared entities data manager.</param>
+        /// <param name="userDataManager">The user data manager.</param>
         public static JObject CreateCheckbookAccountJObject(
             Account account, 
             User accountOwner, 
             IAccountDataManager accountDataManager,
-            ISharedEntityDataManager sharedEntityDataManager)
+            ISharedEntityDataManager sharedEntityDataManager,
+            IUserDataManager userDataManager)
         {
             return new JObject()
             {
@@ -52,9 +94,90 @@
                 { "AccountBalance", accountDataManager.CalculateAccountBalance(account) },
                 { "AccountOwner", OutputHandler.CreateUserJObject(accountOwner) },
                 {
-                   "AllowedUsers", sharedEntityDataManager.GetSharedEntitiesJObjectFromId(account.SharedEntitiesId)
+                   "AllowedUsers", OutputHandler.GetSharedEntitiesJObjectFromId(
+                       id: account.SharedEntitiesId,
+                       sharedEntityDataManager: sharedEntityDataManager,
+                       userDataManager: userDataManager)
                 }
             };
+        }
+
+        /// <summary>
+        /// /// Creates a JArray containing all transactions in an account.
+        /// </summary>
+        /// <param name="accountId">The account id.</param>
+        /// <param name="accountDataManager">The account data manager.</param>
+        /// <param name="userDataManager">The user data manager.</param>
+        /// <param name="sharedEntityDataManager">The shared entity data manager.</param>
+        public static JArray CreateTransactionsJArrayByAccountId(
+            Guid accountId, 
+            IAccountDataManager accountDataManager, 
+            IUserDataManager userDataManager,
+            ISharedEntityDataManager sharedEntityDataManager)
+        {
+            var transactions = accountDataManager.GetTransactionsByAccount(accountId);
+            var jArray = new JArray();
+            foreach (var transaction in transactions)
+            {
+                jArray.Add(CreateTransactionJObject(
+                    transaction: transaction,
+                    userDataManager: userDataManager,
+                    accountDataManager: accountDataManager,
+                    sharedEntityDataManager: sharedEntityDataManager));
+            }
+            return jArray;
+        }
+
+        /// <summary>
+        /// Creates a JSON object with a transaction's properties.
+        /// </summary>
+        /// <param name="transaction">The transaction object to use.</param>
+        /// <param name="userDataManager">The user data manager.</param>
+        /// <param name="accountDataManager">The checkbook account data manager.</param>
+        /// <param name="sharedEntityDataManager">The shared entity data manager.</param>
+        public static JObject CreateTransactionJObject(
+            Transaction transaction, 
+            IUserDataManager userDataManager,
+            IAccountDataManager accountDataManager,
+            ISharedEntityDataManager sharedEntityDataManager)
+        {
+            var incomeCategory = transaction.IncomeCategory == null ?
+                null : transaction.IncomeCategory.Name;
+
+            var expenseCategory = transaction.ExpenseCategory == null ?
+                null : transaction.ExpenseCategory.Name;
+            
+            var transactionAmount =
+                transaction.TransactionType == TransactionType.Expense ||
+                transaction.TransactionType == TransactionType.Transfer ?
+                transaction.Amount * -1 : transaction.Amount;
+
+            return new JObject
+                {
+                    { "Id", transaction.Id },
+                    { "Name", transaction.Name },
+                    { "Amount", transactionAmount },
+                    { "TransactionType", Enum.GetName(
+                        typeof(TransactionType), transaction.TransactionType) },
+                    { "Owner", OutputHandler
+                        .CreateUserJObject(
+                            userDataManager
+                            .GetUserFromUserId(transaction.OwnerId))},
+                    { "ExpenseCategory", expenseCategory },
+                    { "IncomeCategory", incomeCategory },
+                    { "DateTime", transaction.DateTime },
+                    { "RecurringType", transaction.RecurringTransactionId == null?
+                        "" : Enum.GetName(typeof(RecurringType),
+                                accountDataManager.
+                                GetRecurringTransactionById(transaction.RecurringTransactionId))},
+                    { "AccountId", transaction.AccountId },
+                    { "IsCleared", transaction.IsCleared },
+                    { "AllowedUsers", 
+                        OutputHandler.GetSharedEntitiesJObjectFromId(
+                            id: transaction.SharedEntitiesId,
+                            sharedEntityDataManager: sharedEntityDataManager,
+                            userDataManager: userDataManager)}
+                };
         }
         #endregion
 
@@ -198,5 +321,72 @@
                 return DateTime.Now.Year - birthday.Year;
             }
         }
+
+        #region Private helper methods
+        /// <summary>
+        /// Converts a semi colon seperated string into a JArray of name/guid pairs.
+        /// </summary>
+        /// <param name="guids">The string containing a list of guids separated with semicolon.</param>
+        /// <param name="userDataManager">The user data manager.</param>
+        /// <param name="searchHouseholds">Set to true to search Households in the database.</param>
+        /// <param name="searchGroups">Set to true to search Household groups in the database.</param>
+        /// <param name="searchUsers">Set to true to search Users in the database.</param>
+        private static JArray ConvertStringToJArrayOfNameGuidPairs(
+            string guids,
+            IUserDataManager userDataManager,
+            bool searchHouseholds = false,
+            bool searchGroups = false,
+            bool searchUsers = false)
+        {
+            if (string.IsNullOrWhiteSpace(guids))
+            {
+                return new JArray();
+            }
+
+            var jArray = new JArray();
+            var nameList = new List<string>();
+            var guidList = guids.Split(';');
+
+            foreach (var guid in guidList)
+            {
+                if (string.IsNullOrWhiteSpace(guid))
+                {
+                    continue;
+                }
+
+                if (searchHouseholds)
+                {
+                    var id = Guid.Parse(guid);
+                    var name = userDataManager.GetHouseholdWithId(id).Name;
+
+                    jArray.Add(new JObject()
+                    {
+                        { "Id", id },
+                        { "Name", name }
+                    });
+                }
+                else if (searchGroups)
+                {
+                    var id = Guid.Parse(guid);
+                    var name = userDataManager.GetHouseholdGroupWithId(id).Name;
+
+                    jArray.Add(new JObject()
+                    {
+                        { "Id", id },
+                        { "Name", name }
+                    });
+                }
+                else if (searchUsers)
+                {
+                    var id = Guid.Parse(guid);
+                    var user = userDataManager.GetUserFromUserId(id);
+
+                    jArray.Add(OutputHandler.CreateUserJObject(user));
+                }
+            }
+
+            return jArray;
+        }
+        #endregion
     }
 }

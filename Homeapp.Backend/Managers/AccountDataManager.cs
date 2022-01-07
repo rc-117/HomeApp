@@ -78,48 +78,6 @@
         }
 
         /// <summary>
-        /// Gets all transactions from an account.
-        /// </summary>
-        /// <param name="userId">The account id.</param>
-        public JArray GetTransactionsJObjectByAccount(Guid accountId)
-        {
-            var account = this.GetAccountById(accountId);
-            var transactions = this.GetTransactionsByAccount(accountId);
-            var jArray = new JArray();
-            foreach (var transaction in transactions)
-            {
-                var incomeCategory = transaction.IncomeCategory == null ?
-                    null : transaction.IncomeCategory.Name;
-
-                var expenseCategory = transaction.ExpenseCategory == null ?
-                    null : transaction.ExpenseCategory.Name;
-
-                var transactionType = Enum.GetName(typeof(TransactionType), transaction.TransactionType);
-
-                var transactionAmount = 
-                    transaction.TransactionType == TransactionType.Expense || 
-                    transaction.TransactionType == TransactionType.Transfer ?
-                    transaction.Amount * -1 : transaction.Amount;
-
-                jArray.Add(new JObject
-                {
-                    { "Id", transaction.Id },
-                    { "Name", transaction.Name },
-                    { "Amount", transactionAmount },
-                    { "TransactionType", transactionType },
-                    { "Owner", this.userDataManager.CreatetUserJObjectFromUser(account.User) },
-                    { "ExpenseCategory", expenseCategory },
-                    { "IncomeCategory", incomeCategory },
-                    { "DateTime", transaction.DateTime },
-                    { "RecurringType", Enum.GetName(typeof(RecurringType), transaction.RecurringType) },
-                    { "AccountId", transaction.AccountId },
-                    { "IsCleared", transaction.IsCleared }
-                });
-            }
-            return jArray;
-        }
-
-        /// <summary>
         /// Calculates the balance of a specified account.
         /// </summary>
         /// <param name="accountId">The account id.</param>
@@ -193,6 +151,17 @@
             }
 
             return account;
+        }
+
+        /// <summary>
+        /// Gets a recurring transaction record from the database using its id.
+        /// </summary>
+        /// <param name="id">The id of the recurring transaction record.</param>
+        public RecurringTransaction GetRecurringTransactionById(Guid id)
+        {
+            return this.appDbContext
+                .RecurringTransactions
+                .FirstOrDefault(r => r.Id == id);
         }
     }
 }

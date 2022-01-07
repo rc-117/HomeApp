@@ -43,21 +43,6 @@
         }
 
         /// <summary>
-        /// Creates a JObject from a user, exluding the user's password hash.
-        /// </summary>
-        /// <param name="user">The user.</param>
-        public JObject CreatetUserJObjectFromUser(User user)
-        {
-            return new JObject
-            {
-                { "Id", user.Id },
-                { "Email", user.EmailAddress },
-                { "FirstName", user.FirstName },
-                { "LastName", user.LastName }
-            };
-        }
-
-        /// <summary>
         /// Gets a user by its id.
         /// </summary>
         /// <param name="userId">The user id.</param>
@@ -311,6 +296,17 @@
             return this.appDbContext
                 .Households
                 .FirstOrDefault(h => h.Id == householdId);
+        }
+
+        /// <summary>
+        /// Gets a household group from the database using its id.
+        /// </summary>
+        /// <param name="groupId">The household group id.</param>
+        public HouseholdGroup GetHouseholdGroupWithId(Guid groupId)
+        {
+            return this.appDbContext
+                .HouseholdGroups
+                .FirstOrDefault(h => h.Id == groupId);
         }
 
         /// <summary>

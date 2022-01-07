@@ -31,13 +31,6 @@ namespace Homeapp.Backend.Managers
         public Transaction[] GetTransactionsByAccount(Guid accountId);
 
         /// <summary>
-        /// Gets all transactions from an account.
-        /// </summary>
-        /// <param name="userId">The account id.</param>
-        public JArray GetTransactionsJObjectByAccount(Guid accountId);
-
-
-        /// <summary>
         /// Calculates the balance of a specified account.
         /// </summary>
         /// <param name="accountId">The account id.</param>
@@ -51,6 +44,12 @@ namespace Homeapp.Backend.Managers
         /// <param name="sharedEntities"></param>
         /// <param name="sharedEntities">The object containing the allowed entities for this account.</param>
         public Task<Account> CreateAccount(User user, CreateAccountRequest request, SharedEntities sharedEntities);
+
+        /// <summary>
+        /// Gets a recurring transaction record from the database using its id.
+        /// </summary>
+        /// <param name="id">The id of the recurring transaction record.</param>
+        public RecurringTransaction GetRecurringTransactionById(Guid id);
 
     }
 }

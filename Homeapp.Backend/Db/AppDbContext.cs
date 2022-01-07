@@ -23,6 +23,7 @@
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
         public DbSet<IncomeCategory> IncomeCategories { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<RecurringTransaction> RecurringTransactions { get; set; }
 
         //Common
         public DbSet<SharedEntities> SharedEntities { get; set; }

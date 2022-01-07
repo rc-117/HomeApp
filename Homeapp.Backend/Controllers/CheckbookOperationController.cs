@@ -83,7 +83,8 @@
                 account: account,
                 accountOwner: owner,
                 accountDataManager: this.accountManager,
-                sharedEntityDataManager: this.sharedEntityDataManager);
+                sharedEntityDataManager: this.sharedEntityDataManager,
+                userDataManager: this.userDataManager);
 
             return Ok(responseBody.ToString());
         }
@@ -121,7 +122,8 @@
                 account: createdAccount,
                 accountOwner: user,
                 accountDataManager: accountManager,
-                sharedEntityDataManager: this.sharedEntityDataManager);
+                sharedEntityDataManager: this.sharedEntityDataManager,
+                userDataManager: this.userDataManager);
                 
             return Ok(response.ToString());
         }

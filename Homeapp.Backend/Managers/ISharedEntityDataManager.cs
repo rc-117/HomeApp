@@ -20,12 +20,6 @@
         public SharedEntities CreateNewSharedEntitiesObject(SharedEntitiesRequest request);
 
         /// <summary>
-        /// Returns a JSON object containing shared/allowed entities for an item. Used for response handling.
-        /// </summary>
-        /// <param name="id">The id to select the SharedEntities record.</param>
-        public JObject GetSharedEntitiesJObjectFromId(Guid id);
-
-        /// <summary>
         /// Gets a SharedEntities object by its id.
         /// </summary>
         /// <param name="id">The id to select the SharedEntities record.</param>
