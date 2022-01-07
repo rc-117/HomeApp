@@ -26,6 +26,7 @@
         public DbSet<RecurringTransaction> RecurringTransactions { get; set; }
 
         //Common
+        public DbSet<RecurringSchedule> RecurringSchedules { get; set; }
         public DbSet<SharedEntities> SharedEntities { get; set; }
     }
 }

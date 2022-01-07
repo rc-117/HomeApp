@@ -8,18 +8,6 @@ namespace Homeapp.Backend.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ExpenseCategories",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ExpenseCategories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Households",
                 columns: table => new
                 {
@@ -33,15 +21,24 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "IncomeCategories",
+                name: "RecurringSchedules",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true)
+                    RecurringType = table.Column<int>(nullable: false),
+                    Hours = table.Column<int>(nullable: false),
+                    Minutes = table.Column<int>(nullable: false),
+                    DayOfWeek = table.Column<int>(nullable: false),
+                    DateOfMonth = table.Column<int>(nullable: false),
+                    SecondDateOfMonth = table.Column<int>(nullable: false),
+                    AnnualMonth = table.Column<int>(nullable: false),
+                    AnnualDateMonthDate = table.Column<int>(nullable: false),
+                    SecondAnnualMonth = table.Column<int>(nullable: false),
+                    SecondAnnualDateMonthDate = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IncomeCategories", x => x.Id);
+                    table.PrimaryKey("PK_RecurringSchedules", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -126,6 +123,60 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ExpenseCategories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    CreatingUserId = table.Column<Guid>(nullable: false),
+                    SharedEntitiesId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ExpenseCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExpenseCategories_Users_CreatingUserId",
+                        column: x => x.CreatingUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ExpenseCategories_SharedEntities_SharedEntitiesId",
+                        column: x => x.SharedEntitiesId,
+                        principalTable: "SharedEntities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "IncomeCategories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    CreatingUserId = table.Column<Guid>(nullable: false),
+                    SharedEntitiesId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IncomeCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_IncomeCategories_Users_CreatingUserId",
+                        column: x => x.CreatingUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_IncomeCategories_SharedEntities_SharedEntitiesId",
+                        column: x => x.SharedEntitiesId,
+                        principalTable: "SharedEntities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserHouseholds",
                 columns: table => new
                 {
@@ -176,6 +227,64 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RecurringTransactions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    Amount = table.Column<double>(nullable: false),
+                    TransactionType = table.Column<int>(nullable: false),
+                    CreatingUserId = table.Column<Guid>(nullable: false),
+                    ExpenseCategoryId = table.Column<Guid>(nullable: true),
+                    IncomeCategoryId = table.Column<Guid>(nullable: true),
+                    DateTimeCreated = table.Column<DateTime>(nullable: false),
+                    DateStart = table.Column<DateTime>(nullable: false),
+                    RecurringScheduleId = table.Column<Guid>(nullable: false),
+                    AccountId = table.Column<Guid>(nullable: false),
+                    SharedEntitiesId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RecurringTransactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RecurringTransactions_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RecurringTransactions_Users_CreatingUserId",
+                        column: x => x.CreatingUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RecurringTransactions_ExpenseCategories_ExpenseCategoryId",
+                        column: x => x.ExpenseCategoryId,
+                        principalTable: "ExpenseCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RecurringTransactions_IncomeCategories_IncomeCategoryId",
+                        column: x => x.IncomeCategoryId,
+                        principalTable: "IncomeCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RecurringTransactions_RecurringSchedules_RecurringScheduleId",
+                        column: x => x.RecurringScheduleId,
+                        principalTable: "RecurringSchedules",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RecurringTransactions_SharedEntities_SharedEntitiesId",
+                        column: x => x.SharedEntitiesId,
+                        principalTable: "SharedEntities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Transactions",
                 columns: table => new
                 {
@@ -183,15 +292,15 @@ namespace Homeapp.Backend.Migrations
                     Name = table.Column<string>(nullable: true),
                     Amount = table.Column<double>(nullable: false),
                     TransactionType = table.Column<int>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: false),
+                    AccountIdToTransferTo = table.Column<Guid>(nullable: false),
+                    OwnerId = table.Column<Guid>(nullable: false),
                     ExpenseCategoryId = table.Column<Guid>(nullable: true),
                     IncomeCategoryId = table.Column<Guid>(nullable: true),
                     DateTime = table.Column<DateTime>(nullable: false),
-                    RecurringType = table.Column<int>(nullable: false),
+                    RecurringTransactionId = table.Column<Guid>(nullable: false),
                     AccountId = table.Column<Guid>(nullable: false),
                     IsCleared = table.Column<bool>(nullable: false),
-                    SharedEntitiesId = table.Column<int>(nullable: false),
-                    SharedEntitiesId1 = table.Column<Guid>(nullable: true)
+                    SharedEntitiesId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -215,15 +324,21 @@ namespace Homeapp.Backend.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Transactions_SharedEntities_SharedEntitiesId1",
-                        column: x => x.SharedEntitiesId1,
-                        principalTable: "SharedEntities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Transactions_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Transactions_Users_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Transactions_RecurringTransactions_RecurringTransactionId",
+                        column: x => x.RecurringTransactionId,
+                        principalTable: "RecurringTransactions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Transactions_SharedEntities_SharedEntitiesId",
+                        column: x => x.SharedEntitiesId,
+                        principalTable: "SharedEntities",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -239,9 +354,59 @@ namespace Homeapp.Backend.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ExpenseCategories_CreatingUserId",
+                table: "ExpenseCategories",
+                column: "CreatingUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExpenseCategories_SharedEntitiesId",
+                table: "ExpenseCategories",
+                column: "SharedEntitiesId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_HouseholdGroups_HouseholdId",
                 table: "HouseholdGroups",
                 column: "HouseholdId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IncomeCategories_CreatingUserId",
+                table: "IncomeCategories",
+                column: "CreatingUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IncomeCategories_SharedEntitiesId",
+                table: "IncomeCategories",
+                column: "SharedEntitiesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecurringTransactions_AccountId",
+                table: "RecurringTransactions",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecurringTransactions_CreatingUserId",
+                table: "RecurringTransactions",
+                column: "CreatingUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecurringTransactions_ExpenseCategoryId",
+                table: "RecurringTransactions",
+                column: "ExpenseCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecurringTransactions_IncomeCategoryId",
+                table: "RecurringTransactions",
+                column: "IncomeCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecurringTransactions_RecurringScheduleId",
+                table: "RecurringTransactions",
+                column: "RecurringScheduleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RecurringTransactions_SharedEntitiesId",
+                table: "RecurringTransactions",
+                column: "SharedEntitiesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_AccountId",
@@ -259,14 +424,19 @@ namespace Homeapp.Backend.Migrations
                 column: "IncomeCategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_SharedEntitiesId1",
+                name: "IX_Transactions_OwnerId",
                 table: "Transactions",
-                column: "SharedEntitiesId1");
+                column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_UserId",
+                name: "IX_Transactions_RecurringTransactionId",
                 table: "Transactions",
-                column: "UserId");
+                column: "RecurringTransactionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transactions_SharedEntitiesId",
+                table: "Transactions",
+                column: "SharedEntitiesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserHouseholdGroups_HouseholdGroupId",
@@ -301,6 +471,12 @@ namespace Homeapp.Backend.Migrations
                 name: "UserHouseholds");
 
             migrationBuilder.DropTable(
+                name: "RecurringTransactions");
+
+            migrationBuilder.DropTable(
+                name: "HouseholdGroups");
+
+            migrationBuilder.DropTable(
                 name: "Accounts");
 
             migrationBuilder.DropTable(
@@ -310,16 +486,16 @@ namespace Homeapp.Backend.Migrations
                 name: "IncomeCategories");
 
             migrationBuilder.DropTable(
-                name: "HouseholdGroups");
+                name: "RecurringSchedules");
 
             migrationBuilder.DropTable(
-                name: "SharedEntities");
+                name: "Households");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Households");
+                name: "SharedEntities");
         }
     }
 }

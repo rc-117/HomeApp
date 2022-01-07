@@ -175,30 +175,30 @@
             }.ToString());
         }
 
-        /// <summary>
-        /// Creates a transaction record in a specified account that the requesting user has access to.
-        /// </summary>
-        /// <param name="userId">The id of the user that owns the account.</param>
-        /// <param name="accountId">The id of the account.</param>
-        [HttpPut]
-        [Route("/api/Checkbook/Accounts/userId/{userId}/accountId/{accountId}/Transactions/Create")]
-        public async Task<IActionResult> CreateAccountTransaction
-            (string userId,
-            string accountId)
-        {
-            CommonValidation.GuidIsValid(guid: userId, errorMessage: "Invalid user id received.");
-            CommonValidation.GuidIsValid(guid: accountId, errorMessage: "Invalid account id received.");
+        ///// <summary>
+        ///// Creates a transaction record in a specified account that the requesting user has access to.
+        ///// </summary>
+        ///// <param name="userId">The id of the user that owns the account.</param>
+        ///// <param name="accountId">The id of the account.</param>
+        //[HttpPut]
+        //[Route("/api/Checkbook/Accounts/userId/{userId}/accountId/{accountId}/Transactions/Create")]
+        //public async Task<IActionResult> CreateAccountTransaction
+        //    (string userId,
+        //    string accountId)
+        //{
+        //    CommonValidation.GuidIsValid(guid: userId, errorMessage: "Invalid user id received.");
+        //    CommonValidation.GuidIsValid(guid: accountId, errorMessage: "Invalid account id received.");
 
-            var account = this.accountManager.GetAccountById(Guid.Parse(accountId));
+        //    var account = this.accountManager.GetAccountById(Guid.Parse(accountId));
 
-            IdentityValidation.UserHasEditAccessToResource(
-                requestingUser: this.userDataManager.GetUserFromUserId(this.GetUserId()),
-                ownerId: account.UserId,
-                sharedEntities: this.sharedEntityDataManager
-                    .GetSharedEntitiesObjectFromId(account.SharedEntitiesId),
-                errorMessage: $"The requesting user does not have write access to account with id: '{account.Id}'");
+        //    IdentityValidation.UserHasEditAccessToResource(
+        //        requestingUser: this.userDataManager.GetUserFromUserId(this.GetUserId()),
+        //        ownerId: account.UserId,
+        //        sharedEntities: this.sharedEntityDataManager
+        //            .GetSharedEntitiesObjectFromId(account.SharedEntitiesId),
+        //        errorMessage: $"The requesting user does not have write access to account with id: '{account.Id}'");
 
 
-        }
+        //}
     }
 }

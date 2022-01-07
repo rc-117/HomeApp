@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="Entities\Checkbook\Properties\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 

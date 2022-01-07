@@ -35,11 +35,6 @@
         public Guid AccountIdToTransferTo { get; set; }
 
         /// <summary>
-        /// (For 'Transfer' transaction type) The account to transfer funds to. The amount must be more than zero for a transfer.
-        /// </summary>
-        public Account AccountToTransferTo { get; set; }
-
-        /// <summary>
         /// The id of the user who owns this transaction.
         /// </summary>
         public Guid OwnerId { get; set; }

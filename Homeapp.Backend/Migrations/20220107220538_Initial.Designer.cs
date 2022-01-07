@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Homeapp.Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220104002434_Initial")]
+    [Migration("20220107220538_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,10 +55,23 @@ namespace Homeapp.Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid>("CreatingUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<Guid>("SharedEntitiesId")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatingUserId");
+
+                    b.HasIndex("SharedEntitiesId");
 
                     b.ToTable("ExpenseCategories");
                 });
@@ -69,12 +82,122 @@ namespace Homeapp.Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid>("CreatingUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<Guid>("SharedEntitiesId")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatingUserId");
+
+                    b.HasIndex("SharedEntitiesId");
+
                     b.ToTable("IncomeCategories");
+                });
+
+            modelBuilder.Entity("Homeapp.Backend.Entities.RecurringSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("AnnualDateMonthDate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AnnualMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DateOfMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Hours")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Minutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RecurringType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SecondAnnualDateMonthDate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SecondAnnualMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SecondDateOfMonth")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RecurringSchedules");
+                });
+
+            modelBuilder.Entity("Homeapp.Backend.Entities.RecurringTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("double");
+
+                    b.Property<Guid>("CreatingUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("DateStart")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("DateTimeCreated")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("ExpenseCategoryId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("IncomeCategoryId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<Guid>("RecurringScheduleId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("SharedEntitiesId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("TransactionType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("CreatingUserId");
+
+                    b.HasIndex("ExpenseCategoryId");
+
+                    b.HasIndex("IncomeCategoryId");
+
+                    b.HasIndex("RecurringScheduleId");
+
+                    b.HasIndex("SharedEntitiesId");
+
+                    b.ToTable("RecurringTransactions");
                 });
 
             modelBuilder.Entity("Homeapp.Backend.Entities.SharedEntities", b =>
@@ -115,6 +238,9 @@ namespace Homeapp.Backend.Migrations
                     b.Property<Guid>("AccountId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid>("AccountIdToTransferTo")
+                        .HasColumnType("char(36)");
+
                     b.Property<double>("Amount")
                         .HasColumnType("double");
 
@@ -133,20 +259,17 @@ namespace Homeapp.Backend.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<int>("RecurringType")
-                        .HasColumnType("int");
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("char(36)");
 
-                    b.Property<int>("SharedEntitiesId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("RecurringTransactionId")
+                        .HasColumnType("char(36)");
 
-                    b.Property<Guid?>("SharedEntitiesId1")
+                    b.Property<Guid>("SharedEntitiesId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
 
                     b.HasKey("Id");
 
@@ -156,9 +279,11 @@ namespace Homeapp.Backend.Migrations
 
                     b.HasIndex("IncomeCategoryId");
 
-                    b.HasIndex("SharedEntitiesId1");
+                    b.HasIndex("OwnerId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("RecurringTransactionId");
+
+                    b.HasIndex("SharedEntitiesId");
 
                     b.ToTable("Transactions");
                 });
@@ -285,6 +410,71 @@ namespace Homeapp.Backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Homeapp.Backend.Entities.ExpenseCategory", b =>
+                {
+                    b.HasOne("Homeapp.Backend.Identity.User", "CreatingUser")
+                        .WithMany()
+                        .HasForeignKey("CreatingUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
+                        .WithMany()
+                        .HasForeignKey("SharedEntitiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Homeapp.Backend.Entities.IncomeCategory", b =>
+                {
+                    b.HasOne("Homeapp.Backend.Identity.User", "CreatingUser")
+                        .WithMany()
+                        .HasForeignKey("CreatingUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
+                        .WithMany()
+                        .HasForeignKey("SharedEntitiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Homeapp.Backend.Entities.RecurringTransaction", b =>
+                {
+                    b.HasOne("Homeapp.Backend.Entities.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Identity.User", "CreatingUser")
+                        .WithMany()
+                        .HasForeignKey("CreatingUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Entities.ExpenseCategory", "ExpenseCategory")
+                        .WithMany()
+                        .HasForeignKey("ExpenseCategoryId");
+
+                    b.HasOne("Homeapp.Backend.Entities.IncomeCategory", "IncomeCategory")
+                        .WithMany()
+                        .HasForeignKey("IncomeCategoryId");
+
+                    b.HasOne("Homeapp.Backend.Entities.RecurringSchedule", "RecurringSchedule")
+                        .WithMany()
+                        .HasForeignKey("RecurringScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
+                        .WithMany()
+                        .HasForeignKey("SharedEntitiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Homeapp.Backend.Entities.Transaction", b =>
                 {
                     b.HasOne("Homeapp.Backend.Entities.Account", "Account")
@@ -301,13 +491,21 @@ namespace Homeapp.Backend.Migrations
                         .WithMany()
                         .HasForeignKey("IncomeCategoryId");
 
+                    b.HasOne("Homeapp.Backend.Identity.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Entities.RecurringTransaction", "RecurringTransaction")
+                        .WithMany()
+                        .HasForeignKey("RecurringTransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
                         .WithMany()
-                        .HasForeignKey("SharedEntitiesId1");
-
-                    b.HasOne("Homeapp.Backend.Identity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("SharedEntitiesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
