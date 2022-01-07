@@ -371,7 +371,7 @@
 
                 User user = TestRepo.Users[random.Next(TestRepo.Users.Count)];
                 Account[] userAccounts = TestRepo.Accounts
-                    .Where(account => account.UserId == user.Id)
+                    .Where(account => account.OwnerId == user.Id)
                     .ToArray();
 
                 if (userAccounts.Length == 0)

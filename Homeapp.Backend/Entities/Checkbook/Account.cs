@@ -36,13 +36,13 @@
         /// The owning user's id.
         /// </summary>
         [JsonProperty]
-        public Guid UserId { get; set; }
+        public Guid OwnerId { get; set; }
 
         /// <summary>
         /// The user who owns the account.
         /// </summary>
         [JsonProperty]
-        public User User { get; set; }
+        public User Owner { get; set; }
 
         /// <summary>
         /// The unique id of the SharedIdentities object.

@@ -13,7 +13,7 @@
                 new Account()
                 {
                     Id = new Guid("F9168C5E-CEB2-4faa-B6BF-329BF39FA1E4"),
-                    User = new User()
+                    Owner = new User()
                         {
                             Id = new Guid("e79d653c-c5db-4740-8edd-87d3851f039d"),
                             EmailAddress = "john@mail.com",
@@ -21,7 +21,7 @@
                             FirstName = "John",
                             LastName = "Doe"
                         },
-                    UserId = new Guid("e79d653c-c5db-4740-8edd-87d3851f039d"),
+                    OwnerId = new Guid("e79d653c-c5db-4740-8edd-87d3851f039d"),
                     Name = "Checkings",
                     AccountType = AccountType.Checkings,
                     StartingBalance = 120.34
@@ -29,7 +29,7 @@
                 new Account()
                 {
                     Id = new Guid("936DA01F-9ABD-4d9d-80C7-02AF85C822A8"),
-                    User = new User()
+                    Owner = new User()
                         {
                             Id = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
                             EmailAddress = "axel@mail.com",
@@ -37,7 +37,7 @@
                             FirstName = "Axel",
                             LastName = "Carino"
                         },
-                    UserId = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
+                    OwnerId = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
                     Name = "Savings",
                     AccountType = AccountType.Savings,
                     StartingBalance = 500
@@ -45,7 +45,7 @@
                                 new Account()
                 {
                     Id = new Guid("2cd10fe9-7a87-447f-8449-74db14a6dabc"),
-                    User = new User()
+                    Owner = new User()
                         {
                             Id = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
                             EmailAddress = "axel@mail.com",
@@ -53,7 +53,7 @@
                             FirstName = "Axel",
                             LastName = "Carino"
                         },
-                    UserId = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
+                    OwnerId = new Guid("c79aa2d4-1c0e-4fd1-9eb3-55b7d9f0051c"),
                     Name = "Checkings",
                     AccountType = AccountType.Checkings,
                     StartingBalance = 1589.58

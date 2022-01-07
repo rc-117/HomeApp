@@ -60,7 +60,7 @@
         {
             return this.appDbContext
                 .Accounts
-                .Where(account => account.UserId == userId)
+                .Where(account => account.OwnerId == userId)
                 .ToArray();
         }
 
@@ -129,7 +129,7 @@
                 Name = request.Name,
                 AccountType = (AccountType)Enum.Parse(typeof(AccountType), request.AccountType),
                 StartingBalance = request.StartingBalance,
-                UserId = user.Id,
+                OwnerId = user.Id,
             };
 
             account.SharedEntities = sharedEntities;

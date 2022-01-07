@@ -12,7 +12,6 @@
         /// <summary>
         /// The unique Id of the expense category.
         /// </summary>
-        [JsonProperty]
         public Guid Id { get; set; }
         
         /// <summary>
