@@ -174,34 +174,29 @@
         }
 
         /// <summary>
-        /// Creates a transaction record in a specified account owned by the user.
+        /// Creates a transaction record in a specified account that the requesting user has access to.
         /// </summary>
-        /// <param name="accountId"></param>
-        //[HttpPut]
-        //[Route("/api/Checkbook/Accounts/userId/{userId}/accountId/{accountId}/Transactions/Create")]
-        //public async Task<IActionResult> CreateAccountTransaction
-        //    (string userId,
-        //    string accountId)
-        //{
-        //    var userIdGuid = Guid.TryParse(userId, out Guid guid) == true ? guid : Guid.Empty;
-        //    var accountIdGuid = Guid.TryParse(userId, out Guid accountGuid) == true ? accountGuid : Guid.Empty;
+        /// <param name="userId">The id of the user that owns the account.</param>
+        /// <param name="accountId">The id of the account.</param>
+        [HttpPut]
+        [Route("/api/Checkbook/Accounts/userId/{userId}/accountId/{accountId}/Transactions/Create")]
+        public async Task<IActionResult> CreateAccountTransaction
+            (string userId,
+            string accountId)
+        {
+            Validation.GuidIsValid(guid: userId, errorMessage: "Invalid user id received.");
+            Validation.GuidIsValid(guid: accountId, errorMessage: "Invalid account id received.");
 
-        //    if (userIdGuid == Guid.Empty)
-        //    {
-        //        return BadRequest("Invalid user Id.");
-        //    }
-        //    else if (this.userDataManager.GetUserFromUserId(userIdGuid) == null)
-        //    {
-        //        return NotFound($"User '{userIdGuid}' not found.");
-        //    }
-        //    //else if (this)
-        //    //{
-        //        // This needs to check if requesting user is in a list of authorized users for the account
-        //    //}
-        //    if (accountIdGuid == Guid.Empty)
-        //    {
-        //        return BadRequest("Invalid account Id.");
-        //    }
-        //}
+            var account = this.accountManager.GetAccountById(Guid.Parse(accountId));
+
+            Validation.UserHasEditAccessToResource(
+                requestingUser: this.userDataManager.GetUserFromUserId(this.GetUserId()),
+                ownerId: account.UserId,
+                sharedEntities: this.sharedEntityDataManager
+                    .GetSharedEntitiesObjectFromId(account.SharedEntitiesId),
+                errorMessage: $"The requesting user does not have write access to account with id: '{account.Id}'");
+
+
+        }
     }
 }

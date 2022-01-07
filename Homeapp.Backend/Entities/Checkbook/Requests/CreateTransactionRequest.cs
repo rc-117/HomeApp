@@ -3,6 +3,7 @@
     using Homeapp.Backend.Identity;
     using Newtonsoft.Json;
     using System;
+    using System.ComponentModel.DataAnnotations;
 
     /// <summary>
     /// An object containing properties to create an account transaction.
@@ -18,18 +19,21 @@
         /// <summary>
         /// The transaction amount.
         /// </summary>
+        [JsonProperty]
+        [Required]
         public double Amount { get; set; }
 
         /// <summary>
         /// The transaction type.
         /// </summary>
         [JsonProperty]
-        public TransactionType TransactionType { get; set; }
+        public string TransactionType { get; set; }
 
         /// <summary>
         /// The id of the user who owns this transaction.
         /// </summary>
         [JsonProperty]
+        [Required]
         public Guid UserId { get; set; }
 
         /// <summary>

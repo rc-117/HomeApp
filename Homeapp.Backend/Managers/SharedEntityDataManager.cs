@@ -4,7 +4,6 @@ namespace Homeapp.Backend.Managers
 {
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
-    using Homeapp.Backend.Entities.Common.Requests;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Tools;
     using Newtonsoft.Json.Linq;

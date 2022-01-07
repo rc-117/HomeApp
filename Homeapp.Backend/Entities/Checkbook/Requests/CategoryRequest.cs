@@ -1,23 +1,24 @@
 ﻿namespace Homeapp.Backend.Entities
 {
-    using Homeapp.Backend.Identity;
     using Newtonsoft.Json;
     using System;
+    using System.ComponentModel.DataAnnotations;
 
     /// <summary>
-    /// The expense category
+    /// An object containing properties to create an Income/Expense category or modify an existing one.
     /// </summary>
-    public class ExpenseCategory
+    public class CategoryRequest
     {
         /// <summary>
-        /// The unique Id of the expense category.
+        /// (Optional, provide if modifying an existing category) The unique id of the category.
         /// </summary>
         [JsonProperty]
-        public Guid Id { get; set; }
-        
+        public string CategoryId { get; set; }
+
         /// <summary>
         /// The name of the category.
         /// </summary>
+        [Required]
         [JsonProperty]
         public string Name { get; set; }
 
@@ -30,25 +31,21 @@
         /// <summary>
         /// The id of the user who created this category.
         /// </summary>
+        [Required]
         [JsonProperty]
-        public Guid CreatingUserId { get; set; }
+        public string CreatingUserId { get; set; }
 
         /// <summary>
-        /// The user who created this category.
+        /// (Optional, provide if modifying an existing category) The unique id of the SharedEntitiesRecord.
         /// </summary>
         [JsonProperty]
-        public User CreatingUser { get; set; }
-
-        /// <summary>
-        /// The unique id of the SharedIdentities object.
-        /// </summary>
-        [JsonProperty]
-        public Guid SharedEntitiesId { get; set; }
+        public string SharedEntitiesId { get; set; }
 
         /// <summary>
         /// Object containing a list of entities that have access to this resource.
         /// </summary>
+        [Required]
         [JsonProperty]
-        public SharedEntities SharedEntities { get; set; }
+        public SharedEntitiesRequest SharedEntities { get; set; }
     }
 }

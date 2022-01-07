@@ -1,7 +1,6 @@
 ﻿namespace Homeapp.Backend.Managers
 {
     using Homeapp.Backend.Entities;
-    using Homeapp.Backend.Entities.Common.Requests;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Threading.Tasks;

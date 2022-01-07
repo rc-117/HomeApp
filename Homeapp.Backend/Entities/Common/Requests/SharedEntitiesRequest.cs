@@ -1,4 +1,4 @@
-﻿namespace Homeapp.Backend.Entities.Common.Requests
+﻿namespace Homeapp.Backend.Entities
 {
     using System;
     using System.ComponentModel.DataAnnotations;

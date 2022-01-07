@@ -2,7 +2,6 @@
 {
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
-    using Homeapp.Backend.Entities.Common.Requests;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Managers;
     using System;
@@ -89,6 +88,71 @@
             }
 
             if (!userHasReadAccess)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                    {
+                        Content = new StringContent(errorMessage),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.UserUnauthorized)
+                    }); ;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the requesting user has edit access to a resource.
+        /// </summary>
+        /// <param name="requestingUser">The requesting user.</param>
+        /// <param name="ownerId">The resource owner's id.</param>
+        /// <param name="sharedEntities">The sharedEntities record to check.</param>
+        /// <param name="errorMessage">The error message to use in the response message.</param>
+        public static void UserHasEditAccessToResource(
+            User requestingUser,
+            Guid ownerId,
+            SharedEntities sharedEntities,
+            string errorMessage)
+        {
+            var userHasEditAccess = false;
+
+            var userHouseholds = requestingUser.Households;
+            var userHouseholdGroups = requestingUser.HouseholdGroups;
+                        
+            var editUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.EditUserIds);
+            var editHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdIds);
+            var editHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdGroupIds);
+
+            if (requestingUser.Id == ownerId)
+            {
+                userHasEditAccess = true;
+            }            
+            else if (editUsers.Contains(requestingUser.Id))
+            {
+                userHasEditAccess = true;
+            }
+            else
+            {
+                foreach (var household in userHouseholds)
+                {
+                    if (editHouseholds.Contains(household.HouseholdId))
+                    {
+                        userHasEditAccess = true;
+                        break;
+                    }
+                }
+                if (!userHasEditAccess)
+                {
+                    foreach (var group in userHouseholdGroups)
+                    {
+                        if (editHouseholdGroups.Contains(group.HouseholdGroupId))
+                        {
+                            userHasEditAccess = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!userHasEditAccess)
             {
                 throw new HttpResponseException(
                     new HttpResponseMessage(HttpStatusCode.Unauthorized)

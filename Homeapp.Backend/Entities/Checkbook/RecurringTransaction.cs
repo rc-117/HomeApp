@@ -5,98 +5,103 @@
     using System;
 
     /// <summary>
-    /// The account transaction class.
+    /// The recurring transaction class.
     /// </summary>
-    public class Transaction
+    public class RecurringTransaction
     {
         /// <summary>
-        /// The unique id of the transaction.
+        /// The unique id of the recurring transaction.
         /// </summary>
+        [JsonProperty]
         public Guid Id { get; set; }
 
         /// <summary>
-        /// The transaction name.
+        /// The recurring transaction name.
         /// </summary>
+        [JsonProperty]
         public string Name { get; set; }
 
         /// <summary>
-        /// The transaction amount.
+        /// The recurring transaction amount.
         /// </summary>
         public double Amount { get; set; }
 
         /// <summary>
-        /// The transaction type.
+        /// The recurring transaction type.
         /// </summary>
+        [JsonProperty]
         public TransactionType TransactionType { get; set; }
 
         /// <summary>
-        /// (For 'Transfer' transaction type) The account id to transfer funds to. The amount must be more than zero for a transfer.
+        /// The id of the user who created this recurring transaction.
         /// </summary>
-        public Guid AccountIdToTransferTo { get; set; }
+        [JsonProperty]
+        public Guid CreatingUserId { get; set; }
 
         /// <summary>
-        /// (For 'Transfer' transaction type) The account to transfer funds to. The amount must be more than zero for a transfer.
+        /// The user who who created this recurring transaction.
         /// </summary>
-        public Account AccountToTransferTo { get; set; }
-
-        /// <summary>
-        /// The id of the user who owns this transaction.
-        /// </summary>
-        public Guid UserId { get; set; }
-
-        /// <summary>
-        /// The user who owns this transaction.
-        /// </summary>
-        public User User { get; set; }
+        [JsonProperty]
+        public User CreatingUser { get; set; }
 
         /// <summary>
         /// The expense category, if applicable.
         /// </summary>
+        [JsonProperty]
         public ExpenseCategory ExpenseCategory { get; set; }
 
         /// <summary>
         /// The income category, if applicable.
         /// </summary>
+        [JsonProperty]
         public IncomeCategory IncomeCategory { get; set; }
 
         /// <summary>
-        /// The date and time the transaction was created
+        /// The date and time the recurring transaction was created.
         /// </summary>
-        public DateTime DateTime { get; set; }
+        [JsonProperty]
+        public DateTime DateTimeCreated { get; set; }
 
         /// <summary>
-        /// The recurring transaction id that this transaction is generated from, if applicable.
+        /// The date the recurring transaction starts.
         /// </summary>
-        public Guid RecurringTransactionId { get; set; }
+        [JsonProperty]
+        public DateTime DateStart { get; set; }
 
         /// <summary>
-        /// The recurring transaction that this transaction is generated from, if applicable.
+        /// The time of day that the recurring item will occur.
         /// </summary>
-        public RecurringTransaction RecurringTransaction { get; set; }
+        [JsonProperty]
+        public RecurringTime RecurringTime { get; set; }
+
+        /// <summary>
+        /// The recurring type
+        /// </summary>
+        [JsonProperty]
+        public RecurringType RecurringType { get; set; }
 
         /// <summary>
         /// The account id.
         /// </summary>
+        [JsonProperty]
         public Guid AccountId { get; set; }
 
         /// <summary>
         /// The account for this transaction.
         /// </summary>
+        [JsonProperty]
         public Account Account { get; set; }
-
-        /// <summary>
-        /// Indicates whether or not the transaction has been cleared. 
-        /// </summary>
-        public bool IsCleared { get; set; }
 
         /// <summary>
         /// The unique id of the SharedIdentities object.
         /// </summary>
+        [JsonProperty]
         public Guid SharedEntitiesId { get; set; }
 
         /// <summary>
         /// Object containing a list of entities that have access to this resource.
         /// </summary>
+        [JsonProperty]
         public SharedEntities SharedEntities { get; set; }
     }
 }

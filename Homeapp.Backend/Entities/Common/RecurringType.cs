@@ -6,11 +6,6 @@
     public enum RecurringType
     {
         /// <summary>
-        /// Will occur once.
-        /// </summary>
-        Once,
-
-        /// <summary>
         /// Will occur once a day.
         /// </summary>
         Daily,
