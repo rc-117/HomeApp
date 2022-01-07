@@ -21,9 +21,9 @@
         /// <param name="id">The id to select the SharedEntities record.</param>
         /// <param name="sharedEntityDataManager">The shared entity data manager.</param>
         /// <param name="userDataManager">The user data manager.</param>
-        public static JObject GetSharedEntitiesJObjectFromId(Guid id, ISharedEntityDataManager sharedEntityDataManager, IUserDataManager userDataManager)
+        public static JObject GetSharedEntitiesJObjectFromId(Guid id, IAllowedUsersDataManager sharedEntityDataManager, IUserDataManager userDataManager)
         {
-            var sharedEntities = sharedEntityDataManager.GetSharedEntitiesObjectFromId(id);
+            var sharedEntities = sharedEntityDataManager.GetAllowedUsersObjectFromId(id);
 
             var readHouseholdArray = 
                 ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
@@ -32,11 +32,11 @@
             var readUserArray = 
                 ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadUserIds, searchUsers: true, userDataManager: userDataManager);
             var editHouseholdArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.WriteHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
             var editHouseholdGroupArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditHouseholdGroupIds, searchGroups: true, userDataManager: userDataManager);
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.WriteHouseholdGroupIds, searchGroups: true, userDataManager: userDataManager);
             var editUserArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.EditUserIds, searchUsers: true, userDataManager: userDataManager);
+                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.WriteUserIds, searchUsers: true, userDataManager: userDataManager);
 
             return new JObject()
             {
@@ -83,7 +83,7 @@
             Account account, 
             User accountOwner, 
             IAccountDataManager accountDataManager,
-            ISharedEntityDataManager sharedEntityDataManager,
+            IAllowedUsersDataManager sharedEntityDataManager,
             IUserDataManager userDataManager)
         {
             return new JObject()
@@ -113,7 +113,7 @@
             Guid accountId, 
             IAccountDataManager accountDataManager, 
             IUserDataManager userDataManager,
-            ISharedEntityDataManager sharedEntityDataManager)
+            IAllowedUsersDataManager sharedEntityDataManager)
         {
             var transactions = accountDataManager.GetTransactionsByAccount(accountId);
             var jArray = new JArray();
@@ -139,7 +139,7 @@
             Transaction transaction, 
             IUserDataManager userDataManager,
             IAccountDataManager accountDataManager,
-            ISharedEntityDataManager sharedEntityDataManager)
+            IAllowedUsersDataManager sharedEntityDataManager)
         {
             var incomeCategory = transaction.IncomeCategory == null ?
                 null : transaction.IncomeCategory.Name;

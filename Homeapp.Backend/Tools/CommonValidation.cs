@@ -133,14 +133,14 @@
         /// </summary>
         /// <param name="request">The request.</param>
         /// <param name="appDbContext">The application database context.</param>
-        public static void SharedEntitiesRequestIsValid(SharedEntitiesRequest request, AppDbContext appDbContext)
+        public static void SharedEntitiesRequestIsValid(AllowedUsersRequest request, AppDbContext appDbContext)
         {
             CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdIds);
             CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdGroupIds);
             CommonValidation.StringArrayContainsValidGuids(request.ReadUserIds);
-            CommonValidation.StringArrayContainsValidGuids(request.EditHouseholdIds);
-            CommonValidation.StringArrayContainsValidGuids(request.EditHouseholdGroupIds);
-            CommonValidation.StringArrayContainsValidGuids(request.EditUserIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdGroupIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteUserIds);
 
             IdentityValidation.HouseholdIdArrayContainsExistingIds(
                 ids: CommonValidation.ConvertStringArrayToGuidArray(request.ReadHouseholdIds),
@@ -155,15 +155,15 @@
                 appDbContext: appDbContext);
 
             IdentityValidation.HouseholdIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.EditHouseholdIds),
+                ids: CommonValidation.ConvertStringArrayToGuidArray(request.WriteHouseholdIds),
                 appDbContext: appDbContext);
 
             IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.EditHouseholdGroupIds),
+                ids: CommonValidation.ConvertStringArrayToGuidArray(request.WriteHouseholdGroupIds),
                 appDbContext: appDbContext);
 
             IdentityValidation.UserIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.EditUserIds),
+                ids: CommonValidation.ConvertStringArrayToGuidArray(request.WriteUserIds),
                 appDbContext: appDbContext);
         }
 

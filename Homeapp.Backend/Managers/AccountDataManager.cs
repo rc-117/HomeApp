@@ -122,7 +122,7 @@
         public async Task<Account> CreateAccount(
             User user, 
             CreateAccountRequest request, 
-            SharedEntities sharedEntities)
+            AllowedUsers sharedEntities)
         {
             var account = new Account()
             {

@@ -18,7 +18,7 @@ namespace Homeapp.Backend.Managers
     /// <summary>
     /// The shared entity data manager.
     /// </summary>
-    public class SharedEntityDataManager : ISharedEntityDataManager
+    public class AllowedUsersDataManager : IAllowedUsersDataManager
     {
         private AppDbContext appDbContext;
 
@@ -26,7 +26,7 @@ namespace Homeapp.Backend.Managers
         /// Initializes an instance of the Shared Entity Data Manager.
         /// </summary>
         /// <param name="appDbContext">The application database context.</param>
-        public SharedEntityDataManager(AppDbContext appDbContext)
+        public AllowedUsersDataManager(AppDbContext appDbContext)
         {
             this.appDbContext = appDbContext;
         }
@@ -38,16 +38,19 @@ namespace Homeapp.Backend.Managers
         /// <remarks>This does not persist the sharedentities object to the database. This only creates an instance of a SharedEntities object.
         /// This method is to be used when creating other entities that require SharedEntities, and will the SharedEntities object is
         /// to be persisted to the database through other data managers on entity creation.</remarks>
-        public SharedEntities CreateNewSharedEntitiesObject(SharedEntitiesRequest request)
+        public AllowedUsers CreateNewAllowedUsersObject(AllowedUsersRequest request)
         {
-            var sharedEntities = new SharedEntities
+            var sharedEntities = new AllowedUsers
             {
                 ReadHouseholdIds = OutputHandler.ConvertStringArrayToString(request.ReadHouseholdIds),
                 ReadHouseholdGroupIds = OutputHandler.ConvertStringArrayToString(request.ReadHouseholdGroupIds),
                 ReadUserIds = OutputHandler.ConvertStringArrayToString(request.ReadUserIds),
-                EditHouseholdIds = OutputHandler.ConvertStringArrayToString(request.EditHouseholdIds),
-                EditHouseholdGroupIds = OutputHandler.ConvertStringArrayToString(request.EditHouseholdGroupIds),
-                EditUserIds = OutputHandler.ConvertStringArrayToString(request.EditUserIds)
+                WriteHouseholdIds = OutputHandler.ConvertStringArrayToString(request.WriteHouseholdIds),
+                WriteHouseholdGroupIds = OutputHandler.ConvertStringArrayToString(request.WriteHouseholdGroupIds),
+                WriteUserIds = OutputHandler.ConvertStringArrayToString(request.WriteUserIds),
+                FullAccessHouseholdIds = OutputHandler.ConvertStringArrayToString(request.FullAccessHouseholdIds),
+                FullAccessHouseholdGroupIds = OutputHandler.ConvertStringArrayToString(request.FullAccessHouseholdGroupIds),
+                FullAccessUserIds = OutputHandler.ConvertStringArrayToString(request.FullAccessUserIds),
             };
 
             return sharedEntities;
@@ -57,7 +60,7 @@ namespace Homeapp.Backend.Managers
         /// Gets a SharedEntities object by its id.
         /// </summary>
         /// <param name="id">The id to select the SharedEntities record.</param>
-        public SharedEntities GetSharedEntitiesObjectFromId(Guid id)
+        public AllowedUsers GetAllowedUsersObjectFromId(Guid id)
         {
             return this.appDbContext.SharedEntities.FirstOrDefault(s => s.Id == id);
         }

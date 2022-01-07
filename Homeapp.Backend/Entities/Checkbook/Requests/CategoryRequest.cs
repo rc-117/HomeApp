@@ -46,6 +46,6 @@
         /// </summary>
         [Required]
         [JsonProperty]
-        public SharedEntitiesRequest SharedEntities { get; set; }
+        public AllowedUsersRequest SharedEntities { get; set; }
     }
 }

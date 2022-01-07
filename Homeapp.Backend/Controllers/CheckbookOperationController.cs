@@ -26,7 +26,7 @@
     {
         private IAccountDataManager accountManager;
         private IUserDataManager userDataManager;
-        private ISharedEntityDataManager sharedEntityDataManager;
+        private IAllowedUsersDataManager sharedEntityDataManager;
         private AppDbContext appDbContext;
 
         /// <summary>
@@ -39,7 +39,7 @@
         public CheckbookOperationController(
             IAccountDataManager accountManager,
             IUserDataManager userDataManager,
-            ISharedEntityDataManager sharedEntityDataManager,
+            IAllowedUsersDataManager sharedEntityDataManager,
             AppDbContext appDbContext)
         {
             this.accountManager = accountManager;
@@ -75,7 +75,7 @@
                 ownerId: account.OwnerId,
                 sharedEntities: 
                     this.sharedEntityDataManager
-                    .GetSharedEntitiesObjectFromId(account.SharedEntitiesId),
+                    .GetAllowedUsersObjectFromId(account.SharedEntitiesId),
                 errorMessage: 
                     $"Requesting user does not have read access on account with id: '{account.Id}'.");
 
@@ -110,7 +110,7 @@
             
             // TODO: Write code somewhere here to undo creating this SharedEntities object if the
             // CreateAccount method doesnt save to db for some reason
-            var sharedEntities = this.sharedEntityDataManager.CreateNewSharedEntitiesObject(
+            var sharedEntities = this.sharedEntityDataManager.CreateNewAllowedUsersObject(
                     request: accountRequest.SharedEntitiesRequest);
 
             var createdAccount = await this.accountManager.CreateAccount(
@@ -193,11 +193,11 @@
 
             var account = this.accountManager.GetAccountById(Guid.Parse(accountId));
 
-            IdentityValidation.UserHasEditAccessToResource(
+            IdentityValidation.UserHasWriteAccessToResource(
                 requestingUser: this.userDataManager.GetUserFromUserId(this.GetUserId()),
                 ownerId: account.OwnerId,
                 sharedEntities: this.sharedEntityDataManager
-                    .GetSharedEntitiesObjectFromId(account.SharedEntitiesId),
+                    .GetAllowedUsersObjectFromId(account.SharedEntitiesId),
                 errorMessage: $"The requesting user does not have write access to account with id: '{account.Id}'");
 
 

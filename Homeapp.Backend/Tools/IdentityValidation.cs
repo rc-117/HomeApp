@@ -24,7 +24,7 @@
         public static void UserHasReadAccessToResource(
             User requestingUser,
             Guid ownerId,
-            SharedEntities sharedEntities,
+            AllowedUsers sharedEntities,
             string errorMessage)
         {
             var userHasReadAccess = false;
@@ -36,9 +36,13 @@
             var readHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.ReadHouseholdIds);
             var readHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.ReadHouseholdGroupIds);
 
-            var editUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.EditUserIds);
-            var editHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdIds);
-            var editHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdGroupIds);
+            var writeUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.WriteUserIds);
+            var writeHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.WriteHouseholdIds);
+            var writeHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.WriteHouseholdGroupIds);
+
+            var fullAccessUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
+            var fullAccessHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
+            var fullAccessHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
 
             if (requestingUser.Id == ownerId)
             {
@@ -48,7 +52,11 @@
             {
                 userHasReadAccess = true;
             }
-            else if (editUsers.Contains(requestingUser.Id))
+            else if (writeUsers.Contains(requestingUser.Id))
+            {
+                userHasReadAccess = true;
+            }
+            else if (fullAccessUsers.Contains(requestingUser.Id))
             {
                 userHasReadAccess = true;
             }
@@ -61,7 +69,12 @@
                         userHasReadAccess = true;
                         break;
                     }
-                    else if (editHouseholds.Contains(household.HouseholdId))
+                    else if (writeHouseholds.Contains(household.HouseholdId))
+                    {
+                        userHasReadAccess = true;
+                        break;
+                    }
+                    else if (fullAccessHouseholds.Contains(household.HouseholdId))
                     {
                         userHasReadAccess = true;
                         break;
@@ -76,7 +89,12 @@
                             userHasReadAccess = true;
                             break;
                         }
-                        else if (editHouseholdGroups.Contains(group.HouseholdGroupId))
+                        else if (writeHouseholdGroups.Contains(group.HouseholdGroupId))
+                        {
+                            userHasReadAccess = true;
+                            break;
+                        }
+                        else if (fullAccessHouseholdGroups.Contains(group.HouseholdGroupId))
                         {
                             userHasReadAccess = true;
                             break;
@@ -98,59 +116,142 @@
         }
 
         /// <summary>
-        /// Checks if the requesting user has edit access to a resource.
+        /// Checks if the requesting user has write access to a resource.
         /// </summary>
         /// <param name="requestingUser">The requesting user.</param>
         /// <param name="ownerId">The resource owner's id.</param>
         /// <param name="sharedEntities">The sharedEntities record to check.</param>
         /// <param name="errorMessage">The error message to use in the response message.</param>
-        public static void UserHasEditAccessToResource(
+        public static void UserHasWriteAccessToResource(
             User requestingUser,
             Guid ownerId,
-            SharedEntities sharedEntities,
+            AllowedUsers sharedEntities,
             string errorMessage)
         {
-            var userHasEditAccess = false;
+            var userHasWriteAccess = false;
 
             var userHouseholds = requestingUser.Households;
             var userHouseholdGroups = requestingUser.HouseholdGroups;
 
-            var editUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.EditUserIds);
-            var editHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdIds);
-            var editHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdGroupIds);
+            var writeUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.WriteUserIds);
+            var writeHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.WriteHouseholdIds);
+            var writeHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.WriteHouseholdGroupIds);
+
+            var fullAccessUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
+            var fullAccessHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
+            var fullAccessHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
 
             if (requestingUser.Id == ownerId)
             {
-                userHasEditAccess = true;
+                userHasWriteAccess = true;
             }
-            else if (editUsers.Contains(requestingUser.Id))
+            else if (writeUsers.Contains(requestingUser.Id))
             {
-                userHasEditAccess = true;
+                userHasWriteAccess = true;
+            }
+            else if (fullAccessUsers.Contains(requestingUser.Id))
+            {
+                userHasWriteAccess = true;
             }
             else
             {
                 foreach (var household in userHouseholds)
                 {
-                    if (editHouseholds.Contains(household.HouseholdId))
+                    if (writeHouseholds.Contains(household.HouseholdId))
                     {
-                        userHasEditAccess = true;
+                        userHasWriteAccess = true;
+                        break;
+                    }
+                    else if (fullAccessHouseholds.Contains(household.HouseholdId))
+                    {
+                        userHasWriteAccess = true;
                         break;
                     }
                 }
-                if (!userHasEditAccess)
+                if (!userHasWriteAccess)
                 {
                     foreach (var group in userHouseholdGroups)
                     {
-                        if (editHouseholdGroups.Contains(group.HouseholdGroupId))
+                        if (writeHouseholdGroups.Contains(group.HouseholdGroupId))
                         {
-                            userHasEditAccess = true;
+                            userHasWriteAccess = true;
+                            break;
+                        }
+                        else if (fullAccessHouseholdGroups.Contains(group.HouseholdGroupId))
+                        {
+                            userHasWriteAccess = true;
                             break;
                         }
                     }
                 }
             }
 
-            if (!userHasEditAccess)
+            if (!userHasWriteAccess)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                    {
+                        Content = new StringContent(errorMessage),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.UserUnauthorized)
+                    }); ;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the requesting user has full access to a resource.
+        /// </summary>
+        /// <param name="requestingUser">The requesting user.</param>
+        /// <param name="ownerId">The resource owner's id.</param>
+        /// <param name="sharedEntities">The sharedEntities record to check.</param>
+        /// <param name="errorMessage">The error message to use in the response message.</param>
+        public static void UserHasFullAccessToResource(
+            User requestingUser,
+            Guid ownerId,
+            AllowedUsers sharedEntities,
+            string errorMessage)
+        {
+            var userHasFullAccess = false;
+
+            var userHouseholds = requestingUser.Households;
+            var userHouseholdGroups = requestingUser.HouseholdGroups;
+
+            var fullAccessUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
+            var fullAccessHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
+            var fullAccessHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.FullAccessUserIds);
+
+            if (requestingUser.Id == ownerId)
+            {
+                userHasFullAccess = true;
+            }
+            else if (fullAccessUsers.Contains(requestingUser.Id))
+            {
+                userHasFullAccess = true;
+            }
+            else
+            {
+                foreach (var household in userHouseholds)
+                {
+                    if (fullAccessHouseholds.Contains(household.HouseholdId))
+                    {
+                        userHasFullAccess = true;
+                        break;
+                    }
+                }
+                if (!userHasFullAccess)
+                {
+                    foreach (var group in userHouseholdGroups)
+                    {
+                        if (fullAccessHouseholdGroups.Contains(group.HouseholdGroupId))
+                        {
+                            userHasFullAccess = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!userHasFullAccess)
             {
                 throw new HttpResponseException(
                     new HttpResponseMessage(HttpStatusCode.Unauthorized)

@@ -43,7 +43,7 @@ namespace Homeapp.Backend.Managers
         /// <param name="request">The user's account request.</param>
         /// <param name="sharedEntities"></param>
         /// <param name="sharedEntities">The object containing the allowed entities for this account.</param>
-        public Task<Account> CreateAccount(User user, CreateAccountRequest request, SharedEntities sharedEntities);
+        public Task<Account> CreateAccount(User user, CreateAccountRequest request, AllowedUsers sharedEntities);
 
         /// <summary>
         /// Gets a recurring transaction record from the database using its id.
