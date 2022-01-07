@@ -3,18 +3,16 @@
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
-    using Homeapp.Backend.Managers;
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Web.Http;
 
     /// <summary>
-    /// The validation class for the application.
+    /// Validation class handling all identity related validation tasks.
     /// </summary>
-    public static class Validation
+    public static class IdentityValidation
     {
         /// <summary>
         /// Checks if the requesting user has read access to a resource.
@@ -24,13 +22,13 @@
         /// <param name="sharedEntities">The sharedEntities record to check.</param>
         /// <param name="errorMessage">The error message to use in the response message.</param>
         public static void UserHasReadAccessToResource(
-            User requestingUser, 
-            Guid ownerId, 
+            User requestingUser,
+            Guid ownerId,
             SharedEntities sharedEntities,
             string errorMessage)
         {
             var userHasReadAccess = false;
-                        
+
             var userHouseholds = requestingUser.Households;
             var userHouseholdGroups = requestingUser.HouseholdGroups;
 
@@ -54,7 +52,7 @@
             {
                 userHasReadAccess = true;
             }
-            else 
+            else
             {
                 foreach (var household in userHouseholds)
                 {
@@ -116,7 +114,7 @@
 
             var userHouseholds = requestingUser.Households;
             var userHouseholdGroups = requestingUser.HouseholdGroups;
-                        
+
             var editUsers = OutputHandler.ConvertStringToGuidList(sharedEntities.EditUserIds);
             var editHouseholds = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdIds);
             var editHouseholdGroups = OutputHandler.ConvertStringToGuidList(sharedEntities.EditHouseholdGroupIds);
@@ -124,7 +122,7 @@
             if (requestingUser.Id == ownerId)
             {
                 userHasEditAccess = true;
-            }            
+            }
             else if (editUsers.Contains(requestingUser.Id))
             {
                 userHasEditAccess = true;
@@ -165,35 +163,6 @@
         }
 
         /// <summary>
-        /// Validates that a string can be converted into base 64 bytes.
-        /// </summary>
-        /// <param name="value">The string to check.</param>
-        /// <param name="errorMessage">The error message to use in the HttpResponse.</param>
-        /// <param name="bytes">The out result.</param>
-        public static void StringIsBase64Compatible(
-            string value,
-            string errorMessage,
-            out byte[] bytes)
-        {
-            try
-            {
-                bytes = Convert.FromBase64String(value);
-            }
-            catch (Exception)
-            {
-                bytes = null;
-
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.BadRequest)
-                    {
-                        Content = new StringContent(errorMessage),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.InvalidRequest)
-                    });
-            }
-        }
-
-        /// <summary>
         /// Checks if a specified email address is already in use.
         /// </summary>
         /// <param name="checkIfExists">Set to 'true' to throw an exception if the email exists. 
@@ -205,8 +174,8 @@
         /// <param name="reasonPhrase">The reason phrase to provide in the response.</param>
         public static void EmailIsAlreadyInUse(
             bool checkIfExists,
-            string email, 
-            AppDbContext appDbContext, 
+            string email,
+            AppDbContext appDbContext,
             string errorMessage,
             HttpStatusCode statusCode,
             ReasonPhrase reasonPhrase)
@@ -239,9 +208,8 @@
                         });
                 }
             }
-
-
         }
+
 
         /// <summary>
         /// Checks if a specified household exists in the database.
@@ -251,7 +219,7 @@
         public static void HouseholdExists(Guid householdId, AppDbContext appDbContext)
         {
             var existingHousehold = appDbContext.Households.FirstOrDefault(h => h.Id == householdId);
-            
+
             if (existingHousehold == null)
             {
                 throw new HttpResponseException(
@@ -293,7 +261,7 @@
         /// <param name="appDbContext">The application database context.</param>
         public static void GroupIsInHousehold(Guid groupId, Guid householdId, AppDbContext appDbContext)
         {
-            var existingHouseholdGroup = 
+            var existingHouseholdGroup =
                 appDbContext
                 .HouseholdGroups
                 .Where(h => h.Id == groupId)
@@ -319,9 +287,9 @@
         /// <param name="appDbContext">The application database context.</param>
         /// <param name="errorMessage">The error message to use in the HTTP response message in the event of an error.</param>
         public static void UserIsInHousehold(
-            Guid userId, 
-            Guid householdId, 
-            AppDbContext appDbContext, 
+            Guid userId,
+            Guid householdId,
+            AppDbContext appDbContext,
             string errorMessage)
         {
             var existingUser =
@@ -361,7 +329,7 @@
                        ReasonPhrase = HttpReasonPhrase
                            .GetPhrase(ReasonPhrase.UserNotFound)
                    });
-            } 
+            }
         }
 
         /// <summary>
@@ -371,7 +339,7 @@
         /// <param name="passwordHash">The password hash to check.</param>
         /// <param name="appDbContext">The application database context object.</param>
         public static void RequestedHouseholdPasswordIsValid
-            (Guid householdId, 
+            (Guid householdId,
             string passwordHash,
             AppDbContext appDbContext)
         {
@@ -413,149 +381,7 @@
                        ReasonPhrase = HttpReasonPhrase
                            .GetPhrase(ReasonPhrase.InvalidUserCredentials)
                    });
-            }             
-        }
-                
-        /// <summary>
-        /// Checks if a given birthday is valid.
-        /// </summary>
-        /// <param name="birthday">The birthday DateTime object.</param>
-        public static void BirthdayIsValid(DateTime birthday)
-        {
-            if (birthday.Date > DateTime.Now.Date)
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.BadRequest)
-                    {
-                        Content = new StringContent("An invalid birthdate was provided. The DOB must be in the past."),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.InvalidBirthday)
-                    });
-            } 
-        }
-
-        /// <summary>
-        /// Checks if a string can be converted into a DateTime value..
-        /// </summary>
-        /// <param name="date">The string to check.</param>
-        public static void DateStringIsValid(string date, string errorMessage)
-        {
-            if (!DateTime.TryParse(date, out var dateTime))
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.BadRequest)
-                    {
-                        Content = new StringContent(errorMessage),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.InvalidDate)
-                    });
             }
-        }
-
-        /// <summary>
-        /// Checks if a string can be converted to a GUID.
-        /// </summary>
-        /// <param name="guid">The string to check.</param>
-        /// <param name="errorMessage">The error message to use in the response body.</param>
-        public static void GuidIsValid(string guid, string errorMessage)
-        {
-            if (!Guid.TryParse(guid, out Guid result))
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.BadRequest)
-                    {
-                        Content = new StringContent(errorMessage),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.InvalidGuid)
-                    });
-            }            
-        }
-
-        /// <summary>
-        /// Validates that a specified checkbook account exists in the database.
-        /// </summary>
-        /// <param name="Id">The Id of the checkbook.</param>
-        /// <param name="accountManager">The account data manager.</param>
-        public static void CheckbookAccountExists(Guid Id, IAccountDataManager accountManager)
-        {
-            var account = accountManager.GetAccountById(Id);
-            if (account == null)
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.NotFound)
-                    {
-                        Content = new StringContent($"Checkbook account with id '{Id}' was not found."),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.CheckbookAccountNotFound)
-                    });
-            }
-        }
-
-        /// <summary>
-        /// Validates that an array of strings contains valid guid values.
-        /// </summary>
-        /// <param name="array">The array to check.</param>
-        public static void StringArrayContainsValidGuids(string[] array)
-        {
-            if (array.Length == 0)
-            {
-                return;
-            }
-
-            var exception = new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.BadRequest)
-                    {
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.InvalidGuid)
-                    });
-
-            foreach (var guid in array)
-            {   
-                if (!Guid.TryParse(guid, out Guid result))
-                {
-                    exception.Response.Content = new StringContent($"Invalid id received: '{guid}'");
-                    throw exception;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Confirms that a SharedEntities request contains valid values.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <param name="appDbContext">The application database context.</param>
-        public static void SharedEntitiesRequestIsValid(SharedEntitiesRequest request, AppDbContext appDbContext)
-        {
-            Validation.StringArrayContainsValidGuids(request.ReadHouseholdIds);
-            Validation.StringArrayContainsValidGuids(request.ReadHouseholdGroupIds);
-            Validation.StringArrayContainsValidGuids(request.ReadUserIds);
-            Validation.StringArrayContainsValidGuids(request.EditHouseholdIds);
-            Validation.StringArrayContainsValidGuids(request.EditHouseholdGroupIds);
-            Validation.StringArrayContainsValidGuids(request.EditUserIds);
-
-            Validation.HouseholdIdArrayContainsExistingIds(
-                ids: Validation.ConvertStringArrayToGuidArray(request.ReadHouseholdIds),
-                appDbContext: appDbContext);
-
-            Validation.HouseholdGroupIdArrayContainsExistingIds(
-                ids: Validation.ConvertStringArrayToGuidArray(request.ReadHouseholdGroupIds),
-                appDbContext: appDbContext);
-
-            Validation.UserIdArrayContainsExistingIds(
-                ids: Validation.ConvertStringArrayToGuidArray(request.ReadUserIds),
-                appDbContext: appDbContext);
-
-            Validation.HouseholdIdArrayContainsExistingIds(
-                ids: Validation.ConvertStringArrayToGuidArray(request.EditHouseholdIds),
-                appDbContext: appDbContext);
-
-            Validation.HouseholdGroupIdArrayContainsExistingIds(
-                ids: Validation.ConvertStringArrayToGuidArray(request.EditHouseholdGroupIds),
-                appDbContext: appDbContext);
-
-            Validation.UserIdArrayContainsExistingIds(
-                ids: Validation.ConvertStringArrayToGuidArray(request.EditUserIds),
-                appDbContext: appDbContext);
         }
 
         /// <summary>
@@ -626,88 +452,5 @@
                 }
             }
         }
-
-        #region Helper methods
-        /// <summary>
-        /// Converts an array of guids into a semi colon seperated string.
-        /// </summary>
-        /// <param name="guidList">The list of guids to convert.</param>
-        private static string ConvertGuidArrayToString(Guid[] guidList)
-        {
-            var stringList = "";
-
-            foreach (var guid in guidList)
-            {
-                stringList += guid.ToString() + ";";
-            }
-
-            return stringList;
-        }
-
-        /// <summary>
-        /// Converts a list of guids into a semi colon seperated string.
-        /// </summary>
-        /// <param name="guidList">The list of guids to convert.</param>
-        private static string ConvertGuidListToString(List<Guid> guidList)
-        {
-            var stringList = "";
-
-            foreach (var guid in guidList)
-            {
-                stringList += guid.ToString() + ";";
-            }
-
-            return stringList;
-        }
-
-        /// <summary>
-        /// Converts an array of strings into an array of guids.
-        /// </summary>
-        /// <param name="guidList">The string array of guids to convert.</param>
-        private static Guid[] ConvertStringArrayToGuidArray(string[] guidList)
-        {
-            var stringList = new List<Guid>();
-
-            foreach (var guid in guidList)
-            {
-                stringList.Add(Guid.Parse(guid));
-            }
-
-            return stringList.ToArray();
-        }
-
-        /// <summary>
-        /// Converts an array of guid strings into a single semi colon separated string.
-        /// </summary>
-        /// <param name="guidList">The string array of guids to convert.</param>
-        private static string ConvertStringArrayToString(string[] guidList)
-        {
-            var stringList = "";
-
-            foreach (var guid in guidList)
-            {
-                stringList += guid.ToString() + ";";
-            }
-
-            return stringList;
-        }
-
-        /// <summary>
-        /// Converts a string into a list of guids.
-        /// </summary>
-        /// <param name="guids">The string containing a list of guids separated with semicolon.</param>
-        private static List<Guid> ConvertStringToGuidList(string guids)
-        {
-            var stringList = guids.Split(';');
-            List<Guid> guidsList = new List<Guid>();
-
-            foreach (var guid in stringList)
-            {
-                guidsList.Add(Guid.Parse(guid));
-            }
-
-            return guidsList;
-        }
-        #endregion
     }
 }

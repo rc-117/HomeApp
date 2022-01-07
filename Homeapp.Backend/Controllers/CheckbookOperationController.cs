@@ -55,13 +55,13 @@
         [Route("/api/Checkbook/Accounts/accountId/{accountId}/Get")]
         public IActionResult GetAccount(string accountId)
         {
-            Validation.GuidIsValid(guid: accountId, errorMessage: "Invalid account Id.");
+            CommonValidation.GuidIsValid(guid: accountId, errorMessage: "Invalid account Id.");
 
             var accountGuid = Guid.Parse(accountId);
 
-            Validation.CheckbookAccountExists(
+            CheckbookValidation.CheckbookAccountExists(
                 Id: accountGuid,
-                accountManager: this.accountManager);
+                appDbContext: this.appDbContext);
 
             var account = this.accountManager.GetAccountById(
                 accountId: accountGuid);
@@ -69,7 +69,7 @@
             var owner = this.userDataManager.GetUserFromUserId(
                 userId: account.UserId);
 
-            Validation.UserHasReadAccessToResource(
+            IdentityValidation.UserHasReadAccessToResource(
                 requestingUser: this.userDataManager
                     .GetUserFromUserId(this.GetUserId()),
                 ownerId: account.UserId,
@@ -97,13 +97,13 @@
         public async Task<IActionResult> CreateChecbookAccountForUser(
             [FromBody] CreateAccountRequest accountRequest)
         {
-            Validation.UserExists(
+            IdentityValidation.UserExists(
                 userId: this.GetUserId(),
                 appDbContext: this.appDbContext);
 
             var user = this.userDataManager.GetUserFromUserId(userId: this.GetUserId());
 
-            Validation.SharedEntitiesRequestIsValid(
+            CommonValidation.SharedEntitiesRequestIsValid(
                 request: accountRequest.SharedEntitiesRequest,
                 appDbContext: this.appDbContext);
             
@@ -133,13 +133,13 @@
         [Route("/api/Checkbook/Accounts/user/{userId}/GetAll")]
         public IActionResult GetAllChecbookAccountsFromUser(string userId)
         {
-            Validation.GuidIsValid(
+            CommonValidation.GuidIsValid(
                 guid: userId,
                 errorMessage: "Invalid user id received.");
 
             var userIdGuid = Guid.Parse(userId);
 
-            Validation.UserExists(
+            IdentityValidation.UserExists(
                 userId: userIdGuid, 
                 appDbContext: this.appDbContext);
             
@@ -184,12 +184,12 @@
             (string userId,
             string accountId)
         {
-            Validation.GuidIsValid(guid: userId, errorMessage: "Invalid user id received.");
-            Validation.GuidIsValid(guid: accountId, errorMessage: "Invalid account id received.");
+            CommonValidation.GuidIsValid(guid: userId, errorMessage: "Invalid user id received.");
+            CommonValidation.GuidIsValid(guid: accountId, errorMessage: "Invalid account id received.");
 
             var account = this.accountManager.GetAccountById(Guid.Parse(accountId));
 
-            Validation.UserHasEditAccessToResource(
+            IdentityValidation.UserHasEditAccessToResource(
                 requestingUser: this.userDataManager.GetUserFromUserId(this.GetUserId()),
                 ownerId: account.UserId,
                 sharedEntities: this.sharedEntityDataManager
