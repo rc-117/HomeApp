@@ -38,6 +38,22 @@
         public string TransactionType { get; set; }
 
         /// <summary>
+        /// Indicates whether or not this transaction is transferring funds to 
+        /// an account external to this application.
+        /// </summary>
+        [JsonProperty]
+        [Required(ErrorMessage = "'TransferToExternalAccount' bool is required.")]
+        public bool TransferToExternalAccount { get; set; }
+
+        /// <summary>
+        /// Indicates whether or not this transaction is receiving funds from 
+        /// an account external to this application.
+        /// </summary>
+        [JsonProperty]
+        [Required(ErrorMessage = "'TransferFromExternalAccount' bool is required.")]
+        public bool TransferFromExternalAccount { get; set; }
+
+        /// <summary>
         /// The id of the user who owns this transaction.
         /// </summary>
         [JsonProperty]
@@ -45,29 +61,36 @@
         public string OwnerId { get; set; }
 
         /// <summary>
-        /// The expense category, if applicable.
+        /// The expense category id, if applicable.
         /// </summary>
         [JsonProperty]
-        public string ExpenseCategory { get; set; }
+        public string ExpenseCategoryId { get; set; }
 
         /// <summary>
-        /// The income category, if applicable.
+        /// The income category id, if applicable.
         /// </summary>
         [JsonProperty]
-        public string IncomeCategory { get; set; }
+        public string IncomeCategoryId { get; set; }
 
         /// <summary>
-        /// The date and time the transaction was created
+        /// The expense category request. Used 
+        /// if creating a new expense category for this transaction.
+        /// </summary>
+        [JsonProperty]
+        public ExpenseCategoryRequest ExpenseCategoryRequest { get; set; }
+
+        /// <summary>
+        /// The income category request. Used 
+        /// if creating a new income category for this transaction.
+        /// </summary>
+        [JsonProperty]
+        public IncomeCategoryRequest IncomeCategoryRequest { get; set; }
+
+        /// <summary>
+        /// The date and time the transaction was created.
         /// </summary>
         [JsonProperty]
         public string DateTime { get; set; }
-
-        /// <summary>
-        /// The account id.
-        /// </summary>
-        [JsonProperty]
-        [Required]
-        public string AccountId { get; set; }
 
         /// <summary>
         /// The account id to transfer funds to, if this is a transfer request.
@@ -87,5 +110,12 @@
         /// </summary>
         [JsonProperty]
         public string RecurringTransactionId { get; set; }
+
+        /// <summary>
+        /// Indicates whether or not this request is for a recurring transaction.
+        /// </summary>
+        [JsonProperty]
+        [Required]
+        public bool IsRecurringTransaction { get; set; }
     }
 }

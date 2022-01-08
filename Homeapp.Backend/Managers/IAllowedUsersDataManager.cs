@@ -24,5 +24,10 @@
         /// </summary>
         /// <param name="id">The id to select the SharedEntities record.</param>
         public AllowedUsers GetAllowedUsersObjectFromId(Guid id);
+
+        /// <summary>
+        /// Creates an empty AllowedUsers object.
+        /// </summary>
+        public AllowedUsers CreateNewEmptyAllowedUsersObject();
     }
 }

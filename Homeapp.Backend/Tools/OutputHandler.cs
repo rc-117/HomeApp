@@ -174,7 +174,7 @@
                     { "IsCleared", transaction.IsCleared },
                     { "AllowedUsers", 
                         OutputHandler.GetSharedEntitiesJObjectFromId(
-                            id: transaction.SharedEntitiesId,
+                            id: transaction.AllowedUsersId,
                             sharedEntityDataManager: sharedEntityDataManager,
                             userDataManager: userDataManager)}
                 };

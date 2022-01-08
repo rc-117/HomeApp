@@ -73,6 +73,16 @@
         /// <summary>
         /// There was an error when retrieving an entity/entities from the database.
         /// </summary>
-        ErrorRetrievingFromDatabase
+        ErrorRetrievingFromDatabase,
+
+        /// <summary>
+        /// An invalid transaction type was received.
+        /// </summary>
+        InvalidTransactionType,
+
+        /// <summary>
+        /// An invalid transaction request was received.
+        /// </summary>
+        InvalidTransactionRequest,
     }
 }

@@ -30,6 +30,18 @@
         public TransactionType TransactionType { get; set; }
 
         /// <summary>
+        /// Indicates whether or not this transaction is transferring funds to 
+        /// an account external to this application.
+        /// </summary>
+        public bool TransferToExternalAccount { get; set; }
+
+        /// <summary>
+        /// Indicates whether or not this transaction is receiving funds from 
+        /// an account external to this application.
+        /// </summary>
+        public bool TransferFromExternalAccount { get; set; }
+
+        /// <summary>
         /// (For 'Transfer' transaction type) The account id to transfer funds to. The amount must be more than zero for a transfer.
         /// </summary>
         public Guid AccountIdToTransferTo { get; set; }
@@ -87,11 +99,11 @@
         /// <summary>
         /// The unique id of the SharedIdentities object.
         /// </summary>
-        public Guid SharedEntitiesId { get; set; }
+        public Guid AllowedUsersId { get; set; }
 
         /// <summary>
         /// Object containing a list of entities that have access to this resource.
         /// </summary>
-        public AllowedUsers SharedEntities { get; set; }
+        public AllowedUsers AllowedUsers { get; set; }
     }
 }

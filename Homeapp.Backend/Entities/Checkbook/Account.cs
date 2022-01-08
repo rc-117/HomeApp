@@ -54,6 +54,6 @@
         /// Object containing a list of entities that have access to this resource.
         /// </summary>
         [JsonProperty]
-        public AllowedUsers SharedEntities { get; set; }
+        public AllowedUsers AllowedUsers { get; set; }
     }
 }

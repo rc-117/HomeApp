@@ -1,6 +1,4 @@
-﻿
-
-namespace Homeapp.Backend.Managers
+﻿namespace Homeapp.Backend.Managers
 {
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
@@ -32,6 +30,25 @@ namespace Homeapp.Backend.Managers
         }
 
         /// <summary>
+        /// Creates an empty AllowedUsers object.
+        /// </summary>
+        public AllowedUsers CreateNewEmptyAllowedUsersObject()
+        {
+            return new AllowedUsers()
+            {
+                ReadHouseholdIds = "",
+                ReadHouseholdGroupIds = "",
+                ReadUserIds = "",
+                WriteHouseholdIds = "",
+                WriteHouseholdGroupIds = "",
+                WriteUserIds = "",
+                FullAccessHouseholdIds = "",
+                FullAccessHouseholdGroupIds = "",
+                FullAccessUserIds = ""
+            };
+        }
+
+        /// <summary>
         /// Creates a new SharedEntities object from a request.
         /// </summary>
         /// <param name="request">The request.</param>
@@ -40,7 +57,7 @@ namespace Homeapp.Backend.Managers
         /// to be persisted to the database through other data managers on entity creation.</remarks>
         public AllowedUsers CreateNewAllowedUsersObject(AllowedUsersRequest request)
         {
-            var sharedEntities = new AllowedUsers
+            var allowedUsers = new AllowedUsers
             {
                 ReadHouseholdIds = OutputHandler.ConvertStringArrayToString(request.ReadHouseholdIds),
                 ReadHouseholdGroupIds = OutputHandler.ConvertStringArrayToString(request.ReadHouseholdGroupIds),
@@ -53,7 +70,7 @@ namespace Homeapp.Backend.Managers
                 FullAccessUserIds = OutputHandler.ConvertStringArrayToString(request.FullAccessUserIds),
             };
 
-            return sharedEntities;
+            return allowedUsers;
         }
 
         /// <summary>

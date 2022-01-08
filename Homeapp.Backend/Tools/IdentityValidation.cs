@@ -553,5 +553,14 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Validates an AllowedUsers request.
+        /// </summary>
+        /// <param name="request">The request to validate.</param>
+        public static void ValidateAllowedUsersRequest(AllowedUsersRequest request)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
