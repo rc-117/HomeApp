@@ -26,7 +26,7 @@
     {
         private IAccountDataManager accountManager;
         private IUserDataManager userDataManager;
-        private IAllowedUsersDataManager allowedUsersDataManager;
+        private ICommonDataManager allowedUsersDataManager;
         private AppDbContext appDbContext;
 
         /// <summary>
@@ -39,7 +39,7 @@
         public CheckbookOperationController(
             IAccountDataManager accountManager,
             IUserDataManager userDataManager,
-            IAllowedUsersDataManager allowedUsersDataManager,
+            ICommonDataManager allowedUsersDataManager,
             AppDbContext appDbContext)
         {
             this.accountManager = accountManager;
@@ -204,23 +204,24 @@
                 request: request,
                 appDbContext: this.appDbContext);
 
-            var transaction = await this.accountManager
-                .CreateTransactionInAccount(
-                accountOwnerId: account.OwnerId,
-                accountId: account.Id,
-                transactionOwnerId: this.GetUserId(),
-                request: request,
-                inheritedAllowedUsers:
-                    request.InheritAllowedUsersFromCheckbook ?
-                    this.allowedUsersDataManager
-                        .GetAllowedUsersObjectFromId(account.AllowedUsersId) :
-                    null);
+            var transaction = 
+                await this.accountManager
+                    .CreateTransactionInAccount(
+                    accountOwnerId: account.OwnerId,
+                    accountId: account.Id,
+                    transactionOwnerId: this.GetUserId(),
+                    request: request,
+                    inheritedAllowedUsers:
+                        request.InheritAllowedUsersFromCheckbook ?
+                        this.allowedUsersDataManager
+                            .GetAllowedUsersObjectFromId(account.AllowedUsersId) :
+                        null);
 
             return Ok(OutputHandler.CreateTransactionJObject(
                 transaction: transaction,
                 userDataManager: this.userDataManager,
                 accountDataManager: this.accountManager,
-                allowedUsersDataManager: this.allowedUsersDataManager)
+                commonDataManager: this.allowedUsersDataManager)
                 .ToString());
         }
     }

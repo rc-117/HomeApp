@@ -14,16 +14,44 @@
     /// </summary>
     public static class OutputHandler
     {
+        #region JSON variable names
+        private static string _Id = "Id";
+        private static string _AccountId = "AccountId";
+        private static string _AccountName = "AccountName";
+        private static string _AccountType = "AccountType";
+        private static string _Balance = "Balance";
+        private static string _Owner = "Owner";
+        private static string _AllowedUsers = "AllowedUsers";
+        private static string _Name = "Name";
+        private static string _Amount = "Amount";
+        private static string _TransactionType = "TransactionType";
+        private static string _ExpenseCategory = "ExpenseCategory";
+        private static string _IncomeCategory = "IncomeCategory";
+        private static string _DateTime = "DateTime";
+        private static string _RecurringTransactionId = "RecurringTransactionId";
+        private static string _RecurringSchedule = "RecurringSchedule";
+        private static string _IsCleared = "IsCleared";
+        private static string _RecurringType = "RecurringType";
+        private static string _Time = "Time";
+        private static string _DayOfWeek = "DayOfWeek";
+        private static string _DateOfMonth = "DateOfMonth";
+        private static string _SecondDateOfMonth = "SecondDateOfMonth";
+        private static string _AnnualMonth = "AnnualMonth";
+        private static string _SecondAnnualMonth = "SecondAnnualMonth";
+        private static string _AnnualMonthDate = "AnnualMonthDate";
+        private static string _SecondAnnualMonthDate = "SecondAnnualMonthDate";
+        #endregion
+
         #region Common JObject creators
         /// <summary>
         /// Returns a JSON object containing shared/allowed entities for an item. Used for response handling.
         /// </summary>
         /// <param name="id">The id to select the SharedEntities record.</param>
-        /// <param name="allowedUsersDataManager">The shared entity data manager.</param>
+        /// <param name="commonDataManager">The shared entity data manager.</param>
         /// <param name="userDataManager">The user data manager.</param>
-        public static JObject GetAllowedUsersJObjectWithId(Guid id, IAllowedUsersDataManager allowedUsersDataManager, IUserDataManager userDataManager)
+        public static JObject GetAllowedUsersJObjectWithId(Guid id, ICommonDataManager commonDataManager, IUserDataManager userDataManager)
         {
-            var sharedEntities = allowedUsersDataManager.GetAllowedUsersObjectFromId(id);
+            var sharedEntities = commonDataManager.GetAllowedUsersObjectFromId(id);
 
             var readHouseholdArray = 
                 ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
@@ -83,27 +111,27 @@
             Account account, 
             User accountOwner, 
             IAccountDataManager accountDataManager,
-            IAllowedUsersDataManager sharedEntityDataManager,
+            ICommonDataManager sharedEntityDataManager,
             IUserDataManager userDataManager)
         {
             return new JObject()
             {
-                { "AccountId", account.Id },
-                { "AccountName", account.Name },
-                { "AccountType", Enum.GetName(typeof(AccountType), account.AccountType) },
-                { "AccountBalance", accountDataManager.CalculateAccountBalance(account) },
-                { "AccountOwner", OutputHandler.CreateUserJObject(accountOwner) },
+                { _Id, account.Id },
+                { _AccountName, account.Name },
+                { _AccountType, Enum.GetName(typeof(AccountType), account.AccountType) },
+                { _Balance, accountDataManager.CalculateAccountBalance(account) },
+                { _Owner, OutputHandler.CreateUserJObject(accountOwner) },
                 {
-                   "AllowedUsers", OutputHandler.GetAllowedUsersJObjectWithId(
+                   _AllowedUsers, OutputHandler.GetAllowedUsersJObjectWithId(
                        id: account.AllowedUsersId,
-                       allowedUsersDataManager: sharedEntityDataManager,
+                       commonDataManager: sharedEntityDataManager,
                        userDataManager: userDataManager)
                 }
             };
         }
 
         /// <summary>
-        /// /// Creates a JArray containing all transactions in an account.
+        /// Creates a JArray containing all transactions in an account.
         /// </summary>
         /// <param name="accountId">The account id.</param>
         /// <param name="accountDataManager">The account data manager.</param>
@@ -113,7 +141,7 @@
             Guid accountId, 
             IAccountDataManager accountDataManager, 
             IUserDataManager userDataManager,
-            IAllowedUsersDataManager sharedEntityDataManager)
+            ICommonDataManager sharedEntityDataManager)
         {
             var transactions = accountDataManager.GetTransactionsByAccount(accountId);
             var jArray = new JArray();
@@ -123,7 +151,7 @@
                     transaction: transaction,
                     userDataManager: userDataManager,
                     accountDataManager: accountDataManager,
-                    allowedUsersDataManager: sharedEntityDataManager));
+                    commonDataManager: sharedEntityDataManager));
             }
             return jArray;
         }
@@ -134,12 +162,12 @@
         /// <param name="transaction">The transaction object to use.</param>
         /// <param name="userDataManager">The user data manager.</param>
         /// <param name="accountDataManager">The checkbook account data manager.</param>
-        /// <param name="allowedUsersDataManager">The allowed users data manager.</param>
+        /// <param name="commonDataManager">The allowed users data manager.</param>
         public static JObject CreateTransactionJObject(
             Transaction transaction, 
             IUserDataManager userDataManager,
             IAccountDataManager accountDataManager,
-            IAllowedUsersDataManager allowedUsersDataManager)
+            ICommonDataManager commonDataManager)
         {
             var incomeCategory = transaction.IncomeCategory == null ?
                 null : transaction.IncomeCategory.Name;
@@ -154,32 +182,64 @@
 
             return new JObject
                 {
-                    { "Id", transaction.Id },
-                    { "Name", transaction.Name },
-                    { "Amount", transactionAmount },
-                    { "TransactionType", Enum.GetName(
+                    { _Id, transaction.Id },
+                    { _Name, transaction.Name },
+                    { _Amount, transactionAmount },
+                    { _TransactionType, Enum.GetName(
                         typeof(TransactionType), transaction.TransactionType) },
-                    { "Owner", OutputHandler
+                    { _Owner, OutputHandler
                         .CreateUserJObject(
                             userDataManager
                             .GetUserFromUserId(transaction.OwnerId))},
-                    { "ExpenseCategory", expenseCategory },
-                    { "IncomeCategory", incomeCategory },
-                    { "DateTime", transaction.DateTime },
-                    { "RecurringType", transaction.RecurringTransactionId == null?
-                        "" : Enum.GetName(typeof(RecurringType),
-                                accountDataManager.
-                                GetRecurringTransactionById(transaction.RecurringTransactionId)
-                                .RecurringSchedule
-                                .RecurringType)},
-                    { "AccountId", transaction.AccountId },
-                    { "IsCleared", transaction.IsCleared },
-                    { "AllowedUsers", 
+                    { _ExpenseCategory, expenseCategory },
+                    { _IncomeCategory, incomeCategory },
+                    { _DateTime, transaction.DateTime },
+                    { _RecurringTransactionId, transaction.RecurringTransactionId == null?
+                        null : transaction.RecurringTransactionId.ToString() },
+                    { _RecurringSchedule, transaction.RecurringTransactionId == null?
+                        null : OutputHandler
+                        .CreateRecurringScheduleJObject(
+                            commonDataManager.GetRecurringScheduleById(
+                                accountDataManager.GetRecurringTransactionById(
+                                    transaction.RecurringTransactionId).RecurringScheduleId)) },
+                    { _AccountId, transaction.AccountId },
+                    { _IsCleared, transaction.IsCleared },
+                    { _AllowedUsers, 
                         OutputHandler.GetAllowedUsersJObjectWithId(
                             id: transaction.AllowedUsersId,
-                            allowedUsersDataManager: allowedUsersDataManager,
+                            commonDataManager: commonDataManager,
                             userDataManager: userDataManager)}
                 };
+        }
+
+        /// <summary>
+        /// Creates a JSON object with a recurring schedule's properties.
+        /// </summary>
+        /// <param name="schedule">The recurring schedule.</param>
+        public static JObject CreateRecurringScheduleJObject(RecurringSchedule schedule)
+        {
+            return new JObject()
+            {
+                { _Id, schedule.Id },
+                { _RecurringType, Enum.GetName(typeof(RecurringType), schedule.RecurringType) },
+                { _Time, string.Format("{0}:{1}", schedule.Hours, schedule.Minutes) },
+                { _DayOfWeek, schedule.DayOfWeek == null?
+                    null : schedule.DayOfWeek.ToString() },
+                { _DateOfMonth, schedule.DateOfMonth == null?
+                    null : schedule.DateOfMonth },
+                { _SecondDateOfMonth, schedule.SecondDateOfMonth == null?
+                    null : schedule.SecondDateOfMonth },
+                { _AnnualMonth, schedule.AnnualMonth == null?
+                    null : schedule.AnnualMonth },
+                { _SecondAnnualMonth, schedule.SecondAnnualMonth == null?
+                    null : schedule.SecondAnnualMonth },
+                { _DateOfMonth, schedule.DateOfMonth == null?
+                    null : schedule.DateOfMonth },
+                { _AnnualMonthDate, schedule.AnnualMonthDate == null?
+                    null : schedule.AnnualMonthDate },
+                { _SecondAnnualMonthDate, schedule.SecondAnnualMonthDate == null?
+                    null : schedule.SecondAnnualMonthDate },
+            };
         }
         #endregion
 

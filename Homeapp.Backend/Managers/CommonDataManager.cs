@@ -16,7 +16,7 @@
     /// <summary>
     /// The shared entity data manager.
     /// </summary>
-    public class AllowedUsersDataManager : IAllowedUsersDataManager
+    public class CommonDataManager : ICommonDataManager
     {
         private AppDbContext appDbContext;
 
@@ -24,7 +24,7 @@
         /// Initializes an instance of the Shared Entity Data Manager.
         /// </summary>
         /// <param name="appDbContext">The application database context.</param>
-        public AllowedUsersDataManager(AppDbContext appDbContext)
+        public CommonDataManager(AppDbContext appDbContext)
         {
             this.appDbContext = appDbContext;
         }
@@ -100,6 +100,17 @@
                 FullAccessHouseholdGroupIds = originalCopy.FullAccessHouseholdGroupIds,
                 FullAccessUserIds = originalCopy.FullAccessUserIds
             };
+        }
+
+        /// <summary>
+        /// Gets a recurring schedule object by its id.
+        /// </summary>
+        /// <param name="id">The unique id of the recurring schedule.</param>
+        public RecurringSchedule GetRecurringScheduleById(Guid id)
+        {
+            return this.appDbContext
+                .RecurringSchedules
+                .FirstOrDefault(r => r.Id == id);
         }
     }
 }

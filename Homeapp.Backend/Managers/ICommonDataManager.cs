@@ -6,9 +6,9 @@
     using System.Threading.Tasks;
 
     /// <summary>
-    /// The shared entity data manager interface.
+    /// The common data manager interface.
     /// </summary>
-    public interface IAllowedUsersDataManager
+    public interface ICommonDataManager
     {
         /// <summary>
         /// Creates a new SharedEntities object from a request.
@@ -35,5 +35,11 @@
         /// </summary>
         /// <param name="originalCopy">The original copy.</param>
         public AllowedUsers CreateAllowedUsersCopy(AllowedUsers originalCopy);
+
+        /// <summary>
+        /// Gets a recurring schedule object by its id.
+        /// </summary>
+        /// <param name="id">The unique id of the recurring schedule.</param>
+        public RecurringSchedule GetRecurringScheduleById(Guid id);
     }
 }

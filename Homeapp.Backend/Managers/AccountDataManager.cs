@@ -26,7 +26,7 @@
         /// <summary>
         /// The allowed user data manager.
         /// </summary>
-        private IAllowedUsersDataManager allowedUsersManager;
+        private ICommonDataManager allowedUsersManager;
 
         /// <summary>
         /// The db context for the database.
@@ -41,7 +41,7 @@
         /// <param name="appDbContext">The app db context.</param>
         public AccountDataManager(
             IUserDataManager userDataManager,
-            IAllowedUsersDataManager allowedUsersDataManager,
+            ICommonDataManager allowedUsersDataManager,
             AppDbContext appDbContext)
         {
             this.userDataManager = userDataManager;
