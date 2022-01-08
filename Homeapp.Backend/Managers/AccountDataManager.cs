@@ -292,11 +292,15 @@
         /// <param name="accountId">The account id.</param>
         /// <param name="transactionOwnerId">The id of the user who created the transaction.</param>
         /// <param name="request">The request object containing properties to create the record.</param>
+        /// <param name="inheritedAllowedUsers">The allowed users list that the transaction will inherit.
+        /// Can inherit from the checkbook, or from the request. If coming from the request, it can come from form
+        /// data or from a parent RecurringTransaction.</param>
         public async Task<Transaction> CreateTransactionInAccount(
             Guid accountOwnerId, 
             Guid accountId,
             Guid transactionOwnerId,
-            TransactionRequest request)
+            TransactionRequest request,
+            AllowedUsers inheritedAllowedUsers = null)
         {
             var transactionType = (TransactionType)Enum.Parse
                     (typeof(TransactionType), request.TransactionType);
@@ -310,8 +314,20 @@
                 TransferFromExternalAccount = request.TransferFromExternalAccount,
                 DateTime = DateTime.Parse(request.DateTime),
                 Account = this.GetAccountById(accountId),
-                IsCleared = request.IsCleared,
+                IsCleared = request.IsCleared                
             };
+
+            if (request.InheritAllowedUsersFromCheckbook)
+            {
+                transaction.AllowedUsers = 
+                    this.allowedUsersManager.CreateAllowedUsersCopy(inheritedAllowedUsers);
+            }
+            else
+            {
+                transaction.AllowedUsers =
+                    this.allowedUsersManager
+                    .CreateNewAllowedUsersObject(request.AllowedUsersRequest);
+            }
 
             if (transactionType == TransactionType.Income || transactionType == TransactionType.Transfer)
             {

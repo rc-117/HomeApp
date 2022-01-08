@@ -81,5 +81,25 @@
         {
             return this.appDbContext.SharedEntities.FirstOrDefault(s => s.Id == id);
         }
+
+        /// <summary>
+        /// Creates a copy of an AllowedUsers object.
+        /// </summary>
+        /// <param name="originalCopy">The original copy.</param>
+        public AllowedUsers CreateAllowedUsersCopy(AllowedUsers originalCopy)
+        {
+            return new AllowedUsers()
+            {
+                ReadHouseholdIds = originalCopy.ReadHouseholdIds,
+                ReadHouseholdGroupIds = originalCopy.ReadHouseholdGroupIds,
+                ReadUserIds = originalCopy.ReadUserIds,
+                WriteHouseholdIds = originalCopy.WriteHouseholdIds,
+                WriteHouseholdGroupIds = originalCopy.WriteHouseholdGroupIds,
+                WriteUserIds = originalCopy.WriteUserIds,
+                FullAccessHouseholdIds = originalCopy.FullAccessHouseholdIds,
+                FullAccessHouseholdGroupIds = originalCopy.FullAccessHouseholdGroupIds,
+                FullAccessUserIds = originalCopy.FullAccessUserIds
+            };
+        }
     }
 }

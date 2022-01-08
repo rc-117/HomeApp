@@ -51,5 +51,22 @@ namespace Homeapp.Backend.Managers
         /// <param name="id">The id of the recurring transaction record.</param>
         public RecurringTransaction GetRecurringTransactionById(Guid id);
 
+        /// <summary>
+        /// Creates a transaction record in a specified checkbook account.
+        /// </summary>
+        /// <param name="accountOwnerId">The id of the account owner.</param>
+        /// <param name="accountId">The account id.</param>
+        /// <param name="transactionOwnerId">The id of the user who created the transaction.</param>
+        /// <param name="request">The request object containing properties to create the record.</param>
+        /// <param name="inheritedAllowedUsers">The allowed users list that the transaction will inherit.
+        /// Can inherit from the checkbook, or from the request. If coming from the request, it can come from form
+        /// data or from a parent RecurringTransaction.</param>
+        public Task<Transaction> CreateTransactionInAccount(
+            Guid accountOwnerId,
+            Guid accountId,
+            Guid transactionOwnerId,
+            TransactionRequest request,
+            AllowedUsers inheritedAllowedUsers = null);
+
     }
 }

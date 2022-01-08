@@ -19,11 +19,11 @@
         /// Returns a JSON object containing shared/allowed entities for an item. Used for response handling.
         /// </summary>
         /// <param name="id">The id to select the SharedEntities record.</param>
-        /// <param name="sharedEntityDataManager">The shared entity data manager.</param>
+        /// <param name="allowedUsersDataManager">The shared entity data manager.</param>
         /// <param name="userDataManager">The user data manager.</param>
-        public static JObject GetSharedEntitiesJObjectFromId(Guid id, IAllowedUsersDataManager sharedEntityDataManager, IUserDataManager userDataManager)
+        public static JObject GetAllowedUsersJObjectWithId(Guid id, IAllowedUsersDataManager allowedUsersDataManager, IUserDataManager userDataManager)
         {
-            var sharedEntities = sharedEntityDataManager.GetAllowedUsersObjectFromId(id);
+            var sharedEntities = allowedUsersDataManager.GetAllowedUsersObjectFromId(id);
 
             var readHouseholdArray = 
                 ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
@@ -94,9 +94,9 @@
                 { "AccountBalance", accountDataManager.CalculateAccountBalance(account) },
                 { "AccountOwner", OutputHandler.CreateUserJObject(accountOwner) },
                 {
-                   "AllowedUsers", OutputHandler.GetSharedEntitiesJObjectFromId(
-                       id: account.SharedEntitiesId,
-                       sharedEntityDataManager: sharedEntityDataManager,
+                   "AllowedUsers", OutputHandler.GetAllowedUsersJObjectWithId(
+                       id: account.AllowedUsersId,
+                       allowedUsersDataManager: sharedEntityDataManager,
                        userDataManager: userDataManager)
                 }
             };
@@ -123,7 +123,7 @@
                     transaction: transaction,
                     userDataManager: userDataManager,
                     accountDataManager: accountDataManager,
-                    sharedEntityDataManager: sharedEntityDataManager));
+                    allowedUsersDataManager: sharedEntityDataManager));
             }
             return jArray;
         }
@@ -134,12 +134,12 @@
         /// <param name="transaction">The transaction object to use.</param>
         /// <param name="userDataManager">The user data manager.</param>
         /// <param name="accountDataManager">The checkbook account data manager.</param>
-        /// <param name="sharedEntityDataManager">The shared entity data manager.</param>
+        /// <param name="allowedUsersDataManager">The allowed users data manager.</param>
         public static JObject CreateTransactionJObject(
             Transaction transaction, 
             IUserDataManager userDataManager,
             IAccountDataManager accountDataManager,
-            IAllowedUsersDataManager sharedEntityDataManager)
+            IAllowedUsersDataManager allowedUsersDataManager)
         {
             var incomeCategory = transaction.IncomeCategory == null ?
                 null : transaction.IncomeCategory.Name;
@@ -169,13 +169,15 @@
                     { "RecurringType", transaction.RecurringTransactionId == null?
                         "" : Enum.GetName(typeof(RecurringType),
                                 accountDataManager.
-                                GetRecurringTransactionById(transaction.RecurringTransactionId))},
+                                GetRecurringTransactionById(transaction.RecurringTransactionId)
+                                .RecurringSchedule
+                                .RecurringType)},
                     { "AccountId", transaction.AccountId },
                     { "IsCleared", transaction.IsCleared },
                     { "AllowedUsers", 
-                        OutputHandler.GetSharedEntitiesJObjectFromId(
+                        OutputHandler.GetAllowedUsersJObjectWithId(
                             id: transaction.AllowedUsersId,
-                            sharedEntityDataManager: sharedEntityDataManager,
+                            allowedUsersDataManager: allowedUsersDataManager,
                             userDataManager: userDataManager)}
                 };
         }

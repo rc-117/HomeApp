@@ -90,6 +90,7 @@
         /// The date and time the transaction was created.
         /// </summary>
         [JsonProperty]
+        [Required(ErrorMessage = "DateTime is required.")]
         public string DateTime { get; set; }
 
         /// <summary>
@@ -102,7 +103,7 @@
         /// Indicates whether or not the transaction has been cleared. 
         /// </summary>
         [JsonProperty]
-        [Required]
+        [Required(ErrorMessage = "'IsCleared' bool is required.")]
         public bool IsCleared { get; set; }
 
         /// <summary>
@@ -115,7 +116,23 @@
         /// Indicates whether or not this request is for a recurring transaction.
         /// </summary>
         [JsonProperty]
-        [Required]
+        [Required(ErrorMessage = "'IsRecurringTransaction' bool is required.")]
         public bool IsRecurringTransaction { get; set; }
+
+        /// <summary>
+        /// The list of users who will have access to this transaction.
+        /// </summary>
+        /// <remarks>Optional. If not included in the request, the transaction can inherit AllowedUsers from the checkbook. 
+        /// If included in the request, the AllowedUsers list can from from either a custom request from the user or inherited 
+        /// from a parent RecurringTransaction.</remarks>
+        [JsonProperty]
+        public AllowedUsersRequest AllowedUsersRequest { get; set; }
+
+        /// <summary>
+        /// Indicates whether or not to inherit the allowed users list from the checkbook the transaction will be created in.
+        /// </summary>
+        [JsonProperty]
+        [Required(ErrorMessage = "'InheritAllowedUsersFromCheckbook' bool is required.")]
+        public bool InheritAllowedUsersFromCheckbook { get; set; }
     }
 }

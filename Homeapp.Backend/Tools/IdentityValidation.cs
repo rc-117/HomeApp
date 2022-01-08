@@ -558,9 +558,39 @@
         /// Validates an AllowedUsers request.
         /// </summary>
         /// <param name="request">The request to validate.</param>
-        public static void ValidateAllowedUsersRequest(AllowedUsersRequest request)
+        /// <param name="appDbContext">The application database context.</param>
+        public static void ValidateAllowedUsersRequest(AllowedUsersRequest request, AppDbContext appDbContext)
         {
-            throw new NotImplementedException();
+            CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdIds);
+            CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdGroupIds);
+            CommonValidation.StringArrayContainsValidGuids(request.ReadUserIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdGroupIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteUserIds);
+
+            IdentityValidation.HouseholdIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadHouseholdIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadHouseholdGroupIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.UserIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadUserIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.HouseholdIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteHouseholdIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteHouseholdGroupIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.UserIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteUserIds),
+                appDbContext: appDbContext);
         }
     }
 }

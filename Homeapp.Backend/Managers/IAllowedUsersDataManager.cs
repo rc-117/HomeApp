@@ -29,5 +29,11 @@
         /// Creates an empty AllowedUsers object.
         /// </summary>
         public AllowedUsers CreateNewEmptyAllowedUsersObject();
+
+        /// <summary>
+        /// Creates a copy of an AllowedUsers object.
+        /// </summary>
+        /// <param name="originalCopy">The original copy.</param>
+        public AllowedUsers CreateAllowedUsersCopy(AllowedUsers originalCopy);
     }
 }

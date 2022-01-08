@@ -127,46 +127,6 @@
                 }
             }
         }
-
-        /// <summary>
-        /// Confirms that a SharedEntities request contains valid values.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <param name="appDbContext">The application database context.</param>
-        public static void SharedEntitiesRequestIsValid(AllowedUsersRequest request, AppDbContext appDbContext)
-        {
-            CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdIds);
-            CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdGroupIds);
-            CommonValidation.StringArrayContainsValidGuids(request.ReadUserIds);
-            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdIds);
-            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdGroupIds);
-            CommonValidation.StringArrayContainsValidGuids(request.WriteUserIds);
-
-            IdentityValidation.HouseholdIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.ReadHouseholdIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.ReadHouseholdGroupIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.UserIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.ReadUserIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.HouseholdIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.WriteHouseholdIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.WriteHouseholdGroupIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.UserIdArrayContainsExistingIds(
-                ids: CommonValidation.ConvertStringArrayToGuidArray(request.WriteUserIds),
-                appDbContext: appDbContext);
-        }
-
         #region Helper methods
         /// <summary>
         /// Converts an array of guids into a semi colon seperated string.

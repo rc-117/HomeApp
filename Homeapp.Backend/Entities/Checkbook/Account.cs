@@ -48,7 +48,7 @@
         /// The unique id of the SharedIdentities object.
         /// </summary>
         [JsonProperty]
-        public Guid SharedEntitiesId { get; set; }
+        public Guid AllowedUsersId { get; set; }
 
         /// <summary>
         /// Object containing a list of entities that have access to this resource.

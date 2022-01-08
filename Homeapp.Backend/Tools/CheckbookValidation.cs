@@ -38,7 +38,8 @@
         /// Validates that values received in a create/modify transaction request are valid.
         /// </summary>
         /// <param name="request">The request object.</param>
-        public static void ValidateTransactionRequest(TransactionRequest request)
+        /// <param name="appDbContext">The application database context.</param>
+        public static void ValidateTransactionRequest(TransactionRequest request, AppDbContext appDbContext)
         {
             if (!string.IsNullOrWhiteSpace(request.Id))
             {
@@ -96,7 +97,9 @@
                 }
                 else if (request.IncomeCategoryRequest != null)
                 {
-                    CheckbookValidation.ValidateIncomeCategoryRequest(request.IncomeCategoryRequest);
+                    CheckbookValidation.ValidateIncomeCategoryRequest(
+                        request: request.IncomeCategoryRequest,
+                        appDbContext: appDbContext);
                 }
             }
             else if (transactionType == TransactionType.Expense)
@@ -144,7 +147,9 @@
                 }
                 else if (request.IncomeCategoryRequest != null)
                 {
-                    CheckbookValidation.ValidateExpenseCategoryRequest(request.ExpenseCategoryRequest);
+                    CheckbookValidation.ValidateExpenseCategoryRequest(
+                        request: request.ExpenseCategoryRequest,
+                        appDbContext: appDbContext);
                 }
             }
             else if (transactionType == TransactionType.Transfer)
@@ -191,13 +196,36 @@
                             errorMessage: $"An invalid recurring transaction id was received: '{request.RecurringTransactionId}'");
                 }
             }
+
+            if (request.InheritAllowedUsersFromCheckbook)
+            {
+                if (request.AllowedUsersRequest != null)
+                {
+                    throw new HttpResponseException(
+                        new HttpResponseMessage(HttpStatusCode.BadRequest)
+                        {
+                            Content =
+                                new StringContent
+                                    ("An invalid transaction request was received. A request cannot contain 'AllowedUsersRequest' if 'InheritAllowedUsersFromCheckbook' has a value of 'true'."),
+                            ReasonPhrase = HttpReasonPhrase
+                                .GetPhrase(ReasonPhrase.InvalidTransactionRequest)
+                        });
+                }
+            }
+            else
+            {
+                IdentityValidation.ValidateAllowedUsersRequest(
+                    request: request.AllowedUsersRequest,
+                    appDbContext: appDbContext);
+            }
         }
 
         /// <summary>
         /// Validates that an income category request is valid.
         /// </summary>
         /// <param name="request">The request to validate.</param>
-        public static void ValidateIncomeCategoryRequest(IncomeCategoryRequest request)
+        /// <param name="appDbContext">The application database context.</param>
+        public static void ValidateIncomeCategoryRequest(IncomeCategoryRequest request, AppDbContext appDbContext)
         {
             if (!string.IsNullOrWhiteSpace(request.Id))
             {
@@ -207,14 +235,17 @@
                         errorMessage: $"An invalid income category id was received: '{request.Id}'.");
             }
 
-            IdentityValidation.ValidateAllowedUsersRequest(request: request.AllowedUsersRequest);
+            IdentityValidation.ValidateAllowedUsersRequest(
+                request: request.AllowedUsersRequest,
+                appDbContext: appDbContext);
         }
 
         /// <summary>
         /// Validates that an income category request is valid.
         /// </summary>
         /// <param name="request">The request to validate.</param>
-        public static void ValidateExpenseCategoryRequest(ExpenseCategoryRequest request)
+        /// <param name="appDbContext">The application database context.</param>
+        public static void ValidateExpenseCategoryRequest(ExpenseCategoryRequest request, AppDbContext appDbContext)
         {
             if (!string.IsNullOrWhiteSpace(request.Id))
             {
@@ -224,7 +255,9 @@
                         errorMessage: $"An invalid income category id was received: '{request.Id}'.");
             }
 
-            IdentityValidation.ValidateAllowedUsersRequest(request: request.AllowedUsersRequest);
+            IdentityValidation.ValidateAllowedUsersRequest(
+                request: request.AllowedUsersRequest,
+                appDbContext: appDbContext);
         }
 
         /// <summary>

@@ -26,7 +26,7 @@
     {
         private IAccountDataManager accountManager;
         private IUserDataManager userDataManager;
-        private IAllowedUsersDataManager sharedEntityDataManager;
+        private IAllowedUsersDataManager allowedUsersDataManager;
         private AppDbContext appDbContext;
 
         /// <summary>
@@ -34,17 +34,17 @@
         /// </summary>
         /// <param name="accountManager">The account data manager.</param>
         /// <param name="userDataManager">The user data manager.</param>
-        /// <param name="sharedEntityDataManager">The shared entity data manager.</param>
+        /// <param name="allowedUsersDataManager">The shared entity data manager.</param>
         /// <param name="appDbContext">The application database context.</param>
         public CheckbookOperationController(
             IAccountDataManager accountManager,
             IUserDataManager userDataManager,
-            IAllowedUsersDataManager sharedEntityDataManager,
+            IAllowedUsersDataManager allowedUsersDataManager,
             AppDbContext appDbContext)
         {
             this.accountManager = accountManager;
             this.userDataManager = userDataManager;
-            this.sharedEntityDataManager = sharedEntityDataManager;
+            this.allowedUsersDataManager = allowedUsersDataManager;
             this.appDbContext = appDbContext;
         }
 
@@ -74,8 +74,8 @@
                     .GetUserFromUserId(this.GetUserId()),
                 ownerId: account.OwnerId,
                 sharedEntities: 
-                    this.sharedEntityDataManager
-                    .GetAllowedUsersObjectFromId(account.SharedEntitiesId),
+                    this.allowedUsersDataManager
+                    .GetAllowedUsersObjectFromId(account.AllowedUsersId),
                 errorMessage: 
                     $"Requesting user does not have read access on account with id: '{account.Id}'.");
 
@@ -83,7 +83,7 @@
                 account: account,
                 accountOwner: owner,
                 accountDataManager: this.accountManager,
-                sharedEntityDataManager: this.sharedEntityDataManager,
+                sharedEntityDataManager: this.allowedUsersDataManager,
                 userDataManager: this.userDataManager);
 
             return Ok(responseBody.ToString());
@@ -104,13 +104,13 @@
 
             var user = this.userDataManager.GetUserFromUserId(userId: this.GetUserId());
 
-            CommonValidation.SharedEntitiesRequestIsValid(
+            IdentityValidation.ValidateAllowedUsersRequest(
                 request: accountRequest.SharedEntitiesRequest,
                 appDbContext: this.appDbContext);
             
             // TODO: Write code somewhere here to undo creating this SharedEntities object if the
             // CreateAccount method doesnt save to db for some reason
-            var sharedEntities = this.sharedEntityDataManager.CreateNewAllowedUsersObject(
+            var sharedEntities = this.allowedUsersDataManager.CreateNewAllowedUsersObject(
                     request: accountRequest.SharedEntitiesRequest);
 
             var createdAccount = await this.accountManager.CreateAccount(
@@ -122,7 +122,7 @@
                 account: createdAccount,
                 accountOwner: user,
                 accountDataManager: accountManager,
-                sharedEntityDataManager: this.sharedEntityDataManager,
+                sharedEntityDataManager: this.allowedUsersDataManager,
                 userDataManager: this.userDataManager);
                 
             return Ok(response.ToString());
@@ -196,11 +196,32 @@
             IdentityValidation.UserHasWriteAccessToResource(
                 requestingUser: this.userDataManager.GetUserFromUserId(this.GetUserId()),
                 ownerId: account.OwnerId,
-                sharedEntities: this.sharedEntityDataManager
-                    .GetAllowedUsersObjectFromId(account.SharedEntitiesId),
+                sharedEntities: this.allowedUsersDataManager
+                    .GetAllowedUsersObjectFromId(account.AllowedUsersId),
                 errorMessage: $"The requesting user does not have write access to account with id: '{account.Id}'");
 
+            CheckbookValidation.ValidateTransactionRequest(
+                request: request,
+                appDbContext: this.appDbContext);
 
+            var transaction = await this.accountManager
+                .CreateTransactionInAccount(
+                accountOwnerId: account.OwnerId,
+                accountId: account.Id,
+                transactionOwnerId: this.GetUserId(),
+                request: request,
+                inheritedAllowedUsers:
+                    request.InheritAllowedUsersFromCheckbook ?
+                    this.allowedUsersDataManager
+                        .GetAllowedUsersObjectFromId(account.AllowedUsersId) :
+                    null);
+
+            return Ok(OutputHandler.CreateTransactionJObject(
+                transaction: transaction,
+                userDataManager: this.userDataManager,
+                accountDataManager: this.accountManager,
+                allowedUsersDataManager: this.allowedUsersDataManager)
+                .ToString());
         }
     }
 }
