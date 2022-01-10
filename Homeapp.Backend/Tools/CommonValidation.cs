@@ -127,6 +127,44 @@
                 }
             }
         }
+
+        /// <summary>
+        /// Checks if the received phone number is valid.
+        /// </summary>
+        /// <param name="phoneNumber">The phone number value to check.</param>
+        public static void PhoneNumberIsValid(string phoneNumber)
+        {
+            if (phoneNumber.Length != 10)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        Content = 
+                            new StringContent
+                                ($"Invalid phone number received: '{phoneNumber}'. Phone number must contain exactly 10 digits."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.InvalidPhoneNumber)
+                    });
+            }
+            else
+            {
+                foreach (var character in phoneNumber)
+                {
+                    if (!int.TryParse(character.ToString(), out int result))
+                    {
+                        throw new HttpResponseException(
+                            new HttpResponseMessage(HttpStatusCode.BadRequest)
+                            {
+                                Content =
+                                    new StringContent
+                                        ($"Invalid phone number received: '{phoneNumber}'. Phone number must contain only digits."),
+                                ReasonPhrase = HttpReasonPhrase
+                                    .GetPhrase(ReasonPhrase.InvalidPhoneNumber)
+                            });
+                    }
+                }
+            }
+        }
         #region Helper methods
         /// <summary>
         /// Converts an array of guids into a semi colon seperated string.

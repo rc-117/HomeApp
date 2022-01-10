@@ -84,5 +84,10 @@
         /// An invalid transaction request was received.
         /// </summary>
         InvalidTransactionRequest,
+
+        /// <summary>
+        /// An invalid phone number was received.
+        /// </summary>
+        InvalidPhoneNumber,
     }
 }

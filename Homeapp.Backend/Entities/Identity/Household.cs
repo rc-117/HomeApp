@@ -1,5 +1,6 @@
 ﻿namespace Homeapp.Backend.Identity
 {
+    using Homeapp.Backend.Entities;
     using System;
     using System.Collections.Generic;
 
@@ -38,5 +39,35 @@
         /// Used to register a new user into an existing household.
         /// </remarks>
         public string PasswordHash { get; set; }
+
+        /// <summary>
+        /// (Optional) The address of the house.
+        /// </summary>
+        public Address Address { get; set; }
+
+        /// <summary>
+        /// (Optional) The phone number of the house.
+        /// </summary>
+        public string PhoneNumber { get; set; }
+
+        /// <summary>
+        /// The id of the user who created the household.
+        /// </summary>
+        public Guid CreatorId { get; set; }
+
+        /// <summary>
+        /// The user who created the household.
+        /// </summary>
+        public User Creator { get; set; }
+
+        /// <summary>
+        /// The date and time that the household was created.
+        /// </summary>
+        public DateTime DateTimeCreated { get; set; }
+
+        /// <summary>
+        /// A list of users who have read, write, and full access over this household.
+        /// </summary>
+        public AllowedUsers AllowedUsers { get; set; }
     }
 }
