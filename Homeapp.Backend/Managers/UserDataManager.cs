@@ -21,15 +21,20 @@
     public class UserDataManager : HomeappDataManagerBase, IUserDataManager
     {
         private AppDbContext appDbContext;
+        private ICommonDataManager commonDataManager;
 
         /// <summary>
         /// Initializes the user data manager class.
         /// </summary>
-        public UserDataManager(AppDbContext appDbContext)
+        /// <param name="commonDataManager">The common data manager.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public UserDataManager(ICommonDataManager commonDataManager, AppDbContext appDbContext)
         {
             this.appDbContext = appDbContext;
+            this.commonDataManager = commonDataManager;
         }
 
+        #region Get
         /// <summary>
         /// Gets a user from the database using a given email and password combination.
         /// </summary>
@@ -52,8 +57,8 @@
             try
             {
                 var user = this.appDbContext.Users.FirstOrDefault(u => u.Id == userId);
-                user.Households = this.GetUserhouseholdByUserId(user.Id);
-                user.HouseholdGroups = this.GetUserhouseholdGroupByUserId(user.Id);
+                user.Households = this.GetUserhouseholdsByUserId(user.Id);
+                user.HouseholdGroups = this.GetUserhouseholdsGroupByUserId(user.Id);
 
                 return user;
             }
@@ -66,237 +71,6 @@
                        ReasonPhrase = HttpReasonPhrase
                            .GetPhrase(ReasonPhrase.ErrorRetrievingFromDatabase)
                    });
-            }
-        }
-
-        /// <summary>
-        /// Creates and saves a household to the application database.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <param name="allowedUsers">The users who will have read/write/full access to the household.</param>
-        /// <param name="householdAddress">(Optional) The address of the household.</param>
-        /// <param name="creator">(Optional) The user who created the household. If this is the very first request, 
-        /// use the 'AssignHouseholdCreator' method following this to assign the newly created user as an owner.</param>
-        /// <returns>The created household.</returns>
-        public async Task<Household> SaveHouseholdToDb(
-            HouseholdRequest request, 
-            AllowedUsers allowedUsers, 
-            Address householdAddress = null,
-            User creator = null)
-        {
-            var household = new Household()
-            {
-                Name = request.Name,
-                HouseholdGroups = null,
-                PasswordHash = request.PasswordHash,
-                Users = null,
-                Address = householdAddress != null ? householdAddress : null,
-                PhoneNumber = !string.IsNullOrWhiteSpace(request.PhoneNumber) ? 
-                    request.PhoneNumber : null,
-                Creator = creator == null ? null : creator,
-                AllowedUsers = allowedUsers,
-                DateTimeCreated = DateTime.Now
-            };
-              
-            try
-            {
-                this.appDbContext.Households.Add(household);
-
-                await this.appDbContext.SaveChangesAsync();
-
-                return household;
-            }
-            catch (Exception)
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                    {
-                        Content = new StringContent("There was an error when saving the household to the database. Please try again."),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
-                    });
-            }
-        }
-
-        /// <summary>
-        /// Creates and saves a new household group to the database.
-        /// </summary>
-        /// <param name="request">The household group request.</param>
-        /// <param name="household">The household to add the group to.</param>
-        /// <param name="creator">The user who created the household group.</param>
-        /// <param name="allowedUsers">A list of users who will have read/write/full access over this group.</param>
-        /// <param name="members">(Optional) List of users to add to the group.</param>
-        /// <returns>The created household group.</returns>
-        public async Task<HouseholdGroup> SaveHouseholdGroupToDb(
-            HouseholdGroupRequest request, 
-            Household household, 
-            User creator, 
-            AllowedUsers allowedUsers,
-            List<User> members = null)
-        {
-            var householdGroup = new HouseholdGroup()
-            {
-                Name = request.Name,
-                Household = household,
-                Creator = creator,
-                DateTimeCreated = DateTime.Now,
-                AllowedUsers = allowedUsers
-            };
-
-            try
-            {
-                this.appDbContext.HouseholdGroups.Add(householdGroup);
-                await this.appDbContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                    {
-                        Content = new StringContent("There was an error when saving a household group to the database. Please try again."),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
-                    });
-            }
-
-            if (members != null)
-            {
-                return await this.AddMembersToHouseholdGroup(members: members, householdGroup: householdGroup);
-            }
-            else
-            {
-                return householdGroup;
-            }
-        }
-
-        /// <summary>
-        /// Assigns a specified list of users as new members to a household group.
-        /// </summary>
-        /// <param name="members">The members to assign to the group.</param>
-        /// <param name="householdGroup">The group to assign members to.</param>
-        public async Task<HouseholdGroup> AddMembersToHouseholdGroup(List<User> members, HouseholdGroup householdGroup)
-        {
-            var userHouseholdGroups = new List<UserHouseholdGroup>();
-
-            foreach (var member in members)
-            {
-                var newMember = new UserHouseholdGroup() 
-                    { 
-                        User = member, 
-                        HouseholdGroup = householdGroup 
-                    };
-
-                if (householdGroup.Members == null)
-                {
-                    userHouseholdGroups.Add(newMember);
-                }
-                else
-                {
-                    householdGroup.Members.Add(newMember);
-                }
-            }
-
-            if (householdGroup.Members == null)
-            {
-                householdGroup.Members = userHouseholdGroups;
-            }
-
-            try
-            {
-                this.appDbContext.HouseholdGroups.Update(householdGroup);
-                await this.appDbContext.SaveChangesAsync();
-
-                return householdGroup;
-            }
-            catch (Exception)
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                    {
-                        Content = new StringContent("There was an error when adding a member to a household group. Please try again."),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
-                    });
-            }
-        }
-
-        /// <summary>
-        /// Assigns a creator to a household.
-        /// </summary>
-        /// <param name="creator">The creator to assign.</param>
-        /// <param name="householdId">The id of the household to assign the creator to.</param>
-        /// <remarks>Only use this method if there are no existing households in the database and this is the first 'create' request.</remarks>
-        public async void AssignHouseholdCreator(User creator, Guid householdId)
-        {
-            try
-            {
-                this.appDbContext
-                    .Households
-                    .FirstOrDefault(h => h.Id == householdId)
-                    .Creator = creator;
-
-                await this.appDbContext.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                    {
-                        Content = new StringContent("There was an error when editing an existing household in the database. Please try again."),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
-                    });
-            }
-        }
-
-        /// <summary>
-        /// Creates and saves a User to the application database.
-        /// </summary>
-        /// <param name="request">The incoming request.</param>
-        public async Task<User> SaveUserToDb(CreateUserRequest request)
-        {
-            var user = new User()
-            {
-                EmailAddress = request.EmailAddress,
-                PhoneNumber = request.PhoneNumber,
-                PasswordHash = request.PasswordHash,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Birthday = DateTime.Parse(request.Birthday),
-                Gender = (Gender)Enum.Parse(typeof(Gender), request.Gender),
-                Households = new List<UserHousehold>()
-            };
-
-            var userHoushold = new UserHousehold()
-            {
-                Household = this.appDbContext.Households
-                .FirstOrDefault(h => h.Id == request.RequestedHouseholdId),
-                User = user
-            };
-
-            user.Households.Add(userHoushold);
-
-            try
-            {
-                this.appDbContext.Users.Add(user);
-                this.appDbContext.Households
-                    .FirstOrDefault(h => h.Id == request.RequestedHouseholdId)
-                    .Users
-                    .Add(userHoushold);
-
-                await this.appDbContext.SaveChangesAsync();
-
-                return user;
-            }
-            catch (Exception)
-            {
-                throw new HttpResponseException(
-                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
-                    {
-                        Content = new StringContent("There was an error when saving the user to the database. Please try again."),
-                        ReasonPhrase = HttpReasonPhrase
-                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
-                    });
             }
         }
 
@@ -382,7 +156,7 @@
             if (joins.Count == 0)
             {
                 return null;
-            }            
+            }
 
             foreach (var join in joins)
             {
@@ -394,6 +168,224 @@
 
             return users.Count() == 0 ? null : users;
         }
+        #endregion
+
+        #region Save new
+        /// <summary>
+        /// Creates and saves a household to the application database.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="allowedUsers">The users who will have read/write/full access to the household.</param>
+        /// <param name="householdAddress">(Optional) The address of the household.</param>
+        /// <param name="creator">(Optional) The user who created the household. If this is the very first request, 
+        /// use the 'AssignHouseholdCreator' method following this to assign the newly created user as an owner.</param>
+        /// <returns>The created household.</returns>
+        public async Task<Household> SaveHouseholdToDb(
+            HouseholdRequest request,
+            AllowedUsers allowedUsers,
+            Address householdAddress = null,
+            User creator = null)
+        {
+            var household = new Household()
+            {
+                Name = request.Name,
+                HouseholdGroups = null,
+                PasswordHash = request.PasswordHash,
+                Users = null,
+                Address = householdAddress != null ? householdAddress : null,
+                PhoneNumber = !string.IsNullOrWhiteSpace(request.PhoneNumber) ?
+                    request.PhoneNumber : null,
+                Creator = creator == null ? null : creator,
+                AllowedUsers = allowedUsers,
+                DateTimeCreated = DateTime.Now
+            };
+
+            try
+            {
+                this.appDbContext.Households.Add(household);
+
+                await this.appDbContext.SaveChangesAsync();
+
+                return household;
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when saving the household to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Creates and saves a new household group to the database.
+        /// </summary>
+        /// <param name="request">The household group request.</param>
+        /// <param name="household">The household to add the group to.</param>
+        /// <param name="creator">The user who created the household group.</param>
+        /// <param name="allowedUsers">A list of users who will have read/write/full access over this group.</param>
+        /// <param name="members">(Optional) List of users to add to the group.</param>
+        /// <returns>The created household group.</returns>
+        public async Task<HouseholdGroup> SaveHouseholdGroupToDb(
+            HouseholdGroupRequest request,
+            Household household,
+            User creator,
+            AllowedUsers allowedUsers,
+            List<User> members = null)
+        {
+            var householdGroup = new HouseholdGroup()
+            {
+                Name = request.Name,
+                Household = household,
+                Creator = creator,
+                DateTimeCreated = DateTime.Now,
+                AllowedUsers = allowedUsers
+            };
+
+            try
+            {
+                this.appDbContext.HouseholdGroups.Add(householdGroup);
+                await this.appDbContext.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when saving a household group to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
+
+            if (members != null)
+            {
+                return await 
+                    this.AddMembersToHouseholdGroup(
+                        members: members, 
+                        householdGroup: householdGroup, 
+                        allowedUsers: householdGroup.AllowedUsers);
+            }
+            else
+            {
+                return householdGroup;
+            }
+        }
+
+        /// <summary>
+        /// Creates and saves a User to the application database.
+        /// </summary>
+        /// <param name="request">The incoming request.</param>
+        public async Task<User> SaveUserToDb(CreateUserRequest request)
+        {
+            var user = new User()
+            {
+                EmailAddress = request.EmailAddress,
+                PhoneNumber = request.PhoneNumber,
+                PasswordHash = request.PasswordHash,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Birthday = DateTime.Parse(request.Birthday),
+                Gender = (Gender)Enum.Parse(typeof(Gender), request.Gender),
+                Households = new List<UserHousehold>()
+            };
+
+            var userHoushold = new UserHousehold()
+            {
+                Household = this.appDbContext.Households
+                .FirstOrDefault(h => h.Id == request.RequestedHouseholdId),
+                User = user
+            };
+
+            user.Households.Add(userHoushold);
+
+            try
+            {
+                this.appDbContext.Users.Add(user);
+                this.appDbContext.Households
+                    .FirstOrDefault(h => h.Id == request.RequestedHouseholdId)
+                    .Users
+                    .Add(userHoushold);
+
+                await this.appDbContext.SaveChangesAsync();
+
+                return user;
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when saving the user to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
+        }
+        #endregion
+
+        #region Add to
+        /// <summary>
+        /// Assigns a specified list of users as new members to a household group.
+        /// </summary>
+        /// <param name="members">The members to assign to the group.</param>
+        /// <param name="householdGroup">The group to assign members to.</param>
+        /// <param name="allowedUsers">The 'AllowedUsers' record associated with the household group.</param>
+        public async Task<HouseholdGroup> AddMembersToHouseholdGroup(
+            List<User> members,
+            HouseholdGroup householdGroup,
+            AllowedUsers allowedUsers)
+        {
+            var userHouseholdGroups = new List<UserHouseholdGroup>();
+
+            foreach (var member in members)
+            {
+                var newMember = new UserHouseholdGroup()
+                {
+                    User = member,
+                    HouseholdGroup = householdGroup
+                };
+
+                if (householdGroup.Members == null)
+                {
+                    userHouseholdGroups.Add(newMember);
+                }
+                else
+                {
+                    householdGroup.Members.Add(newMember);
+                }
+            }
+
+            if (householdGroup.Members == null)
+            {
+                householdGroup.Members = userHouseholdGroups;
+            }
+
+            this.EnsureMembersHaveMinimumReadAccess(
+                members: members,
+                allowedUsers: allowedUsers);
+
+            try
+            {
+                this.appDbContext.HouseholdGroups.Update(householdGroup);
+                await this.appDbContext.SaveChangesAsync();
+
+                return householdGroup;
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when adding a member to a household group. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
+        }
 
         /// <summary>
         /// Gets a specified user to a specified household group.
@@ -402,11 +394,11 @@
         /// <param name="householdGroupId">The household group id.</param>
         /// <param name="userId">The user id.</param>
         public async Task<UserHouseholdGroup> AddUserToHouseholdGroup
-            (Guid householdId, 
+            (Guid householdId,
             Guid householdGroupId,
             Guid userId)
         {
-            var householdGroup = 
+            var householdGroup =
                 this.appDbContext
                 .HouseholdGroups
                 .FirstOrDefault(h => h.Id == householdGroupId);
@@ -417,11 +409,16 @@
 
             var userHousholdGroup = new UserHouseholdGroup
             {
-                HouseholdGroupId= householdGroup.Id,
+                HouseholdGroupId = householdGroup.Id,
                 HouseholdGroup = householdGroup,
                 User = user,
                 UserId = user.Id
             };
+
+            this.EnsureMembersHaveMinimumReadAccess(
+                members: new List<User>() { this.GetUserFromUserId(userId) },
+                allowedUsers: this.commonDataManager
+                    .GetAllowedUsersObjectFromId(householdGroup.AllowedUsersId));
 
             try
             {
@@ -432,7 +429,37 @@
             }
             catch (Exception)
             {
-                return null;                
+                return null;
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// Assigns a creator to a household.
+        /// </summary>
+        /// <param name="creator">The creator to assign.</param>
+        /// <param name="householdId">The id of the household to assign the creator to.</param>
+        /// <remarks>Only use this method if there are no existing households in the database and this is the first 'create' request.</remarks>
+        public async void AssignHouseholdCreator(User creator, Guid householdId)
+        {
+            try
+            {
+                this.appDbContext
+                    .Households
+                    .FirstOrDefault(h => h.Id == householdId)
+                    .Creator = creator;
+
+                await this.appDbContext.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when editing an existing household in the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
             }
         }
 
@@ -441,7 +468,7 @@
         /// Gets a list of Userhousholds by user id.
         /// </summary>
         /// <param name="id">The user's id.</param>
-        private List<UserHousehold> GetUserhouseholdByUserId(Guid id)
+        private List<UserHousehold> GetUserhouseholdsByUserId(Guid id)
         {
             return this.appDbContext.UserHouseholds.Where(u => id == u.UserId).ToList();
         }
@@ -450,9 +477,43 @@
         /// Gets a list of Userhoushold groups by user id.
         /// </summary>
         /// <param name="id">The user's id.</param>
-        private List<UserHouseholdGroup> GetUserhouseholdGroupByUserId(Guid id)
+        private List<UserHouseholdGroup> GetUserhouseholdsGroupByUserId(Guid id)
         {
             return this.appDbContext.UserHouseholdGroups.Where(u => id == u.UserId).ToList(); 
+        }
+
+        /// <summary>
+        /// Ensures a list of users have (at minimum) read access to a resource.
+        /// </summary>
+        /// <param name="members">The list of users.</param>
+        /// <param name="allowedUsers">The AllowedUsers record to check against.</param>
+        private void EnsureMembersHaveMinimumReadAccess(List<User> members, AllowedUsers allowedUsers)
+        {
+            foreach (var member in members)
+            {
+                var userHasReadAccess =
+                    this.commonDataManager.EntityIdIsInList(
+                        idList: allowedUsers.ReadUserIds,
+                        entityId: member.Id);
+
+                var userHasWriteAccess =
+                    this.commonDataManager.EntityIdIsInList(
+                        idList: allowedUsers.WriteUserIds,
+                        entityId: member.Id);
+
+                var userHasFullAccess =
+                    this.commonDataManager.EntityIdIsInList(
+                        idList: allowedUsers.FullAccessUserIds,
+                        entityId: member.Id);
+
+                if (!userHasReadAccess && !userHasWriteAccess && !userHasFullAccess)
+                {
+                    this.commonDataManager
+                        .AddUserToReadAccess(
+                        userId: member.Id, 
+                        allowedUsers: allowedUsers);
+                }
+            }
         }
         #endregion
     }

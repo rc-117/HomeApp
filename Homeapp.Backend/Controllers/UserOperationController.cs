@@ -151,15 +151,14 @@
         [Route("api/Users/createUserAndHousehold")]
         public async Task<IActionResult> CreateUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
         {
+            IdentityValidation.ValidateHouseholdRequest(
+                request: request.HouseholdRequest,
+                appDbContext: this.appDbContext);
+
             IdentityValidation.ValidateCreateUserRequest(
                 request: request.UserRequest, 
                 appDbContext: this.appDbContext,
                 includesCreateHouseholdRequest: true);
-
-            if (request.HouseholdRequest.AddressRequest != null)
-            {
-                CommonValidation.AddressRequestIsValid(request.HouseholdRequest.AddressRequest)
-            }
 
             var householdAllowedUsers = 
                 await this.commonDataManager

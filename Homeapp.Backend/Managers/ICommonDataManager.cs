@@ -38,5 +38,21 @@
         /// </summary>
         /// <param name="id">The unique id of the recurring schedule.</param>
         public RecurringSchedule GetRecurringScheduleById(Guid id);
+
+        /// <summary>
+        /// Checks if a user, household, or household group id is in a semi colon separated string list of ids.
+        /// </summary>
+        /// <param name="idList">The list to check.</param>
+        /// <param name="entityId">The id to look for.</param>
+        /// <returns>True if the list contains the id. False if not.</returns>
+        public bool EntityIdIsInList(string idList, Guid entityId);
+
+        /// <summary>
+        /// Adds a user to a read access list.
+        /// </summary>
+        /// <param name="userId">The user's id to add.</param>
+        /// <param name="allowedUsers">The AllowedUsers record to add the user id to.</param>
+        /// <returns>The updated AllowedUsers record.</returns>
+        public AllowedUsers AddUserToReadAccess(Guid userId, AllowedUsers allowedUsers);
     }
 }

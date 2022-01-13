@@ -360,6 +360,24 @@
 
             return jArray;
         }
+
+        /// <summary>
+        /// Adds a guid to a semicolon separated string list.
+        /// </summary>
+        /// <param name="guid">The guid to add.</param>
+        /// <param name="list">The list to add to.</param>
+        /// <returns>The string with the added guid.</returns>
+        public static string AddGuidToSemiColonSeparatedStringList(Guid guid, string list)
+        {
+            var ids = OutputHandler.ConvertStringToGuidList(list);
+            
+            if (!ids.Contains(guid))
+            {
+                ids.Add(guid);
+            } 
+
+            return OutputHandler.ConvertGuidListToString(ids);
+        }
         #endregion
 
         /// <summary>

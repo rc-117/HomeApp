@@ -15,6 +15,7 @@
     /// </summary>
     public static class IdentityValidation
     {
+        #region Request validations
         /// <summary>
         /// Checks whether or not a request to create a user is valid.
         /// </summary>
@@ -23,8 +24,8 @@
         /// <param name="includesCreateHouseholdRequest">Set to 'true' if the body includes a request to create a 
         /// new household. Default value is 'false'.</param>
         public static void ValidateCreateUserRequest(
-            CreateUserRequest request, 
-            AppDbContext appDbContext, 
+            CreateUserRequest request,
+            AppDbContext appDbContext,
             bool includesCreateHouseholdRequest = false)
         {
             IdentityValidation.EmailIsAlreadyInUse(
@@ -58,6 +59,92 @@
                     appDbContext: appDbContext);
             }
         }
+
+        public static void ValidateHouseholdRequest(HouseholdRequest request, AppDbContext appDbContext)
+        {
+            if (request.AddressRequest != null)
+            {
+                CommonValidation.AddressRequestIsValid(request.AddressRequest);
+            }
+            
+            CommonValidation.PhoneNumberIsValid(request.PhoneNumber);
+            IdentityValidation.ValidateAllowedUsersRequest(request.AllowedUsers, appDbContext);
+
+            if (request.HouseholdGroupRequests.Length > 0)
+            {
+                foreach (var groupRequest in request.HouseholdGroupRequests)
+                {
+                    IdentityValidation.ValidateHouseholdGroupRequest(
+                        request: groupRequest,
+                        appDbContext: appDbContext);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Validates an incoming request to create a new household group.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void ValidateHouseholdGroupRequest(HouseholdGroupRequest request, AppDbContext appDbContext)
+        {
+            if (request.UserIds.Length > 0)
+            {
+                foreach (var id in request.UserIds)
+                {
+                    CommonValidation.GuidIsValid(
+                        guid: id,
+                        errorMessage: $"Invalid user id received: '{id}'");
+                    IdentityValidation.UserExists(
+                        userId: Guid.Parse(id),
+                        appDbContext: appDbContext);
+                }
+            }
+
+            IdentityValidation.ValidateAllowedUsersRequest(
+                request: request.AllowedUsers, 
+                appDbContext: appDbContext);
+        }
+
+        /// <summary>
+        /// Validates an AllowedUsers request.
+        /// </summary>
+        /// <param name="request">The request to validate.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        public static void ValidateAllowedUsersRequest(AllowedUsersRequest request, AppDbContext appDbContext)
+        {
+            CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdIds);
+            CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdGroupIds);
+            CommonValidation.StringArrayContainsValidGuids(request.ReadUserIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdGroupIds);
+            CommonValidation.StringArrayContainsValidGuids(request.WriteUserIds);
+
+            IdentityValidation.HouseholdIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadHouseholdIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadHouseholdGroupIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.UserIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadUserIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.HouseholdIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteHouseholdIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteHouseholdGroupIds),
+                appDbContext: appDbContext);
+
+            IdentityValidation.UserIdArrayContainsExistingIds(
+                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteUserIds),
+                appDbContext: appDbContext);
+        }
+        #endregion
 
         /// <summary>
         /// Checks if the requesting user has read access to a resource.
@@ -597,45 +684,6 @@
                     });
                 }
             }
-        }
-
-        /// <summary>
-        /// Validates an AllowedUsers request.
-        /// </summary>
-        /// <param name="request">The request to validate.</param>
-        /// <param name="appDbContext">The application database context.</param>
-        public static void ValidateAllowedUsersRequest(AllowedUsersRequest request, AppDbContext appDbContext)
-        {
-            CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdIds);
-            CommonValidation.StringArrayContainsValidGuids(request.ReadHouseholdGroupIds);
-            CommonValidation.StringArrayContainsValidGuids(request.ReadUserIds);
-            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdIds);
-            CommonValidation.StringArrayContainsValidGuids(request.WriteHouseholdGroupIds);
-            CommonValidation.StringArrayContainsValidGuids(request.WriteUserIds);
-
-            IdentityValidation.HouseholdIdArrayContainsExistingIds(
-                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadHouseholdIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
-                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadHouseholdGroupIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.UserIdArrayContainsExistingIds(
-                ids: OutputHandler.ConvertStringArrayToGuidArray(request.ReadUserIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.HouseholdIdArrayContainsExistingIds(
-                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteHouseholdIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.HouseholdGroupIdArrayContainsExistingIds(
-                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteHouseholdGroupIds),
-                appDbContext: appDbContext);
-
-            IdentityValidation.UserIdArrayContainsExistingIds(
-                ids: OutputHandler.ConvertStringArrayToGuidArray(request.WriteUserIds),
-                appDbContext: appDbContext);
         }
     }
 }

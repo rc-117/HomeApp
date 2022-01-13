@@ -1,9 +1,9 @@
-﻿using Homeapp.Backend.Entities;
-using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
-
-namespace Homeapp.Backend.Identity.Requests
+﻿namespace Homeapp.Backend.Identity.Requests
 {
+    using Homeapp.Backend.Entities;
+    using Newtonsoft.Json;
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
     /// Class containing properties to create a or modify an existing householdGroup object.
     /// </summary>

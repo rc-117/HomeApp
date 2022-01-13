@@ -51,5 +51,12 @@
         [JsonProperty]
         [Required(ErrorMessage = "'AllowedUsers' is required. If there are no entities who will have access to the household, create a blank 'AllowedUsers' request.")]
         public AllowedUsersRequest AllowedUsers { get; set; }
+
+        /// <summary>
+        /// The household group request properties.
+        /// </summary>
+        [JsonProperty]
+        [Required(ErrorMessage = "Household group requests required. An empty array is acceptable if no group creations are requested.")]
+        public HouseholdGroupRequest[] HouseholdGroupRequests { get; set; }
     }
 }
