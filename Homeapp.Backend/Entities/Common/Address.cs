@@ -40,7 +40,7 @@
         /// <summary>
         /// The zip code.
         /// </summary>
-        public int ZipCode { get; set; }
+        public string ZipCode { get; set; }
 
         /// <summary>
         /// Bool indicating whether or not the address is an international one.

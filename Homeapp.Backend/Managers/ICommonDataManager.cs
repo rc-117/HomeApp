@@ -11,13 +11,10 @@
     public interface ICommonDataManager
     {
         /// <summary>
-        /// Creates a new SharedEntities object from a request.
+        /// Creates and saves a new AllowedUsers record to the database.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <remarks>This does not persist the sharedentities object to the database. This only creates an instance of a SharedEntities object.
-        /// This method is to be used when creating other entities that require SharedEntities, and will the SharedEntities object is
-        /// to be persisted to the database through other data managers on entity creation.</remarks>
-        public AllowedUsers CreateNewAllowedUsersObject(AllowedUsersRequest request);
+        public Task<AllowedUsers> SaveAllowedUsersObjectToDb(AllowedUsersRequest request);
 
         /// <summary>
         /// Gets a SharedEntities object by its id.

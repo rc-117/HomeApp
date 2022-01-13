@@ -36,6 +36,11 @@
         InvalidRequest,
 
         /// <summary>
+        /// The address request is invalid and could not be processed.
+        /// </summary>
+        InvalidAddress,
+
+        /// <summary>
         /// The provided credentials are invalid.
         /// </summary>
         InvalidUserCredentials,
@@ -74,6 +79,11 @@
         /// There was an error when retrieving an entity/entities from the database.
         /// </summary>
         ErrorRetrievingFromDatabase,
+
+        /// <summary>
+        /// There was an error when editing a record in the database.
+        /// </summary>
+        ErrorModifyingDatabaseRecord,
 
         /// <summary>
         /// An invalid transaction type was received.

@@ -1,6 +1,7 @@
 ﻿namespace Homeapp.Backend.Managers
 {
     using Homeapp.Backend.Db;
+    using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Identity.Requests;
     using Homeapp.Backend.Tools;
@@ -69,126 +70,182 @@
         }
 
         /// <summary>
-        /// Creates and saves a User and Household to the application database.
+        /// Creates and saves a household to the application database.
         /// </summary>
-        /// <param name="request">The incoming request.</param>
-        public async Task<string> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request)
+        /// <param name="request">The request.</param>
+        /// <param name="allowedUsers">The users who will have read/write/full access to the household.</param>
+        /// <param name="householdAddress">(Optional) The address of the household.</param>
+        /// <param name="creator">(Optional) The user who created the household. If this is the very first request, 
+        /// use the 'AssignHouseholdCreator' method following this to assign the newly created user as an owner.</param>
+        /// <returns>The created household.</returns>
+        public async Task<Household> SaveHouseholdToDb(
+            HouseholdRequest request, 
+            AllowedUsers allowedUsers, 
+            Address householdAddress = null,
+            User creator = null)
         {
             var household = new Household()
             {
-                Name = request.HouseholdRequest.Name,
+                Name = request.Name,
                 HouseholdGroups = null,
-                PasswordHash = request.HouseholdRequest.PasswordHash,
-                Users = new List<UserHousehold>()
+                PasswordHash = request.PasswordHash,
+                Users = null,
+                Address = householdAddress != null ? householdAddress : null,
+                PhoneNumber = !string.IsNullOrWhiteSpace(request.PhoneNumber) ? 
+                    request.PhoneNumber : null,
+                Creator = creator == null ? null : creator,
+                AllowedUsers = allowedUsers,
+                DateTimeCreated = DateTime.Now
             };
-
-            var householdGroups = new List<HouseholdGroup>();
-
-            foreach (var householdGroup in request.HouseholdRequest.HouseholdGroupRequests)
-            {
-                householdGroups.Add(new HouseholdGroup()
-                {
-                    Name = householdGroup.Name,
-                    Household = household
-                }); 
-            }
-
-            var user = new User
-            {
-                EmailAddress = request.UserRequest.EmailAddress,
-                PasswordHash = request.UserRequest.PasswordHash,
-                FirstName = request.UserRequest.FirstName,
-                LastName = request.UserRequest.LastName,
-                Birthday = DateTime.Parse(request.UserRequest.Birthday),
-                Gender = (Gender)Enum.Parse(typeof(Gender), request.UserRequest.Gender),
-                Households = new List<UserHousehold>(),
-                HouseholdGroups = new List<UserHouseholdGroup>()
-            };
-
-            //Joins
-
-            var userHousehold = new UserHousehold()
-            {
-                User = user,
-                Household = household
-            };
-
-            var userHouseholdGroups = new List<UserHouseholdGroup>();
-
-            if (householdGroups.Count > 0)
-            {
-                user.HouseholdGroups = new List<UserHouseholdGroup>();
-
-                for (int i = 0; i < request.HouseholdRequest.HouseholdGroupRequests.Count(); i++)
-                {
-                    if (request.HouseholdRequest.HouseholdGroupRequests[i].AddRequestingUserToGroup)
-                    {
-                        var userHouseholdGroup= new UserHouseholdGroup()
-                        {
-                            HouseholdGroup = householdGroups[i],
-                            User = user,
-                        };
-
-                        householdGroups[i].Users = new List<UserHouseholdGroup>();
-                        householdGroups[i].Users.Add(userHouseholdGroup);
-                        user.HouseholdGroups.Add(userHouseholdGroup);
-                        userHouseholdGroups.Add(userHouseholdGroup);
-                    }
-                }
-            }
-
-            user.Households.Add(userHousehold);
-
-            household.Users.Add(userHousehold);
-            household.HouseholdGroups = householdGroups.Count < 1 ? 
-                null : householdGroups;
-
-            this.appDbContext.Households.Add(household);
-
-            if (householdGroups != null)
-            {
-                foreach (var householdGroup in householdGroups)
-                {
-                    this.appDbContext.HouseholdGroups.Add(householdGroup);
-                }
-            }
-
-            this.appDbContext.UserHouseholdGroups.AddRange(userHouseholdGroups);
-            this.appDbContext.Users.Add(user);
-
+              
             try
             {
+                this.appDbContext.Households.Add(household);
+
                 await this.appDbContext.SaveChangesAsync();
-                
-                var householdGroupArray = householdGroups == null ? 
-                    null : CreateHouseholdGroupJArrayResponse(householdGroups);
 
-
-                return new JObject
-                {
-                    { "Household", new JObject()
-                        {
-                            { "Name", request.HouseholdRequest.Name },
-                            { "HouseholdGroups", householdGroupArray }
-                        }
-                    },
-                    { "User", new JObject()
-                        {
-                            { "Name", string.Format
-                                ("{0} {1}",
-                                user.FirstName,
-                                user.LastName)
-                            },
-                            { "Gender", Enum.GetName(typeof(Gender), user.Gender) },
-                            { "Birthday", user.Birthday.ToLongDateString() },
-                            { "EmailAddress", user.EmailAddress }
-                        }
-                    }                    
-                }.ToString();
+                return household;
             }
             catch (Exception)
             {
-                return null;
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when saving the household to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Creates and saves a new household group to the database.
+        /// </summary>
+        /// <param name="request">The household group request.</param>
+        /// <param name="household">The household to add the group to.</param>
+        /// <param name="creator">The user who created the household group.</param>
+        /// <param name="allowedUsers">A list of users who will have read/write/full access over this group.</param>
+        /// <param name="members">(Optional) List of users to add to the group.</param>
+        /// <returns>The created household group.</returns>
+        public async Task<HouseholdGroup> SaveHouseholdGroupToDb(
+            HouseholdGroupRequest request, 
+            Household household, 
+            User creator, 
+            AllowedUsers allowedUsers,
+            List<User> members = null)
+        {
+            var householdGroup = new HouseholdGroup()
+            {
+                Name = request.Name,
+                Household = household,
+                Creator = creator,
+                DateTimeCreated = DateTime.Now,
+                AllowedUsers = allowedUsers
+            };
+
+            try
+            {
+                this.appDbContext.HouseholdGroups.Add(householdGroup);
+                await this.appDbContext.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when saving a household group to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
+
+            if (members != null)
+            {
+                return await this.AddMembersToHouseholdGroup(members: members, householdGroup: householdGroup);
+            }
+            else
+            {
+                return householdGroup;
+            }
+        }
+
+        /// <summary>
+        /// Assigns a specified list of users as new members to a household group.
+        /// </summary>
+        /// <param name="members">The members to assign to the group.</param>
+        /// <param name="householdGroup">The group to assign members to.</param>
+        public async Task<HouseholdGroup> AddMembersToHouseholdGroup(List<User> members, HouseholdGroup householdGroup)
+        {
+            var userHouseholdGroups = new List<UserHouseholdGroup>();
+
+            foreach (var member in members)
+            {
+                var newMember = new UserHouseholdGroup() 
+                    { 
+                        User = member, 
+                        HouseholdGroup = householdGroup 
+                    };
+
+                if (householdGroup.Members == null)
+                {
+                    userHouseholdGroups.Add(newMember);
+                }
+                else
+                {
+                    householdGroup.Members.Add(newMember);
+                }
+            }
+
+            if (householdGroup.Members == null)
+            {
+                householdGroup.Members = userHouseholdGroups;
+            }
+
+            try
+            {
+                this.appDbContext.HouseholdGroups.Update(householdGroup);
+                await this.appDbContext.SaveChangesAsync();
+
+                return householdGroup;
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when adding a member to a household group. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Assigns a creator to a household.
+        /// </summary>
+        /// <param name="creator">The creator to assign.</param>
+        /// <param name="householdId">The id of the household to assign the creator to.</param>
+        /// <remarks>Only use this method if there are no existing households in the database and this is the first 'create' request.</remarks>
+        public async void AssignHouseholdCreator(User creator, Guid householdId)
+        {
+            try
+            {
+                this.appDbContext
+                    .Households
+                    .FirstOrDefault(h => h.Id == householdId)
+                    .Creator = creator;
+
+                await this.appDbContext.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when editing an existing household in the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
             }
         }
 
@@ -196,11 +253,12 @@
         /// Creates and saves a User to the application database.
         /// </summary>
         /// <param name="request">The incoming request.</param>
-        public async Task<string> SaveUserToDb(CreateUserRequest request)
+        public async Task<User> SaveUserToDb(CreateUserRequest request)
         {
             var user = new User()
             {
                 EmailAddress = request.EmailAddress,
+                PhoneNumber = request.PhoneNumber,
                 PasswordHash = request.PasswordHash,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
@@ -228,17 +286,17 @@
 
                 await this.appDbContext.SaveChangesAsync();
 
-                return new JObject()
-                {
-                    { "Id", user.Id },
-                    { "Name", $"{user.FirstName} {user.LastName}" },
-                    { "Birthday", user.Birthday.ToLongDateString() },
-                    { "EmailAddress", $"{user.EmailAddress}" }
-                }.ToString();
+                return user;
             }
             catch (Exception)
             {
-                return null;
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when saving the user to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
             }
         }
 
@@ -379,21 +437,6 @@
         }
 
         #region helper methods
-        private JArray CreateHouseholdGroupJArrayResponse(List<HouseholdGroup> groups)
-        {
-            var array = new JArray();
-
-            foreach (var group in groups)
-            {
-                array.Add(new JObject()
-                {
-                    { "Name", group.Name }
-                });
-            }
-
-            return array;
-        }
-        
         /// <summary>
         /// Gets a list of Userhousholds by user id.
         /// </summary>

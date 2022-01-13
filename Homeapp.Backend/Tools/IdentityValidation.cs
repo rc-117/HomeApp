@@ -3,6 +3,7 @@
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
+    using Homeapp.Backend.Identity.Requests;
     using System;
     using System.Linq;
     using System.Net;
@@ -14,6 +15,50 @@
     /// </summary>
     public static class IdentityValidation
     {
+        /// <summary>
+        /// Checks whether or not a request to create a user is valid.
+        /// </summary>
+        /// <param name="request">The request to validate.</param>
+        /// <param name="appDbContext">The application database context.</param>
+        /// <param name="includesCreateHouseholdRequest">Set to 'true' if the body includes a request to create a 
+        /// new household. Default value is 'false'.</param>
+        public static void ValidateCreateUserRequest(
+            CreateUserRequest request, 
+            AppDbContext appDbContext, 
+            bool includesCreateHouseholdRequest = false)
+        {
+            IdentityValidation.EmailIsAlreadyInUse(
+                checkIfExists: true,
+                email: request.EmailAddress,
+                appDbContext: appDbContext,
+                errorMessage: $"Email '{request.EmailAddress}' is already in use.",
+                statusCode: HttpStatusCode.BadRequest,
+                reasonPhrase: ReasonPhrase.EmailAlreadyInUse);
+
+            CommonValidation.DateStringIsValid(
+                date: request.Birthday,
+                errorMessage: $"Invalid date value received: '{request.Birthday}'");
+
+            CommonValidation.BirthdayIsValid(DateTime.Parse(request.Birthday));
+
+            if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+            {
+                CommonValidation.PhoneNumberIsValid(request.PhoneNumber);
+            }
+
+            if (includesCreateHouseholdRequest)
+            {
+                IdentityValidation.HouseholdExists(
+                    householdId: request.RequestedHouseholdId,
+                    appDbContext: appDbContext);
+
+                IdentityValidation.RequestedHouseholdPasswordIsValid(
+                    householdId: request.RequestedHouseholdId,
+                    passwordHash: request.RequestedHousholdPasswordHash,
+                    appDbContext: appDbContext);
+            }
+        }
+
         /// <summary>
         /// Checks if the requesting user has read access to a resource.
         /// </summary>
@@ -259,7 +304,7 @@
                         Content = new StringContent(errorMessage),
                         ReasonPhrase = HttpReasonPhrase
                             .GetPhrase(ReasonPhrase.UserUnauthorized)
-                    }); ;
+                    });
             }
         }
 

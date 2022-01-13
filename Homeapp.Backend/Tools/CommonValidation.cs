@@ -2,6 +2,7 @@
 {
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
+    using Homeapp.Backend.Entities.Requests;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Managers;
     using System;
@@ -165,6 +166,45 @@
                 }
             }
         }
+
+        public static void AddressRequestIsValid(AddressRequest request)
+        {
+            if (!string.IsNullOrWhiteSpace(request.Id))
+            {
+                CommonValidation.GuidIsValid(
+                    guid: request.Id,
+                    errorMessage: $"Invalid id received: '{request.Id}'.");
+            }
+
+            var exception = new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.BadRequest)
+                    {
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.InvalidAddress)
+                    });
+
+            if (!request.City.Any(char.IsLetter))
+            {
+                exception.Response.Content = new StringContent("Invalid address received. City name cannot contain any numbers or special characters.");
+                throw exception;
+            }
+            if (!request.State.Any(char.IsLetter))
+            {
+                exception.Response.Content = new StringContent("Invalid address received. State name cannot contain any numbers or special characters.");
+                throw exception;
+            }
+            if (!request.Country.Any(char.IsLetter))
+            {
+                exception.Response.Content = new StringContent("Invalid address received. Country name cannot contain any numbers or special characters.");
+                throw exception;
+            }
+            if (!request.ZipCode.Any(char.IsNumber))
+            {
+                exception.Response.Content = new StringContent("Invalid address received. Zip code can only contain numbers.");
+                throw exception;
+            }
+        }
+
         #region Helper methods
         /// <summary>
         /// Converts an array of guids into a semi colon seperated string.

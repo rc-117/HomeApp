@@ -28,5 +28,6 @@
         //Common
         public DbSet<RecurringSchedule> RecurringSchedules { get; set; }
         public DbSet<AllowedUsers> SharedEntities { get; set; }
+        public DbSet<Address> Addresses { get; set; }
     }
 }

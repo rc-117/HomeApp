@@ -2,6 +2,7 @@
 {
     using Homeapp.Backend.Db;
     using Homeapp.Backend.Entities;
+    using Homeapp.Backend.Entities.Requests;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Tools;
     using Newtonsoft.Json.Linq;
@@ -49,13 +50,10 @@
         }
 
         /// <summary>
-        /// Creates a new SharedEntities object from a request.
+        /// Creates and saves a new AllowedUsers record to the database.
         /// </summary>
         /// <param name="request">The request.</param>
-        /// <remarks>This does not persist the sharedentities object to the database. This only creates an instance of a SharedEntities object.
-        /// This method is to be used when creating other entities that require SharedEntities, and will the SharedEntities object is
-        /// to be persisted to the database through other data managers on entity creation.</remarks>
-        public AllowedUsers CreateNewAllowedUsersObject(AllowedUsersRequest request)
+        public async Task<AllowedUsers> SaveAllowedUsersObjectToDb(AllowedUsersRequest request)
         {
             var allowedUsers = new AllowedUsers
             {
@@ -70,7 +68,23 @@
                 FullAccessUserIds = OutputHandler.ConvertStringArrayToString(request.FullAccessUserIds),
             };
 
-            return allowedUsers;
+            try
+            {
+                this.appDbContext.SharedEntities.Add(allowedUsers);
+                await this.appDbContext.SaveChangesAsync();
+
+                return allowedUsers;
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error saving an 'AllowedUsers' record to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }            
         }
 
         /// <summary>
@@ -111,6 +125,43 @@
             return this.appDbContext
                 .RecurringSchedules
                 .FirstOrDefault(r => r.Id == id);
+        }
+
+        /// <summary>
+        /// Creates and saves an address record in the database.
+        /// </summary>
+        /// <param name="addressRequest">The request.</param>
+        /// <returns>The created address.</returns>
+        public async Task<Address> SaveAddressToDb(AddressRequest addressRequest)
+        {
+            var address = new Address()
+            {
+                BusinessName =
+                    !string.IsNullOrWhiteSpace(addressRequest.BusinessName) ?
+                    addressRequest.BusinessName : null,
+                StreetAddress = addressRequest.StreetAddress,
+                City = addressRequest.City,
+                State = addressRequest.State,
+                Country = addressRequest.Country,
+                ZipCode = addressRequest.ZipCode
+            };
+
+            try
+            {
+                this.appDbContext.Addresses.Add(address);
+                await this.appDbContext.SaveChangesAsync();
+                return address;
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when saving an address to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
         }
     }
 }

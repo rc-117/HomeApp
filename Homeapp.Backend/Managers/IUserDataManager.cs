@@ -1,5 +1,6 @@
 ﻿namespace Homeapp.Backend.Managers
 {
+    using Homeapp.Backend.Entities;
     using Homeapp.Backend.Identity;
     using Homeapp.Backend.Identity.Requests;
     using Newtonsoft.Json.Linq;
@@ -27,16 +28,34 @@
         public User GetUserFromUserId(Guid userId);
 
         /// <summary>
-        /// Creates and saves a User and Household to the application database.
+        /// Creates and saves a household to the application database.
         /// </summary>
-        /// <param name="request"></param>
-        public Task<string> SaveUserAndHouseholdToDb(CreateUserAndHouseholdRequest request);
+        /// <param name="request">The request.</param>
+        /// <param name="allowedUsers">The users who will have read/write/full access to the household.</param>
+        /// <param name="householdAddress">(Optional) The address of the household.</param>
+        /// <param name="creator">(Optional) The user who created the household. If this is the very first request, 
+        /// use the 'AssignHouseholdCreator' method following this to assign the newly created user as an owner.</param>
+        /// <returns>The created household.</returns>
+        public Task<Household> SaveHouseholdToDb(
+            HouseholdRequest request,
+            AllowedUsers allowedUsers,
+            Address householdAddress = null,
+            User creator = null);
 
         /// <summary>
         /// Creates and saves a User to the application database.
         /// </summary>
-        /// <param name="request">The incoming request.</param>
-        public Task<string> SaveUserToDb(CreateUserRequest request);
+        /// <param name="request">The request.</param>
+        public Task<User> SaveUserToDb(CreateUserRequest request);
+
+
+        /// <summary>
+        /// Assigns a creator to a household.
+        /// </summary>
+        /// <param name="creator">The creator to assign.</param>
+        /// <param name="householdId">The id of the household to assign the creator to.</param>
+        /// <remarks>Only use this method if there are no existing households in the database and this is the first 'create' request.</remarks>
+        public void AssignHouseholdCreator(User creator, Guid householdId);
 
         /// <summary>
         /// Gets all users from a household using the household id.

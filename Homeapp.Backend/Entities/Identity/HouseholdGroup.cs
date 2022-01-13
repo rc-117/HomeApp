@@ -32,7 +32,7 @@
         /// <summary>
         /// List of users in the household group.
         /// </summary>
-        public List<UserHouseholdGroup> Users { get; set; }
+        public List<UserHouseholdGroup> Members { get; set; }
 
         /// <summary>
         /// The id of the user who created the household.
@@ -48,6 +48,11 @@
         /// The date and time that the household was created.
         /// </summary>
         public DateTime DateTimeCreated { get; set; }
+
+        /// <summary>
+        /// Unique id of the 'AllowedUsers' record for this household group.
+        /// </summary>
+        public Guid AllowedUsersId { get; set; }
 
         /// <summary>
         /// A list of users who have read, write, and full access over this household.

@@ -30,6 +30,7 @@
         private JWTSettings jwtSettings;
         private AppDbContext appDbContext;
         private IUserDataManager userDataManager;
+        private ICommonDataManager commonDataManager;
 
         /// <summary>
         /// Initializes the UserOperationController
@@ -37,11 +38,13 @@
         public UserOperationController
             (IOptions<JWTSettings> jwtSettings,
             AppDbContext appDbContext,
-            IUserDataManager userDataManager)
+            IUserDataManager userDataManager,
+            ICommonDataManager commonDataManager)
         {
             this.jwtSettings = jwtSettings.Value;
             this.appDbContext = appDbContext;
             this.userDataManager = userDataManager;
+            this.commonDataManager = commonDataManager;
         }
 
         /// <summary>
@@ -116,8 +119,8 @@
         /// <param name="request">The incomg request.</param>
         [AllowAnonymous]
         [HttpPut]
-        [Route("api/Users/register")]
-        public async Task<IActionResult> RegisterUser([FromBody]CreateUserRequest request)
+        [Route("api/Users/create")]
+        public async Task<IActionResult> CreateUser([FromBody]CreateUserRequest request)
         {
             if (NoUsersOrHouseHoldsExist())
             {
@@ -125,28 +128,9 @@
                     ("No households exist to register a user into. Please use method 'RegisterUserAndHousehold' to register both a new user and household.");
             }
 
-            IdentityValidation.EmailIsAlreadyInUse(
-                checkIfExists: true,
-                email: request.EmailAddress,
-                appDbContext: this.appDbContext,
-                errorMessage: $"Email '{request.EmailAddress}' is already in use.",
-                statusCode: HttpStatusCode.BadRequest,
-                reasonPhrase: ReasonPhrase.EmailAlreadyInUse);
-            
-            IdentityValidation.HouseholdExists(
-                householdId: request.RequestedHouseholdId, 
+            IdentityValidation.ValidateCreateUserRequest(
+                request: request,
                 appDbContext: this.appDbContext);
-
-            IdentityValidation.RequestedHouseholdPasswordIsValid(
-                householdId: request.RequestedHouseholdId,
-                passwordHash: request.RequestedHousholdPasswordHash,
-                appDbContext: this.appDbContext);
-
-            CommonValidation.DateStringIsValid(
-                date: request.Birthday,
-                errorMessage: $"Invalid date value received: '{request.Birthday}'");
-
-            CommonValidation.BirthdayIsValid(DateTime.Parse(request.Birthday));
 
             var result = await this.userDataManager.SaveUserToDb(request);
 
@@ -164,25 +148,28 @@
         /// <param name="request">The incoming request.</param>
         [AllowAnonymous]
         [HttpPut]
-        [Route("api/Users/registerUserAndHousehold")]
-        public async Task<IActionResult> RegisterUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
+        [Route("api/Users/createUserAndHousehold")]
+        public async Task<IActionResult> CreateUserAndHousehold([FromBody]CreateUserAndHouseholdRequest request)
         {
-            IdentityValidation.EmailIsAlreadyInUse(
-                checkIfExists: true,
-                email: request.UserRequest.EmailAddress,
+            IdentityValidation.ValidateCreateUserRequest(
+                request: request.UserRequest, 
                 appDbContext: this.appDbContext,
-                statusCode: HttpStatusCode.BadRequest,
-                errorMessage: $"Email '{request.UserRequest.EmailAddress}' is already in use.",
-                reasonPhrase: ReasonPhrase.EmailAlreadyInUse);
+                includesCreateHouseholdRequest: true);
 
-            CommonValidation.DateStringIsValid(
-                date: request.UserRequest.Birthday,
-                errorMessage: $"Invalid date value received: '{request.UserRequest.Birthday}'");
+            if (request.HouseholdRequest.AddressRequest != null)
+            {
+                CommonValidation.AddressRequestIsValid(request.HouseholdRequest.AddressRequest)
+            }
 
-            CommonValidation.BirthdayIsValid(DateTime.Parse(request.UserRequest.Birthday));
+            var householdAllowedUsers = 
+                await this.commonDataManager
+                .SaveAllowedUsersObjectToDb(request: request.HouseholdRequest.AllowedUsers);
 
-
-            var result = await this.userDataManager.SaveUserAndHouseholdToDb(request);
+            var household = 
+                await this.userDataManager
+                .SaveHouseholdToDb(
+                    request: request.HouseholdRequest,
+                    allowedUsers: householdAllowedUsers);
 
             if (result == null)
             {

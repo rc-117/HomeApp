@@ -13,7 +13,14 @@
         /// </summary>
         [JsonProperty]
         [Required(ErrorMessage = "Household request required.")]
-        public CreateHouseholdRequest HouseholdRequest { get; set; }
+        public HouseholdRequest HouseholdRequest { get; set; }
+
+        /// <summary>
+        /// The household group request properties.
+        /// </summary>
+        [JsonProperty]
+        [Required(ErrorMessage = "Household group requests required. An empty array is acceptable if no group creations are requested.")]
+        public HouseholdGroupRequest[] HouseholdGroupRequests { get; set; }
 
         /// <summary>
         /// The user request properties.

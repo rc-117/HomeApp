@@ -1,4 +1,4 @@
-﻿namespace Homeapp.Backend.Entities.Common.Requests
+﻿namespace Homeapp.Backend.Entities.Requests
 {
     using Newtonsoft.Json;
     using System.ComponentModel.DataAnnotations;
@@ -53,7 +53,7 @@
         /// </summary>
         [JsonProperty]
         [Required(ErrorMessage = "'ZipCode' is required.")]
-        public int ZipCode { get; set; }
+        public string ZipCode { get; set; }
 
         /// <summary>
         /// Bool indicating whether or not the address is an international one.

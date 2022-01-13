@@ -19,6 +19,12 @@
         public string EmailAddress { get; set; }
 
         /// <summary>
+        /// (Optional) The user's phone number.
+        /// </summary>
+        [JsonProperty]
+        public string PhoneNumber { get; set; }
+
+        /// <summary>
         /// Hash of the user's password.
         /// </summary>
         [JsonProperty]
