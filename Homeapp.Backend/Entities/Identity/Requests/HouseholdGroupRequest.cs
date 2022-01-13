@@ -32,13 +32,15 @@
         /// <summary>
         /// Array of user ids to add to the household group.
         /// </summary>
+        [JsonProperty]
+        [Required(ErrorMessage = "'UserIds' is required. If there are no users to add, create a blank 'UserIds' field.")]
         public string[] UserIds { get; set; }
 
         /// <summary>
         /// List of users who will have read/write/full access to this household group.
         /// </summary>
         [JsonProperty]
-        [Required(ErrorMessage = "'AllowedUsers' is required. If there are no users to add, create a blank 'AllowedUsers' request.")]
+        [Required(ErrorMessage = "'AllowedUsers' is required. If there are no users to add, create a blank 'AllowedUsers' field.")]
         public AllowedUsersRequest AllowedUsers { get; set; }
     }
 }

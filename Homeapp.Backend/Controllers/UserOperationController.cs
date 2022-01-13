@@ -87,30 +87,9 @@
                 appDbContext: this.appDbContext);
             
             var user = this.userDataManager.GetUserWithEmailAndPassword(email, passwordHash);
+            var jwt = this.userDataManager.GetUserLoginToken(user);
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(this.jwtSettings.SecretKey); ;
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.EmailAddress),
-                    new Claim(ClaimTypes.GivenName, user.FirstName),
-                    new Claim(ClaimTypes.Surname, user.LastName),
-                    new Claim(ClaimTypes.Gender, Enum.GetName(typeof(Gender), user.Gender))
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(5),
-                SigningCredentials = new SigningCredentials
-                    (new SymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            var userWithToken = new UserWithToken(user);
-            userWithToken.Token = tokenHandler.WriteToken(token);
-
-            return Ok(userWithToken);
+            return Ok(jwt);
         }
 
         /// <summary>
@@ -170,10 +149,11 @@
                     request: request.HouseholdRequest,
                     allowedUsers: householdAllowedUsers);
 
-            if (result == null)
-            {
-                return StatusCode(500, "Error saving new user and household to database.");
-            }
+            var user =
+                await this.userDataManager
+                .SaveUserToDb(request: request.UserRequest);
+
+            var userJwt = this.userDataManager.GetUserLoginToken(user);
 
             return Ok(result.ToString());
         }

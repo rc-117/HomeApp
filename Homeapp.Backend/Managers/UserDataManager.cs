@@ -6,12 +6,17 @@
     using Homeapp.Backend.Identity.Requests;
     using Homeapp.Backend.Tools;
     using Homeapp.Test;
+    using Microsoft.Extensions.Options;
+    using Microsoft.IdentityModel.Tokens;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
+    using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Security.Claims;
+    using System.Text;
     using System.Threading.Tasks;
     using System.Web.Http;
 
@@ -22,16 +27,21 @@
     {
         private AppDbContext appDbContext;
         private ICommonDataManager commonDataManager;
+        private JWTSettings jwtSettings;
 
         /// <summary>
         /// Initializes the user data manager class.
         /// </summary>
         /// <param name="commonDataManager">The common data manager.</param>
         /// <param name="appDbContext">The application database context.</param>
-        public UserDataManager(ICommonDataManager commonDataManager, AppDbContext appDbContext)
+        public UserDataManager(
+            ICommonDataManager commonDataManager, 
+            AppDbContext appDbContext, 
+            IOptions<JWTSettings> jwtSettings)
         {
             this.appDbContext = appDbContext;
             this.commonDataManager = commonDataManager;
+            this.jwtSettings = jwtSettings.Value;
         }
 
         #region Get
@@ -189,7 +199,7 @@
             var household = new Household()
             {
                 Name = request.Name,
-                HouseholdGroups = null,
+                HouseholdGroups = new List<HouseholdGroup>(),
                 PasswordHash = request.PasswordHash,
                 Users = null,
                 Address = householdAddress != null ? householdAddress : null,
@@ -204,6 +214,40 @@
             {
                 this.appDbContext.Households.Add(household);
 
+                await this.appDbContext.SaveChangesAsync();
+
+                if (request.HouseholdGroupRequests.Length == 0)
+                {
+                    return household;
+                } 
+            }
+            catch (Exception)
+            {
+                throw new HttpResponseException(
+                    new HttpResponseMessage(HttpStatusCode.InternalServerError)
+                    {
+                        Content = new StringContent("There was an error when saving the household to the database. Please try again."),
+                        ReasonPhrase = HttpReasonPhrase
+                            .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
+                    });
+            }
+
+            foreach (var groupRequest in request.HouseholdGroupRequests)
+            {
+                var groupAllowedUsers =
+                    await this.commonDataManager.SaveAllowedUsersObjectToDb(groupRequest.AllowedUsers);
+
+                household.HouseholdGroups.Add(
+                    await this.SaveHouseholdGroupToDb(
+                        request: groupRequest, 
+                        household: household, 
+                        creator: creator, 
+                        allowedUsers: groupAllowedUsers));
+            }
+
+            try
+            {
+                this.appDbContext.Households.Update(household);
                 await this.appDbContext.SaveChangesAsync();
 
                 return household;
@@ -233,8 +277,7 @@
             HouseholdGroupRequest request,
             Household household,
             User creator,
-            AllowedUsers allowedUsers,
-            List<User> members = null)
+            AllowedUsers allowedUsers)
         {
             var householdGroup = new HouseholdGroup()
             {
@@ -261,12 +304,31 @@
                     });
             }
 
-            if (members != null)
+            var members = new List<User>();
+
+            if (request.UserIds.Length > 0)
             {
-                return await 
+                foreach (var id in request.UserIds)
+                {
+                    members.Add(
+                        this.GetUserFromUserId(Guid.Parse(id)));
+                }
+            }
+
+            if (request.AddRequestingUserToGroup)
+            {
+                if (members.FirstOrDefault(u => u.Id == creator.Id) == null)
+                {
+                    members.Add(creator);
+                }
+            }
+
+            if (members.Count > 0)
+            {
+                return await
                     this.AddMembersToHouseholdGroup(
-                        members: members, 
-                        householdGroup: householdGroup, 
+                        members: members,
+                        householdGroup: householdGroup,
                         allowedUsers: householdGroup.AllowedUsers);
             }
             else
@@ -461,6 +523,34 @@
                             .GetPhrase(ReasonPhrase.ErrorSavingToDatabase)
                     });
             }
+        }
+
+        /// <summary>
+        /// Gets a login token for a user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>The JWT token.</returns>
+        public string GetUserLoginToken(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(this.jwtSettings.SecretKey); ;
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.EmailAddress),
+                    new Claim(ClaimTypes.GivenName, user.FirstName),
+                    new Claim(ClaimTypes.Surname, user.LastName),
+                    new Claim(ClaimTypes.Gender, Enum.GetName(typeof(Gender), user.Gender))
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(5),
+                SigningCredentials = new SigningCredentials
+                    (new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
         #region helper methods

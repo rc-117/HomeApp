@@ -100,5 +100,12 @@
         /// </summary>
         /// <param name="groupId">The household group id.</param>
         public HouseholdGroup GetHouseholdGroupWithId(Guid groupId);
+
+        /// <summary>
+        /// Gets a login token for a user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>The JWT token.</returns>
+        public string GetUserLoginToken(User user);
     }
 }
