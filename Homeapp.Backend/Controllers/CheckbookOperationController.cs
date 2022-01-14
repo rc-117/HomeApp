@@ -66,12 +66,12 @@
             var account = this.accountManager.GetAccountById(
                 accountId: accountGuid);
 
-            var owner = this.userDataManager.GetUserFromUserId(
+            var owner = this.userDataManager.GetUserById(
                 userId: account.OwnerId);
 
             IdentityValidation.UserHasReadAccessToResource(
                 requestingUser: this.userDataManager
-                    .GetUserFromUserId(this.GetUserId()),
+                    .GetUserById(this.GetUserId()),
                 ownerId: account.OwnerId,
                 sharedEntities: 
                     this.allowedUsersDataManager
@@ -102,7 +102,7 @@
                 userId: this.GetUserId(),
                 appDbContext: this.appDbContext);
 
-            var user = this.userDataManager.GetUserFromUserId(userId: this.GetUserId());
+            var user = this.userDataManager.GetUserById(userId: this.GetUserId());
 
             IdentityValidation.ValidateAllowedUsersRequest(
                 request: accountRequest.SharedEntitiesRequest,
@@ -194,7 +194,7 @@
             var account = this.accountManager.GetAccountById(Guid.Parse(accountId));
 
             IdentityValidation.UserHasWriteAccessToResource(
-                requestingUser: this.userDataManager.GetUserFromUserId(this.GetUserId()),
+                requestingUser: this.userDataManager.GetUserById(this.GetUserId()),
                 ownerId: account.OwnerId,
                 sharedEntities: this.allowedUsersDataManager
                     .GetAllowedUsersObjectFromId(account.AllowedUsersId),

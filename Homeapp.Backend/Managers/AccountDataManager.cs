@@ -174,7 +174,7 @@
                 Description =
                     String.IsNullOrWhiteSpace(request.Description) ?
                     null : request.Description,
-                CreatingUser = this.userDataManager.GetUserFromUserId(ownerId),
+                CreatingUser = this.userDataManager.GetUserById(ownerId),
                 SharedEntities = 
                     this.allowedUsersManager
                     .CreateNewAllowedUsersObject(request.AllowedUsersRequest)
@@ -236,7 +236,7 @@
                 Description =
                     String.IsNullOrWhiteSpace(request.Description) ?
                     null : request.Description,
-                CreatingUser = this.userDataManager.GetUserFromUserId(ownerId),
+                CreatingUser = this.userDataManager.GetUserById(ownerId),
                 SharedEntities = 
                     this.allowedUsersManager
                     .CreateNewAllowedUsersObject(request.AllowedUsersRequest)

@@ -155,7 +155,24 @@
 
             var userJwt = this.userDataManager.GetUserLoginToken(user);
 
-            return Ok(result.ToString());
+            var response = new JObject()
+            {
+                OutputHandler.CreateJwtTokenJObject(jwt: userJwt),
+                
+                OutputHandler.CreateUserJObject(
+                    user: user, 
+                    includeHouseholds: false, 
+                    includeHouseholdGroups: false, 
+                    userDataManager: this.userDataManager),
+                
+                OutputHandler.CreateHouseholdJObject(
+                    household: household,
+                    userDataManager: this.userDataManager,
+                    commonDataManager: this.commonDataManager,
+                    includeAllowedUsers: true)
+            }.ToString();
+            
+            return Ok(response);
         }
 
         /// <summary>

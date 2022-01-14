@@ -15,46 +15,55 @@
     public static class OutputHandler
     {
         #region JSON property names
-        private static string _Id = "Id";
-        private static string _AccountId = "AccountId";
-        private static string _AccountName = "AccountName";
-        private static string _AccountType = "AccountType";
-        private static string _Balance = "Balance";
-        private static string _Owner = "Owner";
-        private static string _AllowedUsers = "AllowedUsers";
-        private static string _Name = "Name";
-        private static string _Amount = "Amount";
-        private static string _TransactionType = "TransactionType";
-        private static string _ExpenseCategory = "ExpenseCategory";
-        private static string _IncomeCategory = "IncomeCategory";
-        private static string _DateTime = "DateTime";
-        private static string _RecurringTransactionId = "RecurringTransactionId";
-        private static string _RecurringSchedule = "RecurringSchedule";
-        private static string _IsCleared = "IsCleared";
-        private static string _RecurringType = "RecurringType";
-        private static string _Time = "Time";
-        private static string _DayOfWeek = "DayOfWeek";
-        private static string _DateOfMonth = "DateOfMonth";
-        private static string _SecondDateOfMonth = "SecondDateOfMonth";
-        private static string _AnnualMonth = "AnnualMonth";
-        private static string _SecondAnnualMonth = "SecondAnnualMonth";
-        private static string _AnnualMonthDate = "AnnualMonthDate";
-        private static string _SecondAnnualMonthDate = "SecondAnnualMonthDate";
-        private static string _EmailAddress = "EmailAddress";
-        private static string _PhoneNumber = "PhoneNumber";
-        private static string _FirstName = "FirstName";
-        private static string _LastName = "LastName";
-        private static string _Age = "Age";
-        private static string _Gender = "Gender";
-        private static string _Birthday = "Birthday";
-        private static string _Creator = "Creator";
-        private static string _DateCreated = "DateCreated";
-        private static string _TimeCreated = "TimeCreated";
-        private static string _HouseholdId = "HouseholdId";
-        private static string _HouseholdGroups = "HouseholdGroups";
-        private static string _Members = "Members";
-        private static string _ReadHousholds;
-        private static object _WriteHouseholds;
+        private static readonly string _Id = "Id";
+        private static readonly string _AccountId = "AccountId";
+        private static readonly string _AccountName = "AccountName";
+        private static readonly string _AccountType = "AccountType";
+        private static readonly string _Balance = "Balance";
+        private static readonly string _Owner = "Owner";
+        private static readonly string _AllowedUsers = "AllowedUsers";
+        private static readonly string _Name = "Name";
+        private static readonly string _Amount = "Amount";
+        private static readonly string _TransactionType = "TransactionType";
+        private static readonly string _ExpenseCategory = "ExpenseCategory";
+        private static readonly string _IncomeCategory = "IncomeCategory";
+        private static readonly string _DateTime = "DateTime";
+        private static readonly string _RecurringTransactionId = "RecurringTransactionId";
+        private static readonly string _RecurringSchedule = "RecurringSchedule";
+        private static readonly string _IsCleared = "IsCleared";
+        private static readonly string _RecurringType = "RecurringType";
+        private static readonly string _Time = "Time";
+        private static readonly string _DayOfWeek = "DayOfWeek";
+        private static readonly string _DateOfMonth = "DateOfMonth";
+        private static readonly string _SecondDateOfMonth = "SecondDateOfMonth";
+        private static readonly string _AnnualMonth = "AnnualMonth";
+        private static readonly string _SecondAnnualMonth = "SecondAnnualMonth";
+        private static readonly string _AnnualMonthDate = "AnnualMonthDate";
+        private static readonly string _SecondAnnualMonthDate = "SecondAnnualMonthDate";
+        private static readonly string _EmailAddress = "EmailAddress";
+        private static readonly string _PhoneNumber = "PhoneNumber";
+        private static readonly string _FirstName = "FirstName";
+        private static readonly string _LastName = "LastName";
+        private static readonly string _Age = "Age";
+        private static readonly string _Gender = "Gender";
+        private static readonly string _Birthday = "Birthday";
+        private static readonly string _Creator = "Creator";
+        private static readonly string _DateCreated = "DateCreated";
+        private static readonly string _TimeCreated = "TimeCreated";
+        private static readonly string _HouseholdId = "HouseholdId";
+        private static readonly string _HouseholdGroups = "HouseholdGroups";
+        private static readonly string _Members = "Members";
+        private static readonly string _ReadHousholds = "ReadHouseholds";
+        private static readonly string _WriteHouseholds = "WriteHouseholds";
+        private static readonly string _FullAccessHouseholds = "FullAccessHouseholds";
+        private static readonly string _ReadUsers = "ReadUsers";
+        private static readonly string _WriteUsers = "WriteUsers";
+        private static readonly string _FullAccessUsers = "FullAcccessUsers";
+        private static readonly string _ReadHouseholdGroups = "ReadHouseholdGroups";
+        private static readonly string _WriteHouseholdGroups = "WriteHouseholdGroups";
+        private static readonly string _FullAccessHouseholdGroups = "FullAccessHouseholdGroups";
+        private static readonly string _Token = "Token";
+        private static readonly object _Households;
         #endregion
 
         #region Common JObject creators
@@ -82,27 +91,100 @@
 
             return new JObject()
             {
-                { _ReadHousholds, 
-                    OutputHandler
-                        .CreateHouseholdGroupJArray(
-                            userDataManager.) },
-                { _WriteHouseholds }
-                { "ReadUsers", readUserArray },
-                { "EditHousholds", editHouseholdArray},
-                { "EditHousholdGroups", editHouseholdGroupArray},
-                { "EditUsers", editUserArray }
+                {
+                    _ReadUsers,
+                        OutputHandler
+                            .CreateUserJArray(
+                                users: userDataManager
+                                        .GetListOfUsersByIds(ids: readUserIds))
+                },
+                {
+                    _WriteUsers,
+                        OutputHandler
+                            .CreateUserJArray(
+                                users: userDataManager
+                                        .GetListOfUsersByIds(ids: writeUserIds))
+                },
+                { 
+                    _FullAccessUsers,
+                        OutputHandler
+                            .CreateUserJArray(
+                                users: userDataManager
+                                        .GetListOfUsersByIds(ids: fullAccessUserIds))
+                },
+                {
+                    _ReadHouseholdGroups,
+                        OutputHandler
+                            .CreateHouseholdGroupJArray(
+                                groups: userDataManager.GetListOfHouseholdGroupsByIds(readHouseholdGroupsIds),
+                                commonDataManager: commonDataManager,
+                                userDataManager: userDataManager)
+                },
+                {
+                    _WriteHouseholdGroups,
+                        OutputHandler
+                            .CreateHouseholdGroupJArray(
+                                groups: userDataManager.GetListOfHouseholdGroupsByIds(writeHouseholdGroupsIds),
+                                commonDataManager: commonDataManager,
+                                userDataManager: userDataManager)
+                },
+                {
+                    _FullAccessHouseholdGroups,
+                        OutputHandler
+                            .CreateHouseholdGroupJArray(
+                                groups: userDataManager.GetListOfHouseholdGroupsByIds(fullAccessHouseholdGroupsIds),
+                                commonDataManager: commonDataManager,
+                                userDataManager: userDataManager)
+                },
+                { 
+                    _WriteHouseholds,
+                        OutputHandler
+                            .CreateHouseholdJArray(
+                                households: userDataManager.GetListOfHouseholdsByIds(writeHouseholdIds),
+                                userDataManager: userDataManager,
+                                commonDataManager: commonDataManager)
+                },
+                                {
+                    _FullAccessHouseholds,
+                        OutputHandler
+                            .CreateHouseholdJArray(
+                                households: userDataManager.GetListOfHouseholdsByIds(fullAccessHouseholdIds),
+                                userDataManager: userDataManager,
+                                commonDataManager: commonDataManager)
+                },
             };
         }
         #endregion
 
         #region Identity JObject Creators
+
+        /// <summary>
+        /// Creates a JSON object containing a JWT.
+        /// </summary>
+        /// <param name="jwt">The JWT to insert into the JSON object.</param>
+        /// <returns>A JObject containing the jwt token.</returns>
+        /// <remarks>Do not use this with a JSON field that has a name. 
+        /// This object already includes a property name.</remarks>
+        public static JObject CreateJwtTokenJObject(string jwt)
+        {
+            return new JObject
+            {
+                _Token, jwt
+            };
+        }
+
         /// <summary>
         /// Creates a JSON object containing user details
         /// </summary>
         /// <param name="user">The user</param>
-        public static JObject CreateUserJObject(User user)
+        public static JObject CreateUserJObject(
+            User user, 
+            IUserDataManager userDataManager, 
+            ICommonDataManager commonDataManager,
+            bool includeHouseholds, 
+            bool includeHouseholdGroups)
         {
-            return new JObject()
+            var jObject = new JObject()
             {
                 { _Id, user.Id },
                 { _EmailAddress, user.EmailAddress },
@@ -115,20 +197,61 @@
                 { _Gender, Enum.GetName(typeof(Gender), user.Gender) },
                 { _Birthday, user.Birthday.ToLongDateString() }
             };
+
+            if (includeHouseholds)
+            {
+                jObject.Add(new JObject()
+                {
+                    _Households,
+                        OutputHandler.CreateHouseholdJArray(
+                        households: userDataManager.GetUserHouseholds(user),
+                        userDataManager: userDataManager,
+                        commonDataManager: commonDataManager)
+                });
+            }
+
+            if (includeHouseholdGroups)
+            {
+                jObject.Add(new JObject()
+                {
+                    _HouseholdGroups,
+                        OutputHandler
+                        .CreateHouseholdGroupJArray(
+                            groups: userDataManager.GetUserHouseholdGroups(user),
+                            commonDataManager: commonDataManager,
+                            userDataManager: userDataManager)
+                });
+            }
+
+
         }
 
         /// <summary>
         /// Creates a JSON array of users.
         /// </summary>
         /// <param name="users">The list of users to add to the JSON array.</param>
+        /// <param name="includeHouseholds">Set to 'true' to include households in user JSON objects.</param>
+        /// <param name="includeHouseholdGroups">Set to 'true' to include household groups in user JSON objects.</param>
         /// <returns>JArray containing users.</returns>
-        public static JArray CreateUserJArray(List<User> users)
+        public static JArray CreateUserJArray(
+            List<User> users, 
+            bool includeHouseholds, 
+            bool includeHouseholdGroups,
+            IUserDataManager userDataManager,
+            ICommonDataManager commonDataManager)
         {
             var jArray = new JArray();
 
             foreach (var user in users)
             {
-                jArray.Add(OutputHandler.CreateUserJObject(user));
+                jArray.Add(
+                    OutputHandler
+                    .CreateUserJObject(
+                        user: user,
+                        includeHouseholds: includeHouseholds,
+                        includeHouseholdGroups: includeHouseholdGroups,
+                        userDataManager: userDataManager,
+                        commonDataManager: commonDataManager));
             }
 
             return jArray;
@@ -153,7 +276,7 @@
                     OutputHandler.
                         CreateUserJObject(
                             userDataManager
-                            .GetUserFromUserId(group.CreatorId)) },
+                            .GetUserById(group.CreatorId)) },
                 { _Members, OutputHandler.CreateUserJArray(userDataManager.GetHouseholdGroupUsers(group.Id)) },
                 { _DateCreated, group.DateTimeCreated.ToLongDateString() },
                 { _TimeCreated, group.DateTimeCreated.ToShortTimeString() },
@@ -165,10 +288,10 @@
                     {
                         _AllowedUsers,
                             OutputHandler
-                                .CreateAllowedUsersJObject(
-                                id: group.AllowedUsersId,
-                                commonDataManager: commonDataManager,
-                                userDataManager: userDataManager)
+                            .CreateAllowedUsersJObject(
+                            id: group.AllowedUsersId,
+                            commonDataManager: commonDataManager,
+                            userDataManager: userDataManager)
                     });
             }
 
@@ -229,7 +352,7 @@
                     OutputHandler
                         .CreateUserJObject(
                             userDataManager
-                            .GetUserFromUserId(household.CreatorId)) },
+                            .GetUserById(household.CreatorId)) },
                 { _Members, 
                     OutputHandler
                         .CreateUserJArray(
@@ -251,6 +374,34 @@
             }
 
             return jObject;
+        }
+
+        /// <summary>
+        /// Creates a JSON array containing households.
+        /// </summary>
+        /// <param name="households">The list of households to add to the JSON array.</param>
+        /// <param name="userDataManager">The user data manager.</param>
+        /// <param name="commonDataManager">The common data manager.</param>
+        /// <returns>The JSON array containing households.</returns>
+        public static JArray CreateHouseholdJArray(
+            List<Household> households, 
+            IUserDataManager userDataManager,
+            ICommonDataManager commonDataManager)
+        {
+            var JArray = new JArray();
+
+            foreach (var household in households)
+            {
+                JArray.Add(
+                    OutputHandler
+                    .CreateHouseholdJObject(
+                        household: household,
+                        userDataManager: userDataManager,
+                        commonDataManager: commonDataManager,
+                        includeAllowedUsers: false));
+            }
+
+            return JArray;
         }
 
         #endregion
@@ -346,8 +497,11 @@
                         typeof(TransactionType), transaction.TransactionType) },
                     { _Owner, OutputHandler
                         .CreateUserJObject(
-                            userDataManager
-                            .GetUserFromUserId(transaction.OwnerId))},
+                            user: userDataManager
+                                    .GetUserById(transaction.OwnerId),
+                            userDataManager: userDataManager,
+                            includeHouseholds: false,
+                            includeHouseholdGroups: false)},
                     { _ExpenseCategory, expenseCategory },
                     { _IncomeCategory, incomeCategory },
                     { _DateTime, transaction.DateTime },
@@ -558,72 +712,5 @@
                 return DateTime.Now.Year - birthday.Year;
             }
         }
-
-        #region Private helper methods
-        /// <summary>
-        /// Converts a semi colon seperated string into a JArray of name/guid pairs.
-        /// </summary>
-        /// <param name="guids">The string containing a list of guids separated with semicolon.</param>
-        /// <param name="userDataManager">The user data manager.</param>
-        /// <param name="searchHouseholds">Set to true to search Households in the database.</param>
-        /// <param name="searchGroups">Set to true to search Household groups in the database.</param>
-        /// <param name="searchUsers">Set to true to search Users in the database.</param>
-        private static JArray ConvertStringToJArrayOfNameGuidPairs(
-            string guids,
-            IUserDataManager userDataManager,
-            bool searchHouseholds = false,
-            bool searchGroups = false,
-            bool searchUsers = false)
-        {
-            if (string.IsNullOrWhiteSpace(guids))
-            {
-                return new JArray();
-            }
-
-            var jArray = new JArray();
-            var nameList = new List<string>();
-            var guidList = guids.Split(';');
-
-            foreach (var guid in guidList)
-            {
-                if (string.IsNullOrWhiteSpace(guid))
-                {
-                    continue;
-                }
-
-                if (searchHouseholds)
-                {
-                    var id = Guid.Parse(guid);
-                    var name = userDataManager.GetHouseholdWithId(id).Name;
-
-                    jArray.Add(new JObject()
-                    {
-                        { "Id", id },
-                        { "Name", name }
-                    });
-                }
-                else if (searchGroups)
-                {
-                    var id = Guid.Parse(guid);
-                    var name = userDataManager.GetHouseholdGroupWithId(id).Name;
-
-                    jArray.Add(new JObject()
-                    {
-                        { "Id", id },
-                        { "Name", name }
-                    });
-                }
-                else if (searchUsers)
-                {
-                    var id = Guid.Parse(guid);
-                    var user = userDataManager.GetUserFromUserId(id);
-
-                    jArray.Add(OutputHandler.CreateUserJObject(user));
-                }
-            }
-
-            return jArray;
-        }
-        #endregion
     }
 }

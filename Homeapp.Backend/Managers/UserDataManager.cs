@@ -62,7 +62,7 @@
         /// Gets a user by its id.
         /// </summary>
         /// <param name="userId">The user id.</param>
-        public User GetUserFromUserId(Guid userId)
+        public User GetUserById(Guid userId)
         {
             try
             {
@@ -101,6 +101,42 @@
         }
 
         /// <summary>
+        /// Gets a list of households that a user is in.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        public List<Household> GetUserHouseholds(User user)
+        {
+            var userHouseholds = user.Households;
+            var households = new List<Household>();
+
+            foreach (var userHousehold in userHouseholds)
+            {
+                households
+                    .Add(this.GetHouseholdById(userHousehold.Id));
+            }
+
+            return households;
+        }
+
+        /// <summary>
+        /// Gets a list of household groups that a user is in.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        public List<HouseholdGroup> GetUserHouseholdGroups(User user)
+        {
+            var userHouseholdGroups = user.HouseholdGroups;
+            var householdGroups = new List<HouseholdGroup>();
+
+            foreach (var userHouseholdGroup in userHouseholdGroups)
+            {
+                householdGroups
+                    .Add(this.GetHouseholdGroupById(userHouseholdGroup.Id));
+            }
+
+            return householdGroups;
+        }
+
+        /// <summary>
         /// Gets all users from a household using the household id.
         /// </summary>
         /// <param name="householdId">The household id</param>
@@ -133,7 +169,7 @@
         /// </summary>
         /// <param name="householdId">The household id.</param>
         /// <returns>A household object. Returns null if nothing is found.</returns>
-        public Household GetHouseholdWithId(Guid householdId)
+        public Household GetHouseholdById(Guid householdId)
         {
             return this.appDbContext
                 .Households
@@ -144,7 +180,7 @@
         /// Gets a household group from the database using its id.
         /// </summary>
         /// <param name="groupId">The household group id.</param>
-        public HouseholdGroup GetHouseholdGroupWithId(Guid groupId)
+        public HouseholdGroup GetHouseholdGroupById(Guid groupId)
         {
             return this.appDbContext
                 .HouseholdGroups
@@ -177,6 +213,57 @@
             }
 
             return users.Count() == 0 ? null : users;
+        }
+
+        /// <summary>
+        /// Gets a list of households by their ids.
+        /// </summary>
+        /// <param name="ids">List of ids to get the households with.</param>
+        /// <returns>A list of households.</returns>
+        public List<Household> GetListOfHouseholdsByIds(List<Guid> ids)
+        {
+            var households = new List<Household>();
+
+            foreach (var id in ids)
+            {
+                households.Add(this.GetHouseholdById(id));
+            }
+
+            return households;
+        }
+
+        /// <summary>
+        /// Gets a list of users by their ids.
+        /// </summary>
+        /// <param name="ids">List of ids to get the users with.</param>
+        /// <returns>A list of users.</returns>
+        public List<User> GetListOfUsersByIds(List<Guid> ids)
+        {
+            var users = new List<User>();
+
+            foreach (var id in ids)
+            {
+                users.Add(this.GetUserById(id));
+            }
+
+            return users;
+        }
+
+        /// <summary>
+        /// Gets a list of household groups by their ids.
+        /// </summary>
+        /// <param name="ids">List of ids to get the groups with.</param>
+        /// <returns>A list of households groups.</returns>
+        public List<HouseholdGroup> GetListOfHouseholdGroupsByIds(List<Guid> ids)
+        {
+            var groups = new List<HouseholdGroup>();
+
+            foreach (var id in ids)
+            {
+                groups.Add(this.GetHouseholdGroupById(id));
+            }
+
+            return groups;
         }
         #endregion
 
@@ -311,7 +398,7 @@
                 foreach (var id in request.UserIds)
                 {
                     members.Add(
-                        this.GetUserFromUserId(Guid.Parse(id)));
+                        this.GetUserById(Guid.Parse(id)));
                 }
             }
 
@@ -478,7 +565,7 @@
             };
 
             this.EnsureMembersHaveMinimumReadAccess(
-                members: new List<User>() { this.GetUserFromUserId(userId) },
+                members: new List<User>() { this.GetUserById(userId) },
                 allowedUsers: this.commonDataManager
                     .GetAllowedUsersObjectFromId(householdGroup.AllowedUsersId));
 

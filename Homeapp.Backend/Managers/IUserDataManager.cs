@@ -25,7 +25,7 @@
         /// Gets a user by its id.
         /// </summary>
         /// <param name="userId">The user id.</param>
-        public User GetUserFromUserId(Guid userId);
+        public User GetUserById(Guid userId);
 
         /// <summary>
         /// Creates and saves a household to the application database.
@@ -76,7 +76,7 @@
         /// </summary>
         /// <param name="householdId">The household id.</param>
         /// <returns>A household object. Returns null if nothing is found.</returns>
-        public Household GetHouseholdWithId(Guid householdId);
+        public Household GetHouseholdById(Guid householdId);
 
         /// <summary>
         /// Gets a list of users from a household group.
@@ -99,7 +99,7 @@
         /// Gets a household group from the database using its id.
         /// </summary>
         /// <param name="groupId">The household group id.</param>
-        public HouseholdGroup GetHouseholdGroupWithId(Guid groupId);
+        public HouseholdGroup GetHouseholdGroupById(Guid groupId);
 
         /// <summary>
         /// Gets a login token for a user.
@@ -107,5 +107,38 @@
         /// <param name="user">The user.</param>
         /// <returns>The JWT token.</returns>
         public string GetUserLoginToken(User user);
+
+        /// <summary>
+        /// Gets a list of households by their ids.
+        /// </summary>
+        /// <param name="ids">List of ids to get the households with.</param>
+        /// <returns>A list of households.</returns>
+        public List<Household> GetListOfHouseholdsByIds(List<Guid> ids);
+
+        /// <summary>
+        /// Gets a list of users by their ids.
+        /// </summary>
+        /// <param name="ids">List of ids to get the users with.</param>
+        /// <returns>A list of users.</returns>
+        public List<User> GetListOfUsersByIds(List<Guid> ids);
+
+        /// <summary>
+        /// Gets a list of household groups by their ids.
+        /// </summary>
+        /// <param name="ids">List of ids to get the groups with.</param>
+        /// <returns>A list of households groups.</returns>
+        public List<HouseholdGroup> GetListOfHouseholdGroupsByIds(List<Guid> ids);
+
+        /// <summary>
+        /// Gets a list of households that a user is in.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        public List<Household> GetUserHouseholds(User user);
+
+        /// <summary>
+        /// Gets a list of household groups that a user is in.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        public List<HouseholdGroup> GetUserHouseholdGroups(User user);
     }
 }
