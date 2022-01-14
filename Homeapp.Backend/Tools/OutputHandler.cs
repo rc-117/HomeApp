@@ -63,7 +63,8 @@
         private static readonly string _WriteHouseholdGroups = "WriteHouseholdGroups";
         private static readonly string _FullAccessHouseholdGroups = "FullAccessHouseholdGroups";
         private static readonly string _Token = "Token";
-        private static readonly object _Households;
+        private static readonly string _Households = "Households";
+        private static readonly string _Household = "Household";
         #endregion
 
         #region Common JObject creators
@@ -96,29 +97,45 @@
                         OutputHandler
                             .CreateUserJArray(
                                 users: userDataManager
-                                        .GetListOfUsersByIds(ids: readUserIds))
+                                        .GetListOfUsersByIds(
+                                        ids: readUserIds),
+                                userDataManager: userDataManager,
+                                commonDataManager: commonDataManager,
+                                includeHouseholds: false,
+                                includeHouseholdGroups: false)
                 },
                 {
                     _WriteUsers,
                         OutputHandler
                             .CreateUserJArray(
                                 users: userDataManager
-                                        .GetListOfUsersByIds(ids: writeUserIds))
+                                        .GetListOfUsersByIds(
+                                        ids: writeUserIds),
+                                userDataManager: userDataManager,
+                                commonDataManager: commonDataManager,
+                                includeHouseholds: false,
+                                includeHouseholdGroups: false)
                 },
                 { 
                     _FullAccessUsers,
                         OutputHandler
                             .CreateUserJArray(
                                 users: userDataManager
-                                        .GetListOfUsersByIds(ids: fullAccessUserIds))
-                },
+                                        .GetListOfUsersByIds(
+                                        ids: fullAccessUserIds),
+                                userDataManager: userDataManager,
+                                commonDataManager: commonDataManager,
+                                includeHouseholds: false,
+                                includeHouseholdGroups: false)                },
                 {
                     _ReadHouseholdGroups,
                         OutputHandler
                             .CreateHouseholdGroupJArray(
                                 groups: userDataManager.GetListOfHouseholdGroupsByIds(readHouseholdGroupsIds),
                                 commonDataManager: commonDataManager,
-                                userDataManager: userDataManager)
+                                userDataManager: userDataManager,
+                                includeMembers: false,
+                                includeHouseholds: false)
                 },
                 {
                     _WriteHouseholdGroups,
@@ -126,7 +143,9 @@
                             .CreateHouseholdGroupJArray(
                                 groups: userDataManager.GetListOfHouseholdGroupsByIds(writeHouseholdGroupsIds),
                                 commonDataManager: commonDataManager,
-                                userDataManager: userDataManager)
+                                userDataManager: userDataManager,
+                                includeMembers: false,
+                                includeHouseholds: false)
                 },
                 {
                     _FullAccessHouseholdGroups,
@@ -134,7 +153,19 @@
                             .CreateHouseholdGroupJArray(
                                 groups: userDataManager.GetListOfHouseholdGroupsByIds(fullAccessHouseholdGroupsIds),
                                 commonDataManager: commonDataManager,
-                                userDataManager: userDataManager)
+                                userDataManager: userDataManager,
+                                includeMembers: false,
+                                includeHouseholds: false)
+                },
+                {
+                    _ReadHousholds,
+                        OutputHandler
+                            .CreateHouseholdJArray(
+                                households: userDataManager.GetListOfHouseholdsByIds(readHouseholdIds),
+                                userDataManager: userDataManager,
+                                commonDataManager: commonDataManager,
+                                includeMembers: false,
+                                includeHouseholdGroups: false)
                 },
                 { 
                     _WriteHouseholds,
@@ -142,15 +173,19 @@
                             .CreateHouseholdJArray(
                                 households: userDataManager.GetListOfHouseholdsByIds(writeHouseholdIds),
                                 userDataManager: userDataManager,
-                                commonDataManager: commonDataManager)
+                                commonDataManager: commonDataManager,
+                                includeMembers: false,
+                                includeHouseholdGroups: false)
                 },
-                                {
+                {
                     _FullAccessHouseholds,
                         OutputHandler
                             .CreateHouseholdJArray(
                                 households: userDataManager.GetListOfHouseholdsByIds(fullAccessHouseholdIds),
                                 userDataManager: userDataManager,
-                                commonDataManager: commonDataManager)
+                                commonDataManager: commonDataManager,
+                                includeMembers: false,
+                                includeHouseholdGroups: false)
                 },
             };
         }
@@ -206,7 +241,9 @@
                         OutputHandler.CreateHouseholdJArray(
                         households: userDataManager.GetUserHouseholds(user),
                         userDataManager: userDataManager,
-                        commonDataManager: commonDataManager)
+                        commonDataManager: commonDataManager,
+                        includeMembers: false,
+                        includeHouseholdGroups: false)
                 });
             }
 
@@ -219,11 +256,13 @@
                         .CreateHouseholdGroupJArray(
                             groups: userDataManager.GetUserHouseholdGroups(user),
                             commonDataManager: commonDataManager,
-                            userDataManager: userDataManager)
+                            userDataManager: userDataManager,
+                            includeMembers: false,
+                            includeHouseholds: false)
                 });
             }
 
-
+            return jObject;
         }
 
         /// <summary>
@@ -265,22 +304,66 @@
             HouseholdGroup group, 
             IUserDataManager userDataManager, 
             ICommonDataManager commonDataManager,
-            bool includeAllowedUsers)
+            bool includeAllowedUsers,
+            bool includeMembers,
+            bool includeHousehold)
         {
             var jObject = new JObject()
             {
                 { _Id, group.Id },
-                { _HouseholdId, group.HouseholdId },
+                
                 { _Name, group.Name },
-                { _Creator, 
-                    OutputHandler.
-                        CreateUserJObject(
-                            userDataManager
-                            .GetUserById(group.CreatorId)) },
-                { _Members, OutputHandler.CreateUserJArray(userDataManager.GetHouseholdGroupUsers(group.Id)) },
+                { _Creator,
+                    OutputHandler
+                        .CreateUserJObject(
+                        user: userDataManager
+                            .GetUserById(group.CreatorId),
+                        userDataManager: userDataManager,
+                        commonDataManager: commonDataManager,
+                        includeHouseholds: false,
+                        includeHouseholdGroups: false)},
                 { _DateCreated, group.DateTimeCreated.ToLongDateString() },
                 { _TimeCreated, group.DateTimeCreated.ToShortTimeString() },
             };
+
+            if (includeHousehold)
+            {
+                jObject.Add(new JObject()
+                {
+                    _Household,
+                        OutputHandler
+                        .CreateHouseholdJObject(
+                            household: userDataManager.GetHouseholdById(group.HouseholdId),
+                            userDataManager: userDataManager,
+                            commonDataManager: commonDataManager,
+                            includeAllowedUsers: false,
+                            includeMembers: false,
+                            includeHouseholdGroups: false)
+                });
+            }
+            else
+            {
+                jObject.Add(new JObject()
+                    { _HouseholdId, group.HouseholdId });
+            }
+
+            if (includeMembers)
+            {
+                if (includeMembers)
+                {
+                    jObject.Add(new JObject()
+                        { _Members,
+                            OutputHandler
+                                .CreateUserJArray(
+                                users: userDataManager
+                                        .GetUsersFromHouseholdGroup(group),
+                                includeHouseholds: false,
+                                includeHouseholdGroups: false,
+                                userDataManager: userDataManager,
+                                commonDataManager: commonDataManager)
+                        });
+                }
+            }
 
             if (includeAllowedUsers)
             {
@@ -308,7 +391,9 @@
         public static JArray CreateHouseholdGroupJArray(
             List<HouseholdGroup> groups, 
             ICommonDataManager commonDataManager, 
-            IUserDataManager userDataManager)
+            IUserDataManager userDataManager,
+            bool includeMembers,
+            bool includeHouseholds)
         {
             var jArray = new JArray();
 
@@ -320,7 +405,9 @@
                             group: group,
                             userDataManager: userDataManager,
                             commonDataManager: commonDataManager,
-                            includeAllowedUsers: false));
+                            includeAllowedUsers: false,
+                            includeMembers: includeMembers,
+                            includeHousehold: includeHouseholds));
             }
 
             return jArray;
@@ -334,33 +421,54 @@
             Household household, 
             IUserDataManager userDataManager, 
             ICommonDataManager commonDataManager,
-            bool includeAllowedUsers)
+            bool includeAllowedUsers,
+            bool includeMembers,
+            bool includeHouseholdGroups)
         {
             var jObject = new JObject()
             {
                 { _Id, household.Id },
                 { _Name, household.Name },
-                { _HouseholdGroups, 
-                    OutputHandler
-                        .CreateHouseholdGroupJArray(
-                            groups: 
-                                userDataManager
-                                .GetGroupsFromHousehold(household.Id), 
-                                    userDataManager: userDataManager,
-                                    commonDataManager: commonDataManager) },
                 { _Creator,
                     OutputHandler
                         .CreateUserJObject(
-                            userDataManager
-                            .GetUserById(household.CreatorId)) },
-                { _Members, 
-                    OutputHandler
-                        .CreateUserJArray(
-                            userDataManager
-                                .GetUsersFromHousehold(household.Id)) },
+                        user: userDataManager
+                            .GetUserById(household.CreatorId),
+                        userDataManager: userDataManager,
+                        commonDataManager: commonDataManager,
+                        includeHouseholds: false,
+                        includeHouseholdGroups: false)},
                 { _DateCreated, household.DateTimeCreated.ToLongDateString() },
                 { _TimeCreated, household.DateTimeCreated.ToShortTimeString() }                
             };
+
+            if (includeMembers)
+            {
+                jObject.Add(new JObject()
+                { _Members,
+                    OutputHandler
+                        .CreateUserJArray(
+                        users: userDataManager
+                                .GetUsersFromHousehold(household.Id),
+                        includeHouseholds: false,
+                        includeHouseholdGroups: false,
+                        userDataManager: userDataManager,
+                        commonDataManager: commonDataManager) 
+                });
+            }
+
+            if (includeHouseholdGroups)
+            {
+                jObject.Add(new JObject
+                    { _HouseholdGroups,
+                        OutputHandler
+                        .CreateHouseholdGroupJArray(
+                            groups:
+                            userDataManager
+                            .GetGroupsFromHousehold(household.Id),
+                                userDataManager: userDataManager,
+                                commonDataManager: commonDataManager) });
+            }
 
             if (includeAllowedUsers)
             {
@@ -382,11 +490,17 @@
         /// <param name="households">The list of households to add to the JSON array.</param>
         /// <param name="userDataManager">The user data manager.</param>
         /// <param name="commonDataManager">The common data manager.</param>
+        /// <param name="includeMembers">Set to 'true' to include the list of household 
+        /// members in each JSON object.</param>
+        /// <param name="includeHouseholdGroups">Set to 'true' to include the 
+        /// list of household groups in each JSON object.</param>
         /// <returns>The JSON array containing households.</returns>
         public static JArray CreateHouseholdJArray(
             List<Household> households, 
             IUserDataManager userDataManager,
-            ICommonDataManager commonDataManager)
+            ICommonDataManager commonDataManager,
+            bool includeMembers,
+            bool includeHouseholdGroups)
         {
             var JArray = new JArray();
 
@@ -398,7 +512,9 @@
                         household: household,
                         userDataManager: userDataManager,
                         commonDataManager: commonDataManager,
-                        includeAllowedUsers: false));
+                        includeAllowedUsers: false,
+                        includeMembers: includeMembers,
+                        includeHouseholdGroups: includeHouseholdGroups));
             }
 
             return JArray;

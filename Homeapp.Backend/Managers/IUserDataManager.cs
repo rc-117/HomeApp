@@ -140,5 +140,11 @@
         /// </summary>
         /// <param name="user">The user.</param>
         public List<HouseholdGroup> GetUserHouseholdGroups(User user);
+
+        /// <summary>
+        /// Gets a list of users that are a member of a household group.
+        /// </summary>
+        /// <param name="householdGroup">The household group to get the members from.</param>
+        public List<User> GetUsersFromHouseholdGroup(HouseholdGroup householdGroup);
     }
 }

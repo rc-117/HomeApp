@@ -137,6 +137,22 @@
         }
 
         /// <summary>
+        /// Gets a list of users that are a member of a household group.
+        /// </summary>
+        /// <param name="householdGroup">The household group to get the members from.</param>
+        public List<User> GetUsersFromHouseholdGroup(HouseholdGroup householdGroup)
+        {
+            var users = new List<User>();
+
+            foreach (var join in householdGroup.Members)
+            {
+                users.Add(this.GetUserById(join.UserId));
+            }
+
+            return users;
+        }
+
+        /// <summary>
         /// Gets all users from a household using the household id.
         /// </summary>
         /// <param name="householdId">The household id</param>
