@@ -30,7 +30,7 @@
         /// <summary>
         /// List of users in the household.
         /// </summary>
-        public List<UserHousehold> Users { get; set; }
+        public List<UserHousehold> Members { get; set; }
 
         /// <summary>
         /// Hash of the household password.

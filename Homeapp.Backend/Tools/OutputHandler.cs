@@ -14,7 +14,7 @@
     /// </summary>
     public static class OutputHandler
     {
-        #region JSON variable names
+        #region JSON property names
         private static string _Id = "Id";
         private static string _AccountId = "AccountId";
         private static string _AccountName = "AccountName";
@@ -40,6 +40,20 @@
         private static string _SecondAnnualMonth = "SecondAnnualMonth";
         private static string _AnnualMonthDate = "AnnualMonthDate";
         private static string _SecondAnnualMonthDate = "SecondAnnualMonthDate";
+        private static string _EmailAddress = "EmailAddress";
+        private static string _PhoneNumber = "PhoneNumber";
+        private static string _FirstName = "FirstName";
+        private static string _LastName = "LastName";
+        private static string _Age = "Age";
+        private static string _Gender = "Gender";
+        private static string _Birthday = "Birthday";
+        private static string _Creator = "Creator";
+        private static string _DateCreated = "DateCreated";
+        private static string _TimeCreated = "TimeCreated";
+        private static string _HouseholdId = "HouseholdId";
+        private static string _HouseholdGroups = "HouseholdGroups";
+        private static string _Members = "Members";
+        private static string _ReadHousholds;
         #endregion
 
         #region Common JObject creators
@@ -49,27 +63,26 @@
         /// <param name="id">The id to select the SharedEntities record.</param>
         /// <param name="commonDataManager">The shared entity data manager.</param>
         /// <param name="userDataManager">The user data manager.</param>
-        public static JObject GetAllowedUsersJObjectWithId(Guid id, ICommonDataManager commonDataManager, IUserDataManager userDataManager)
+        public static JObject CreateAllowedUsersJObject(Guid id, ICommonDataManager commonDataManager, IUserDataManager userDataManager)
         {
-            var sharedEntities = commonDataManager.GetAllowedUsersObjectFromId(id);
+            var allowedUsers = commonDataManager.GetAllowedUsersObjectFromId(id);
 
-            var readHouseholdArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
-            var readHouseholdGroupArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadHouseholdGroupIds, searchGroups: true, userDataManager: userDataManager);
-            var readUserArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.ReadUserIds, searchUsers: true, userDataManager: userDataManager);
-            var editHouseholdArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.WriteHouseholdIds, searchHouseholds: true, userDataManager: userDataManager);
-            var editHouseholdGroupArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.WriteHouseholdGroupIds, searchGroups: true, userDataManager: userDataManager);
-            var editUserArray = 
-                ConvertStringToJArrayOfNameGuidPairs(sharedEntities.WriteUserIds, searchUsers: true, userDataManager: userDataManager);
+            var readHouseholdIds = OutputHandler.ConvertStringToGuidList(allowedUsers.ReadHouseholdIds);
+            var writeHouseholdIds = OutputHandler.ConvertStringToGuidList(allowedUsers.WriteHouseholdIds);
+            var fullAccessHouseholdIds = OutputHandler.ConvertStringToGuidList(allowedUsers.FullAccessHouseholdIds);
+
+            var readHouseholdGroupsIds = OutputHandler.ConvertStringToGuidList(allowedUsers.ReadHouseholdGroupIds);
+            var writeHouseholdGroupsIds = OutputHandler.ConvertStringToGuidList(allowedUsers.WriteHouseholdGroupIds);
+            var fullAccessHouseholdGroupsIds = OutputHandler.ConvertStringToGuidList(allowedUsers.FullAccessHouseholdGroupIds);
+
+            var readUserIds = OutputHandler.ConvertStringToGuidList(allowedUsers.ReadUserIds);
+            var writeUserIds = OutputHandler.ConvertStringToGuidList(allowedUsers.WriteUserIds);
+            var fullAccessUserIds = OutputHandler.ConvertStringToGuidList(allowedUsers.FullAccessUserIds);
 
             return new JObject()
             {
-                { "ReadHousholds", readHouseholdArray },
-                { "ReadHousholdGroups", readHouseholdGroupArray },
+                { _ReadHousholds, OutputHandler. },
+                { _Wi }
                 { "ReadUsers", readUserArray },
                 { "EditHousholds", editHouseholdArray},
                 { "EditHousholdGroups", editHouseholdGroupArray},
@@ -87,15 +100,128 @@
         {
             return new JObject()
             {
-                { "Id", user.Id },
-                { "FirstName", user.FirstName },
-                { "LastName", user.LastName },
-                { "Age", OutputHandler.GetAgeFromBirthday(user.Birthday) },
-                { "Gender", Enum.GetName(typeof(Gender), user.Gender) },
-                { "EmailAddress", user.EmailAddress },
-                { "Birthday", user.Birthday.ToLongDateString() }
+                { _Id, user.Id },
+                { _EmailAddress, user.EmailAddress },
+                { _PhoneNumber, 
+                    string.IsNullOrWhiteSpace(user.PhoneNumber) 
+                    ? null : user.PhoneNumber },
+                { _FirstName, user.FirstName },
+                { _LastName, user.LastName },
+                { _Age, OutputHandler.GetAgeFromBirthday(user.Birthday) },
+                { _Gender, Enum.GetName(typeof(Gender), user.Gender) },
+                { _Birthday, user.Birthday.ToLongDateString() }
             };
         }
+
+        /// <summary>
+        /// Creates a JSON array of users.
+        /// </summary>
+        /// <param name="users">The list of users to add to the JSON array.</param>
+        /// <returns>JArray containing users.</returns>
+        public static JArray CreateUserJArray(List<User> users)
+        {
+            var jArray = new JArray();
+
+            foreach (var user in users)
+            {
+                jArray.Add(OutputHandler.CreateUserJObject(user));
+            }
+
+            return jArray;
+        }
+
+        /// <summary>
+        /// Creates a JSON object containing details about a household group.
+        /// </summary>
+        /// <param name="group">The household group.</param>
+        public static JObject CreateHouseholdGroupJObject(
+            HouseholdGroup group, 
+            IUserDataManager userDataManager, 
+            ICommonDataManager commonDataManager,
+            bool includeAllowedUsers)
+        {
+            var jObject = new JObject()
+            {
+                { _Id, group.Id },
+                { _HouseholdId, group.HouseholdId },
+                { _Name, group.Name },
+                { _Creator, 
+                    OutputHandler.
+                        CreateUserJObject(
+                            userDataManager
+                            .GetUserFromUserId(group.CreatorId)) },
+                { _Members, OutputHandler.CreateUserJArray(userDataManager.GetHouseholdGroupUsers(group.Id)) },
+                { _DateCreated, group.DateTimeCreated.ToLongDateString() },
+                { _TimeCreated, group.DateTimeCreated.ToShortTimeString() },
+            };
+
+            if (includeAllowedUsers)
+            {
+                jObject.Add(new JObject()
+                    {
+                        _AllowedUsers,
+                            OutputHandler
+                                .CreateAllowedUsersJObject(
+                                id: group.AllowedUsersId,
+                                commonDataManager: commonDataManager,
+                                userDataManager: userDataManager)
+                    });
+            }
+
+        }
+
+        /// <summary>
+        /// Creates a JSON array of household groups.
+        /// </summary>
+        /// <param name="groups">The list of household groups to add to the JSON array.</param>
+        /// <param name="userDataManager">The user data manager.</param>
+        /// <returns>JArray containing household groups.</returns>
+        public static JArray CreateHouseholdGroupJArray(List<HouseholdGroup> groups, IUserDataManager userDataManager)
+        {
+            var jArray = new JArray();
+
+            foreach (var group in groups)
+            {
+                jArray.Add
+                    (OutputHandler.CreateHouseholdGroupJObject(group, userDataManager));
+            }
+
+            return jArray;
+        }
+
+        /// <summary>
+        /// Creates a JSON object containing details about a household.
+        /// </summary>
+        /// <param name="household">The household.</param>
+        public static JObject CreateHouseholdJObject(Household household, IUserDataManager userDataManager)
+        {
+            return new JObject()
+            {
+                { _Id, household.Id },
+                { _Name, household.Name },
+                { _HouseholdGroups, 
+                    OutputHandler
+                        .CreateHouseholdGroupJArray(
+                            groups: 
+                                userDataManager
+                                .GetGroupsFromHousehold(household.Id), 
+                            userDataManager: userDataManager) },
+                { _Creator,
+                    OutputHandler
+                        .CreateUserJObject(
+                            userDataManager
+                            .GetUserFromUserId(household.CreatorId)) },
+                { _Members, 
+                    OutputHandler
+                        .CreateUserJArray(
+                            userDataManager
+                                .GetUsersFromHousehold(household.Id)) },
+                { _DateCreated, household.DateTimeCreated.ToLongDateString() },
+                { _TimeCreated, household.DateTimeCreated.ToShortTimeString() },
+                //{ _AllowedUsers, OutputHandler.CreateAllowedUsersJObject() },
+            };
+        }
+
         #endregion
 
         #region Checkbook JObject Creators
@@ -122,7 +248,7 @@
                 { _Balance, accountDataManager.CalculateAccountBalance(account) },
                 { _Owner, OutputHandler.CreateUserJObject(accountOwner) },
                 {
-                   _AllowedUsers, OutputHandler.GetAllowedUsersJObjectWithId(
+                   _AllowedUsers, OutputHandler.CreateAllowedUsersJObject(
                        id: account.AllowedUsersId,
                        commonDataManager: sharedEntityDataManager,
                        userDataManager: userDataManager)
@@ -205,7 +331,7 @@
                     { _AccountId, transaction.AccountId },
                     { _IsCleared, transaction.IsCleared },
                     { _AllowedUsers, 
-                        OutputHandler.GetAllowedUsersJObjectWithId(
+                        OutputHandler.CreateAllowedUsersJObject(
                             id: transaction.AllowedUsersId,
                             commonDataManager: commonDataManager,
                             userDataManager: userDataManager)}

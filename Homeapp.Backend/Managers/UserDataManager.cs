@@ -201,7 +201,7 @@
                 Name = request.Name,
                 HouseholdGroups = new List<HouseholdGroup>(),
                 PasswordHash = request.PasswordHash,
-                Users = null,
+                Members = null,
                 Address = householdAddress != null ? householdAddress : null,
                 PhoneNumber = !string.IsNullOrWhiteSpace(request.PhoneNumber) ?
                     request.PhoneNumber : null,
@@ -369,7 +369,7 @@
                 this.appDbContext.Users.Add(user);
                 this.appDbContext.Households
                     .FirstOrDefault(h => h.Id == request.RequestedHouseholdId)
-                    .Users
+                    .Members
                     .Add(userHoushold);
 
                 await this.appDbContext.SaveChangesAsync();
