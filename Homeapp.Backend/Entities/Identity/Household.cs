@@ -66,6 +66,11 @@
         public DateTime DateTimeCreated { get; set; }
 
         /// <summary>
+        /// The unique id of the allowed users record for this household.
+        /// </summary>
+        public Guid AllowedUsersId { get; set; }
+
+        /// <summary>
         /// A list of users who have read, write, and full access over this household.
         /// </summary>
         public AllowedUsers AllowedUsers { get; set; }

@@ -54,6 +54,7 @@
         private static string _HouseholdGroups = "HouseholdGroups";
         private static string _Members = "Members";
         private static string _ReadHousholds;
+        private static object _WriteHouseholds;
         #endregion
 
         #region Common JObject creators
@@ -81,8 +82,11 @@
 
             return new JObject()
             {
-                { _ReadHousholds, OutputHandler. },
-                { _Wi }
+                { _ReadHousholds, 
+                    OutputHandler
+                        .CreateHouseholdGroupJArray(
+                            userDataManager.) },
+                { _WriteHouseholds }
                 { "ReadUsers", readUserArray },
                 { "EditHousholds", editHouseholdArray},
                 { "EditHousholdGroups", editHouseholdGroupArray},
@@ -168,22 +172,32 @@
                     });
             }
 
+            return jObject;
         }
 
         /// <summary>
         /// Creates a JSON array of household groups.
         /// </summary>
         /// <param name="groups">The list of household groups to add to the JSON array.</param>
+        /// <param name="commonDataManager">The common data manager.</param>
         /// <param name="userDataManager">The user data manager.</param>
         /// <returns>JArray containing household groups.</returns>
-        public static JArray CreateHouseholdGroupJArray(List<HouseholdGroup> groups, IUserDataManager userDataManager)
+        public static JArray CreateHouseholdGroupJArray(
+            List<HouseholdGroup> groups, 
+            ICommonDataManager commonDataManager, 
+            IUserDataManager userDataManager)
         {
             var jArray = new JArray();
 
             foreach (var group in groups)
             {
                 jArray.Add
-                    (OutputHandler.CreateHouseholdGroupJObject(group, userDataManager));
+                    (OutputHandler
+                        .CreateHouseholdGroupJObject(
+                            group: group,
+                            userDataManager: userDataManager,
+                            commonDataManager: commonDataManager,
+                            includeAllowedUsers: false));
             }
 
             return jArray;
@@ -193,9 +207,13 @@
         /// Creates a JSON object containing details about a household.
         /// </summary>
         /// <param name="household">The household.</param>
-        public static JObject CreateHouseholdJObject(Household household, IUserDataManager userDataManager)
+        public static JObject CreateHouseholdJObject(
+            Household household, 
+            IUserDataManager userDataManager, 
+            ICommonDataManager commonDataManager,
+            bool includeAllowedUsers)
         {
-            return new JObject()
+            var jObject = new JObject()
             {
                 { _Id, household.Id },
                 { _Name, household.Name },
@@ -205,7 +223,8 @@
                             groups: 
                                 userDataManager
                                 .GetGroupsFromHousehold(household.Id), 
-                            userDataManager: userDataManager) },
+                                    userDataManager: userDataManager,
+                                    commonDataManager: commonDataManager) },
                 { _Creator,
                     OutputHandler
                         .CreateUserJObject(
@@ -217,9 +236,21 @@
                             userDataManager
                                 .GetUsersFromHousehold(household.Id)) },
                 { _DateCreated, household.DateTimeCreated.ToLongDateString() },
-                { _TimeCreated, household.DateTimeCreated.ToShortTimeString() },
-                //{ _AllowedUsers, OutputHandler.CreateAllowedUsersJObject() },
+                { _TimeCreated, household.DateTimeCreated.ToShortTimeString() }                
             };
+
+            if (includeAllowedUsers)
+            {
+                jObject.Add(new JObject()
+                {
+                    _AllowedUsers, OutputHandler.CreateAllowedUsersJObject(
+                        id: household.AllowedUsersId,
+                        commonDataManager: commonDataManager,
+                        userDataManager: userDataManager)
+                });
+            }
+
+            return jObject;
         }
 
         #endregion
