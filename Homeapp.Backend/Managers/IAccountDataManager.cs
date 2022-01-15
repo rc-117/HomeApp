@@ -41,9 +41,9 @@ namespace Homeapp.Backend.Managers
         /// </summary>
         /// <param name="user">The user.</param>
         /// <param name="request">The user's account request.</param>
-        /// <param name="sharedEntities"></param>
-        /// <param name="sharedEntities">The object containing the allowed entities for this account.</param>
-        public Task<Account> CreateAccount(User user, CreateAccountRequest request, AllowedUsers sharedEntities);
+        /// <param name="allowedUsers"></param>
+        /// <param name="allowedUsers">The object containing the allowed entities for this account.</param>
+        public Task<Account> CreateAccount(User user, CreateAccountRequest request, AllowedUsers allowedUsers);
 
         /// <summary>
         /// Gets a recurring transaction record from the database using its id.
@@ -58,7 +58,7 @@ namespace Homeapp.Backend.Managers
         /// <param name="accountId">The account id.</param>
         /// <param name="transactionOwnerId">The id of the user who created the transaction.</param>
         /// <param name="request">The request object containing properties to create the record.</param>
-        /// <param name="inheritedAllowedUsers">The allowed users list that the transaction will inherit.
+        /// <param name="allowedUsers">The allowed users list that the transaction will inherit.
         /// Can inherit from the checkbook, or from the request. If coming from the request, it can come from form
         /// data or from a parent RecurringTransaction.</param>
         public Task<Transaction> CreateTransactionInAccount(
@@ -66,7 +66,7 @@ namespace Homeapp.Backend.Managers
             Guid accountId,
             Guid transactionOwnerId,
             TransactionRequest request,
-            AllowedUsers inheritedAllowedUsers = null);
+            AllowedUsers allowedUsers = null);
 
     }
 }

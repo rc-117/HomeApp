@@ -166,7 +166,10 @@
         /// </summary>
         /// <param name="ownerId">The requesting user's id.</param>
         /// <param name="request">The request body containing properties to create the Income Category.</param>
-        public async Task<IncomeCategory> CreateIncomeCategoryForUser(Guid ownerId, IncomeCategoryRequest request)
+        public async Task<IncomeCategory> CreateIncomeCategoryForUser(
+            Guid ownerId, 
+            IncomeCategoryRequest request, 
+            AllowedUsers allowedUsers)
         {
             var category = new IncomeCategory()
             {
@@ -175,9 +178,7 @@
                     String.IsNullOrWhiteSpace(request.Description) ?
                     null : request.Description,
                 CreatingUser = this.userDataManager.GetUserById(ownerId),
-                SharedEntities = 
-                    this.allowedUsersManager
-                    .CreateNewAllowedUsersObject(request.AllowedUsersRequest)
+                AllowedUsers = allowedUsers
             };
 
             try
@@ -228,7 +229,11 @@
         /// </summary>
         /// <param name="ownerId">The requesting user's id.</param>
         /// <param name="request">The request body containing properties to create the expense category.</param>
-        public async Task<ExpenseCategory> CreateExpenseCategoryForUser(Guid ownerId, ExpenseCategoryRequest request)
+        /// <param name="allowedUsers">The allowed users record associated with this category.</param>
+        public async Task<ExpenseCategory> CreateExpenseCategoryForUser(
+            Guid ownerId, 
+            ExpenseCategoryRequest request, 
+            AllowedUsers allowedUsers)
         {
             var category = new ExpenseCategory()
             {
@@ -237,9 +242,7 @@
                     String.IsNullOrWhiteSpace(request.Description) ?
                     null : request.Description,
                 CreatingUser = this.userDataManager.GetUserById(ownerId),
-                SharedEntities = 
-                    this.allowedUsersManager
-                    .CreateNewAllowedUsersObject(request.AllowedUsersRequest)
+                AllowedUsers = allowedUsers
             };
 
             try
@@ -292,7 +295,7 @@
         /// <param name="accountId">The account id.</param>
         /// <param name="transactionOwnerId">The id of the user who created the transaction.</param>
         /// <param name="request">The request object containing properties to create the record.</param>
-        /// <param name="inheritedAllowedUsers">The allowed users list that the transaction will inherit.
+        /// <param name="allowedUsers">The allowed users list that the transaction will inherit.
         /// Can inherit from the checkbook, or from the request. If coming from the request, it can come from form
         /// data or from a parent RecurringTransaction.</param>
         public async Task<Transaction> CreateTransactionInAccount(
@@ -300,7 +303,7 @@
             Guid accountId,
             Guid transactionOwnerId,
             TransactionRequest request,
-            AllowedUsers inheritedAllowedUsers = null)
+            AllowedUsers allowedUsers)
         {
             var transactionType = (TransactionType)Enum.Parse
                     (typeof(TransactionType), request.TransactionType);
@@ -320,13 +323,11 @@
             if (request.InheritAllowedUsersFromCheckbook)
             {
                 transaction.AllowedUsers = 
-                    this.allowedUsersManager.CreateAllowedUsersCopy(inheritedAllowedUsers);
+                    this.allowedUsersManager.CreateAllowedUsersCopy(allowedUsers);
             }
             else
             {
-                transaction.AllowedUsers =
-                    this.allowedUsersManager
-                    .CreateNewAllowedUsersObject(request.AllowedUsersRequest);
+                transaction.AllowedUsers = allowedUsers;
             }
 
             if (transactionType == TransactionType.Income || transactionType == TransactionType.Transfer)
@@ -336,7 +337,12 @@
                     transaction.IncomeCategory = 
                         request.IncomeCategoryRequest == null ? 
                         null : await this.CreateIncomeCategoryForUser
-                            (ownerId: transactionOwnerId, request: request.IncomeCategoryRequest);
+                            (ownerId: transactionOwnerId, 
+                            request: request.IncomeCategoryRequest, 
+                            allowedUsers: 
+                                await this.allowedUsersManager
+                                        .SaveAllowedUsersObjectToDb(
+                                        request.IncomeCategoryRequest.AllowedUsersRequest));
                 }
                 else
                 {
@@ -351,7 +357,12 @@
                     transaction.ExpenseCategory =
                         request.ExpenseCategoryRequest == null ?
                         null : await this.CreateExpenseCategoryForUser
-                            (ownerId: transactionOwnerId, request: request.ExpenseCategoryRequest);
+                            (ownerId: transactionOwnerId, 
+                            request: request.ExpenseCategoryRequest,
+                            allowedUsers:
+                                await this.allowedUsersManager
+                                        .SaveAllowedUsersObjectToDb(
+                                        request.IncomeCategoryRequest.AllowedUsersRequest));
                 }
                 else
                 {

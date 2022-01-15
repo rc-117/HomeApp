@@ -163,13 +163,16 @@
                     user: user, 
                     includeHouseholds: false, 
                     includeHouseholdGroups: false, 
-                    userDataManager: this.userDataManager),
+                    userDataManager: this.userDataManager,
+                    commonDataManager: this.commonDataManager),
                 
                 OutputHandler.CreateHouseholdJObject(
                     household: household,
                     userDataManager: this.userDataManager,
                     commonDataManager: this.commonDataManager,
-                    includeAllowedUsers: true)
+                    includeAllowedUsers: true,
+                    includeMembers: true,
+                    includeHouseholdGroups: true)
             }.ToString();
             
             return Ok(response);

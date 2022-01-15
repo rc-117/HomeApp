@@ -467,7 +467,9 @@
                             userDataManager
                             .GetGroupsFromHousehold(household.Id),
                                 userDataManager: userDataManager,
-                                commonDataManager: commonDataManager) });
+                                commonDataManager: commonDataManager,
+                                includeMembers: false,
+                                includeHouseholds: false) });
             }
 
             if (includeAllowedUsers)
@@ -544,7 +546,12 @@
                 { _AccountName, account.Name },
                 { _AccountType, Enum.GetName(typeof(AccountType), account.AccountType) },
                 { _Balance, accountDataManager.CalculateAccountBalance(account) },
-                { _Owner, OutputHandler.CreateUserJObject(accountOwner) },
+                { _Owner, OutputHandler.CreateUserJObject(
+                    user: accountOwner,
+                    userDataManager: userDataManager,
+                    commonDataManager: sharedEntityDataManager,
+                    includeHouseholds: false,
+                    includeHouseholdGroups: false) },
                 {
                    _AllowedUsers, OutputHandler.CreateAllowedUsersJObject(
                        id: account.AllowedUsersId,
@@ -616,6 +623,7 @@
                             user: userDataManager
                                     .GetUserById(transaction.OwnerId),
                             userDataManager: userDataManager,
+                            commonDataManager: commonDataManager,
                             includeHouseholds: false,
                             includeHouseholdGroups: false)},
                     { _ExpenseCategory, expenseCategory },

@@ -31,6 +31,6 @@
         /// Contains permission metadata for the account.
         /// </summary>
         [JsonProperty]
-        public AllowedUsersRequest SharedEntitiesRequest { get; set; }
+        public AllowedUsersRequest AllowedUsersRequest { get; set; }
     }
 }

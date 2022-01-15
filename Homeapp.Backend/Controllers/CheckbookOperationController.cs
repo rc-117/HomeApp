@@ -95,7 +95,7 @@
         /// </summary>
         [HttpPut]
         [Route("/api/Checkbook/Accounts/Create")]
-        public async Task<IActionResult> CreateChecbookAccountForUser(
+        public async Task<IActionResult> CreateCheckbookAccountForUser(
             [FromBody] CreateAccountRequest accountRequest)
         {
             IdentityValidation.UserExists(
@@ -105,18 +105,16 @@
             var user = this.userDataManager.GetUserById(userId: this.GetUserId());
 
             IdentityValidation.ValidateAllowedUsersRequest(
-                request: accountRequest.SharedEntitiesRequest,
+                request: accountRequest.AllowedUsersRequest,
                 appDbContext: this.appDbContext);
-            
-            // TODO: Write code somewhere here to undo creating this SharedEntities object if the
-            // CreateAccount method doesnt save to db for some reason
-            var sharedEntities = this.allowedUsersDataManager.CreateNewAllowedUsersObject(
-                    request: accountRequest.SharedEntitiesRequest);
+
+            var allowedUsers = await this.allowedUsersDataManager
+                .SaveAllowedUsersObjectToDb(request: accountRequest.AllowedUsersRequest);
 
             var createdAccount = await this.accountManager.CreateAccount(
                 user: user, 
                 request: accountRequest,
-                sharedEntities: sharedEntities);
+                allowedUsers: allowedUsers);
             
             var response = OutputHandler.CreateCheckbookAccountJObject(
                 account: createdAccount,
@@ -211,11 +209,11 @@
                     accountId: account.Id,
                     transactionOwnerId: this.GetUserId(),
                     request: request,
-                    inheritedAllowedUsers:
+                    allowedUsers:
                         request.InheritAllowedUsersFromCheckbook ?
                         this.allowedUsersDataManager
                             .GetAllowedUsersObjectFromId(account.AllowedUsersId) :
-                        null);
+                        await this.allowedUsersDataManager.SaveAllowedUsersObjectToDb(request.AllowedUsersRequest));
 
             return Ok(OutputHandler.CreateTransactionJObject(
                 transaction: transaction,
