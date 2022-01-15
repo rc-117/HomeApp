@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Homeapp.Backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220107220538_Initial")]
-    partial class Initial
+    [Migration("20220115003156_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,31 +28,104 @@ namespace Homeapp.Backend.Migrations
                     b.Property<int>("AccountType")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("AllowedUsersId")
+                        .HasColumnType("char(36)");
+
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<Guid>("SharedEntitiesId")
+                    b.Property<Guid>("OwnerId")
                         .HasColumnType("char(36)");
 
                     b.Property<double>("StartingBalance")
                         .HasColumnType("double");
 
-                    b.Property<Guid>("UserId")
+                    b.HasKey("Id");
+
+                    b.HasIndex("AllowedUsersId");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("Homeapp.Backend.Entities.Address", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
+
+                    b.Property<string>("BusinessName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("City")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("InternationalAddress")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("State")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("StreetAddress")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SharedEntitiesId");
+                    b.ToTable("Addresses");
+                });
 
-                    b.HasIndex("UserId");
+            modelBuilder.Entity("Homeapp.Backend.Entities.AllowedUsers", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
 
-                    b.ToTable("Accounts");
+                    b.Property<string>("FullAccessHouseholdGroupIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("FullAccessHouseholdIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("FullAccessUserIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ReadHouseholdGroupIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ReadHouseholdIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("ReadUserIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("WriteHouseholdGroupIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("WriteHouseholdIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("WriteUserIds")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AllowedUsers");
                 });
 
             modelBuilder.Entity("Homeapp.Backend.Entities.ExpenseCategory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid?>("AllowedUsersId")
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("CreatingUserId")
@@ -69,9 +142,9 @@ namespace Homeapp.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatingUserId");
+                    b.HasIndex("AllowedUsersId");
 
-                    b.HasIndex("SharedEntitiesId");
+                    b.HasIndex("CreatingUserId");
 
                     b.ToTable("ExpenseCategories");
                 });
@@ -82,6 +155,9 @@ namespace Homeapp.Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("AllowedUsersId")
+                        .HasColumnType("char(36)");
+
                     b.Property<Guid>("CreatingUserId")
                         .HasColumnType("char(36)");
 
@@ -96,9 +172,9 @@ namespace Homeapp.Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatingUserId");
+                    b.HasIndex("AllowedUsersId");
 
-                    b.HasIndex("SharedEntitiesId");
+                    b.HasIndex("CreatingUserId");
 
                     b.ToTable("IncomeCategories");
                 });
@@ -109,16 +185,16 @@ namespace Homeapp.Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
-                    b.Property<int>("AnnualDateMonthDate")
+                    b.Property<int?>("AnnualMonth")
                         .HasColumnType("int");
 
-                    b.Property<int>("AnnualMonth")
+                    b.Property<int?>("AnnualMonthDate")
                         .HasColumnType("int");
 
-                    b.Property<int>("DateOfMonth")
+                    b.Property<int?>("DateOfMonth")
                         .HasColumnType("int");
 
-                    b.Property<int>("DayOfWeek")
+                    b.Property<int?>("DayOfWeek")
                         .HasColumnType("int");
 
                     b.Property<int>("Hours")
@@ -130,13 +206,13 @@ namespace Homeapp.Backend.Migrations
                     b.Property<int>("RecurringType")
                         .HasColumnType("int");
 
-                    b.Property<int>("SecondAnnualDateMonthDate")
+                    b.Property<int?>("SecondAnnualMonth")
                         .HasColumnType("int");
 
-                    b.Property<int>("SecondAnnualMonth")
+                    b.Property<int?>("SecondAnnualMonthDate")
                         .HasColumnType("int");
 
-                    b.Property<int>("SecondDateOfMonth")
+                    b.Property<int?>("SecondDateOfMonth")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -200,35 +276,6 @@ namespace Homeapp.Backend.Migrations
                     b.ToTable("RecurringTransactions");
                 });
 
-            modelBuilder.Entity("Homeapp.Backend.Entities.SharedEntities", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("EditHouseholdGroupIds")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("EditHouseholdIds")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("EditUserIds")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("ReadHouseholdGroupIds")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("ReadHouseholdIds")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("ReadUserIds")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SharedEntities");
-                });
-
             modelBuilder.Entity("Homeapp.Backend.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -239,6 +286,9 @@ namespace Homeapp.Backend.Migrations
                         .HasColumnType("char(36)");
 
                     b.Property<Guid>("AccountIdToTransferTo")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AllowedUsersId")
                         .HasColumnType("char(36)");
 
                     b.Property<double>("Amount")
@@ -265,15 +315,20 @@ namespace Homeapp.Backend.Migrations
                     b.Property<Guid>("RecurringTransactionId")
                         .HasColumnType("char(36)");
 
-                    b.Property<Guid>("SharedEntitiesId")
-                        .HasColumnType("char(36)");
-
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
+
+                    b.Property<bool>("TransferFromExternalAccount")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("TransferToExternalAccount")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("AllowedUsersId");
 
                     b.HasIndex("ExpenseCategoryId");
 
@@ -282,8 +337,6 @@ namespace Homeapp.Backend.Migrations
                     b.HasIndex("OwnerId");
 
                     b.HasIndex("RecurringTransactionId");
-
-                    b.HasIndex("SharedEntitiesId");
 
                     b.ToTable("Transactions");
                 });
@@ -294,13 +347,34 @@ namespace Homeapp.Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("AllowedUsersId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("DateTimeCreated")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("AllowedUsersId");
+
+                    b.HasIndex("CreatorId");
 
                     b.ToTable("Households");
                 });
@@ -311,6 +385,15 @@ namespace Homeapp.Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid>("AllowedUsersId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("DateTimeCreated")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<Guid>("HouseholdId")
                         .HasColumnType("char(36)");
 
@@ -318,6 +401,10 @@ namespace Homeapp.Backend.Migrations
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AllowedUsersId");
+
+                    b.HasIndex("CreatorId");
 
                     b.HasIndex("HouseholdId");
 
@@ -346,6 +433,9 @@ namespace Homeapp.Backend.Migrations
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("PasswordHash")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
@@ -397,45 +487,41 @@ namespace Homeapp.Backend.Migrations
 
             modelBuilder.Entity("Homeapp.Backend.Entities.Account", b =>
                 {
-                    b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
+                    b.HasOne("Homeapp.Backend.Entities.AllowedUsers", "AllowedUsers")
                         .WithMany()
-                        .HasForeignKey("SharedEntitiesId")
+                        .HasForeignKey("AllowedUsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Homeapp.Backend.Identity.User", "User")
+                    b.HasOne("Homeapp.Backend.Identity.User", "Owner")
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Homeapp.Backend.Entities.ExpenseCategory", b =>
                 {
+                    b.HasOne("Homeapp.Backend.Entities.AllowedUsers", "AllowedUsers")
+                        .WithMany()
+                        .HasForeignKey("AllowedUsersId");
+
                     b.HasOne("Homeapp.Backend.Identity.User", "CreatingUser")
                         .WithMany()
                         .HasForeignKey("CreatingUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
-                        .WithMany()
-                        .HasForeignKey("SharedEntitiesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Homeapp.Backend.Entities.IncomeCategory", b =>
                 {
+                    b.HasOne("Homeapp.Backend.Entities.AllowedUsers", "AllowedUsers")
+                        .WithMany()
+                        .HasForeignKey("AllowedUsersId");
+
                     b.HasOne("Homeapp.Backend.Identity.User", "CreatingUser")
                         .WithMany()
                         .HasForeignKey("CreatingUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
-                        .WithMany()
-                        .HasForeignKey("SharedEntitiesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -468,7 +554,7 @@ namespace Homeapp.Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
+                    b.HasOne("Homeapp.Backend.Entities.AllowedUsers", "SharedEntities")
                         .WithMany()
                         .HasForeignKey("SharedEntitiesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -480,6 +566,12 @@ namespace Homeapp.Backend.Migrations
                     b.HasOne("Homeapp.Backend.Entities.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Entities.AllowedUsers", "AllowedUsers")
+                        .WithMany()
+                        .HasForeignKey("AllowedUsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -502,16 +594,41 @@ namespace Homeapp.Backend.Migrations
                         .HasForeignKey("RecurringTransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.HasOne("Homeapp.Backend.Entities.SharedEntities", "SharedEntities")
+            modelBuilder.Entity("Homeapp.Backend.Identity.Household", b =>
+                {
+                    b.HasOne("Homeapp.Backend.Entities.Address", "Address")
                         .WithMany()
-                        .HasForeignKey("SharedEntitiesId")
+                        .HasForeignKey("AddressId");
+
+                    b.HasOne("Homeapp.Backend.Entities.AllowedUsers", "AllowedUsers")
+                        .WithMany()
+                        .HasForeignKey("AllowedUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Identity.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Homeapp.Backend.Identity.HouseholdGroup", b =>
                 {
+                    b.HasOne("Homeapp.Backend.Entities.AllowedUsers", "AllowedUsers")
+                        .WithMany()
+                        .HasForeignKey("AllowedUsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Homeapp.Backend.Identity.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Homeapp.Backend.Identity.Household", "Household")
                         .WithMany("HouseholdGroups")
                         .HasForeignKey("HouseholdId")
@@ -522,7 +639,7 @@ namespace Homeapp.Backend.Migrations
             modelBuilder.Entity("Homeapp.Backend.Identity.UserHousehold", b =>
                 {
                     b.HasOne("Homeapp.Backend.Identity.Household", "Household")
-                        .WithMany("Users")
+                        .WithMany("Members")
                         .HasForeignKey("HouseholdId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -537,7 +654,7 @@ namespace Homeapp.Backend.Migrations
             modelBuilder.Entity("Homeapp.Backend.Identity.UserHouseholdGroup", b =>
                 {
                     b.HasOne("Homeapp.Backend.Identity.HouseholdGroup", "HouseholdGroup")
-                        .WithMany("Users")
+                        .WithMany("Members")
                         .HasForeignKey("HouseholdGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

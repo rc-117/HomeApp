@@ -63,7 +63,7 @@
                     guid: userId, 
                     list: allowedUsers.ReadUserIds);
 
-            this.appDbContext.SharedEntities.Update(allowedUsers);
+            this.appDbContext.AllowedUsers.Update(allowedUsers);
             this.appDbContext.SaveChanges();
 
             return allowedUsers;
@@ -102,7 +102,7 @@
 
             try
             {
-                this.appDbContext.SharedEntities.Add(allowedUsers);
+                this.appDbContext.AllowedUsers.Add(allowedUsers);
                 await this.appDbContext.SaveChangesAsync();
 
                 return allowedUsers;
@@ -125,7 +125,7 @@
         /// <param name="id">The id to select the SharedEntities record.</param>
         public AllowedUsers GetAllowedUsersObjectFromId(Guid id)
         {
-            return this.appDbContext.SharedEntities.FirstOrDefault(s => s.Id == id);
+            return this.appDbContext.AllowedUsers.FirstOrDefault(s => s.Id == id);
         }
 
         /// <summary>

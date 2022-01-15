@@ -3,21 +3,46 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Homeapp.Backend.Migrations
 {
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Households",
+                name: "Addresses",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    PasswordHash = table.Column<string>(nullable: true)
+                    BusinessName = table.Column<string>(nullable: true),
+                    StreetAddress = table.Column<string>(nullable: true),
+                    City = table.Column<string>(nullable: true),
+                    State = table.Column<string>(nullable: true),
+                    Country = table.Column<string>(nullable: true),
+                    ZipCode = table.Column<string>(nullable: true),
+                    InternationalAddress = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Households", x => x.Id);
+                    table.PrimaryKey("PK_Addresses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AllowedUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    ReadHouseholdIds = table.Column<string>(nullable: true),
+                    ReadHouseholdGroupIds = table.Column<string>(nullable: true),
+                    ReadUserIds = table.Column<string>(nullable: true),
+                    WriteHouseholdIds = table.Column<string>(nullable: true),
+                    WriteHouseholdGroupIds = table.Column<string>(nullable: true),
+                    WriteUserIds = table.Column<string>(nullable: true),
+                    FullAccessHouseholdIds = table.Column<string>(nullable: true),
+                    FullAccessHouseholdGroupIds = table.Column<string>(nullable: true),
+                    FullAccessUserIds = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AllowedUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -28,34 +53,17 @@ namespace Homeapp.Backend.Migrations
                     RecurringType = table.Column<int>(nullable: false),
                     Hours = table.Column<int>(nullable: false),
                     Minutes = table.Column<int>(nullable: false),
-                    DayOfWeek = table.Column<int>(nullable: false),
-                    DateOfMonth = table.Column<int>(nullable: false),
-                    SecondDateOfMonth = table.Column<int>(nullable: false),
-                    AnnualMonth = table.Column<int>(nullable: false),
-                    AnnualDateMonthDate = table.Column<int>(nullable: false),
-                    SecondAnnualMonth = table.Column<int>(nullable: false),
-                    SecondAnnualDateMonthDate = table.Column<int>(nullable: false)
+                    DayOfWeek = table.Column<int>(nullable: true),
+                    DateOfMonth = table.Column<int>(nullable: true),
+                    SecondDateOfMonth = table.Column<int>(nullable: true),
+                    AnnualMonth = table.Column<int>(nullable: true),
+                    SecondAnnualMonth = table.Column<int>(nullable: true),
+                    AnnualMonthDate = table.Column<int>(nullable: true),
+                    SecondAnnualMonthDate = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RecurringSchedules", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SharedEntities",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    ReadHouseholdIds = table.Column<string>(nullable: true),
-                    ReadHouseholdGroupIds = table.Column<string>(nullable: true),
-                    ReadUserIds = table.Column<string>(nullable: true),
-                    EditHouseholdIds = table.Column<string>(nullable: true),
-                    EditHouseholdGroupIds = table.Column<string>(nullable: true),
-                    EditUserIds = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SharedEntities", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -64,6 +72,7 @@ namespace Homeapp.Backend.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     EmailAddress = table.Column<string>(nullable: true),
+                    PhoneNumber = table.Column<string>(nullable: true),
                     PasswordHash = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
@@ -76,25 +85,6 @@ namespace Homeapp.Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "HouseholdGroups",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: true),
-                    HouseholdId = table.Column<Guid>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_HouseholdGroups", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_HouseholdGroups_Households_HouseholdId",
-                        column: x => x.HouseholdId,
-                        principalTable: "Households",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Accounts",
                 columns: table => new
                 {
@@ -102,21 +92,21 @@ namespace Homeapp.Backend.Migrations
                     Name = table.Column<string>(nullable: true),
                     AccountType = table.Column<int>(nullable: false),
                     StartingBalance = table.Column<double>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: false),
-                    SharedEntitiesId = table.Column<Guid>(nullable: false)
+                    OwnerId = table.Column<Guid>(nullable: false),
+                    AllowedUsersId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Accounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Accounts_SharedEntities_SharedEntitiesId",
-                        column: x => x.SharedEntitiesId,
-                        principalTable: "SharedEntities",
+                        name: "FK_Accounts_AllowedUsers_AllowedUsersId",
+                        column: x => x.AllowedUsersId,
+                        principalTable: "AllowedUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Accounts_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Accounts_Users_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -130,21 +120,58 @@ namespace Homeapp.Backend.Migrations
                     Name = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     CreatingUserId = table.Column<Guid>(nullable: false),
-                    SharedEntitiesId = table.Column<Guid>(nullable: false)
+                    SharedEntitiesId = table.Column<Guid>(nullable: false),
+                    AllowedUsersId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ExpenseCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ExpenseCategories_AllowedUsers_AllowedUsersId",
+                        column: x => x.AllowedUsersId,
+                        principalTable: "AllowedUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ExpenseCategories_Users_CreatingUserId",
                         column: x => x.CreatingUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Households",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    PasswordHash = table.Column<string>(nullable: true),
+                    AddressId = table.Column<Guid>(nullable: true),
+                    PhoneNumber = table.Column<string>(nullable: true),
+                    CreatorId = table.Column<Guid>(nullable: false),
+                    DateTimeCreated = table.Column<DateTime>(nullable: false),
+                    AllowedUsersId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Households", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ExpenseCategories_SharedEntities_SharedEntitiesId",
-                        column: x => x.SharedEntitiesId,
-                        principalTable: "SharedEntities",
+                        name: "FK_Households_Addresses_AddressId",
+                        column: x => x.AddressId,
+                        principalTable: "Addresses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Households_AllowedUsers_AllowedUsersId",
+                        column: x => x.AllowedUsersId,
+                        principalTable: "AllowedUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Households_Users_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -157,21 +184,56 @@ namespace Homeapp.Backend.Migrations
                     Name = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     CreatingUserId = table.Column<Guid>(nullable: false),
-                    SharedEntitiesId = table.Column<Guid>(nullable: false)
+                    SharedEntitiesId = table.Column<Guid>(nullable: false),
+                    AllowedUsersId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_IncomeCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_IncomeCategories_AllowedUsers_AllowedUsersId",
+                        column: x => x.AllowedUsersId,
+                        principalTable: "AllowedUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_IncomeCategories_Users_CreatingUserId",
                         column: x => x.CreatingUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HouseholdGroups",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    HouseholdId = table.Column<Guid>(nullable: false),
+                    CreatorId = table.Column<Guid>(nullable: false),
+                    DateTimeCreated = table.Column<DateTime>(nullable: false),
+                    AllowedUsersId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HouseholdGroups", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IncomeCategories_SharedEntities_SharedEntitiesId",
-                        column: x => x.SharedEntitiesId,
-                        principalTable: "SharedEntities",
+                        name: "FK_HouseholdGroups_AllowedUsers_AllowedUsersId",
+                        column: x => x.AllowedUsersId,
+                        principalTable: "AllowedUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_HouseholdGroups_Users_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_HouseholdGroups_Households_HouseholdId",
+                        column: x => x.HouseholdId,
+                        principalTable: "Households",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -195,31 +257,6 @@ namespace Homeapp.Backend.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserHouseholds_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserHouseholdGroups",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: false),
-                    HouseholdGroupId = table.Column<Guid>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserHouseholdGroups", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserHouseholdGroups_HouseholdGroups_HouseholdGroupId",
-                        column: x => x.HouseholdGroupId,
-                        principalTable: "HouseholdGroups",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserHouseholdGroups_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -277,9 +314,34 @@ namespace Homeapp.Backend.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RecurringTransactions_SharedEntities_SharedEntitiesId",
+                        name: "FK_RecurringTransactions_AllowedUsers_SharedEntitiesId",
                         column: x => x.SharedEntitiesId,
-                        principalTable: "SharedEntities",
+                        principalTable: "AllowedUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserHouseholdGroups",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false),
+                    HouseholdGroupId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserHouseholdGroups", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserHouseholdGroups_HouseholdGroups_HouseholdGroupId",
+                        column: x => x.HouseholdGroupId,
+                        principalTable: "HouseholdGroups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserHouseholdGroups_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -292,6 +354,8 @@ namespace Homeapp.Backend.Migrations
                     Name = table.Column<string>(nullable: true),
                     Amount = table.Column<double>(nullable: false),
                     TransactionType = table.Column<int>(nullable: false),
+                    TransferToExternalAccount = table.Column<bool>(nullable: false),
+                    TransferFromExternalAccount = table.Column<bool>(nullable: false),
                     AccountIdToTransferTo = table.Column<Guid>(nullable: false),
                     OwnerId = table.Column<Guid>(nullable: false),
                     ExpenseCategoryId = table.Column<Guid>(nullable: true),
@@ -300,7 +364,7 @@ namespace Homeapp.Backend.Migrations
                     RecurringTransactionId = table.Column<Guid>(nullable: false),
                     AccountId = table.Column<Guid>(nullable: false),
                     IsCleared = table.Column<bool>(nullable: false),
-                    SharedEntitiesId = table.Column<Guid>(nullable: false)
+                    AllowedUsersId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -309,6 +373,12 @@ namespace Homeapp.Backend.Migrations
                         name: "FK_Transactions_Accounts_AccountId",
                         column: x => x.AccountId,
                         principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Transactions_AllowedUsers_AllowedUsersId",
+                        column: x => x.AllowedUsersId,
+                        principalTable: "AllowedUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -335,23 +405,22 @@ namespace Homeapp.Backend.Migrations
                         principalTable: "RecurringTransactions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Transactions_SharedEntities_SharedEntitiesId",
-                        column: x => x.SharedEntitiesId,
-                        principalTable: "SharedEntities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_SharedEntitiesId",
+                name: "IX_Accounts_AllowedUsersId",
                 table: "Accounts",
-                column: "SharedEntitiesId");
+                column: "AllowedUsersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_UserId",
+                name: "IX_Accounts_OwnerId",
                 table: "Accounts",
-                column: "UserId");
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ExpenseCategories_AllowedUsersId",
+                table: "ExpenseCategories",
+                column: "AllowedUsersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ExpenseCategories_CreatingUserId",
@@ -359,9 +428,14 @@ namespace Homeapp.Backend.Migrations
                 column: "CreatingUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ExpenseCategories_SharedEntitiesId",
-                table: "ExpenseCategories",
-                column: "SharedEntitiesId");
+                name: "IX_HouseholdGroups_AllowedUsersId",
+                table: "HouseholdGroups",
+                column: "AllowedUsersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HouseholdGroups_CreatorId",
+                table: "HouseholdGroups",
+                column: "CreatorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_HouseholdGroups_HouseholdId",
@@ -369,14 +443,29 @@ namespace Homeapp.Backend.Migrations
                 column: "HouseholdId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Households_AddressId",
+                table: "Households",
+                column: "AddressId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Households_AllowedUsersId",
+                table: "Households",
+                column: "AllowedUsersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Households_CreatorId",
+                table: "Households",
+                column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IncomeCategories_AllowedUsersId",
+                table: "IncomeCategories",
+                column: "AllowedUsersId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_IncomeCategories_CreatingUserId",
                 table: "IncomeCategories",
                 column: "CreatingUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IncomeCategories_SharedEntitiesId",
-                table: "IncomeCategories",
-                column: "SharedEntitiesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RecurringTransactions_AccountId",
@@ -414,6 +503,11 @@ namespace Homeapp.Backend.Migrations
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Transactions_AllowedUsersId",
+                table: "Transactions",
+                column: "AllowedUsersId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Transactions_ExpenseCategoryId",
                 table: "Transactions",
                 column: "ExpenseCategoryId");
@@ -432,11 +526,6 @@ namespace Homeapp.Backend.Migrations
                 name: "IX_Transactions_RecurringTransactionId",
                 table: "Transactions",
                 column: "RecurringTransactionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Transactions_SharedEntitiesId",
-                table: "Transactions",
-                column: "SharedEntitiesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserHouseholdGroups_HouseholdGroupId",
@@ -492,10 +581,13 @@ namespace Homeapp.Backend.Migrations
                 name: "Households");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Addresses");
 
             migrationBuilder.DropTable(
-                name: "SharedEntities");
+                name: "AllowedUsers");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }
