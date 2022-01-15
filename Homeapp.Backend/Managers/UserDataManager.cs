@@ -444,7 +444,7 @@
         /// Creates and saves a User to the application database.
         /// </summary>
         /// <param name="request">The incoming request.</param>
-        public async Task<User> SaveUserToDb(CreateUserRequest request)
+        public async Task<User> SaveUserToDb(UserRequest request)
         {
             var user = new User()
             {

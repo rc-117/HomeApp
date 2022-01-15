@@ -6,10 +6,16 @@
     using System.ComponentModel.DataAnnotations;
 
     /// <summary>
-    /// Class containing properties to create a new User in the application database.
+    /// Class containing properties to create or modify an existing User in the database.
     /// </summary>
-    public class CreateUserRequest
+    public class UserRequest
     {
+        /// <summary>
+        /// (Optional) The id of the user to modify.
+        /// </summary>
+        [JsonProperty]
+        public string Id { get; set; }
+
         /// <summary>
         /// The user's email address.
         /// </summary>

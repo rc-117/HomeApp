@@ -46,7 +46,7 @@
         /// Creates and saves a User to the application database.
         /// </summary>
         /// <param name="request">The request.</param>
-        public Task<User> SaveUserToDb(CreateUserRequest request);
+        public Task<User> SaveUserToDb(UserRequest request);
 
 
         /// <summary>

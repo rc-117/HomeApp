@@ -37,7 +37,7 @@
         /// Request object containing properties to create or modify and existing address record.
         /// </summary>
         [JsonProperty]
-        public AddressRequest AddressRequest { get; set; }
+        public AddressRequest Address { get; set; }
 
         /// <summary>
         /// (Optional) The phone number for the household.

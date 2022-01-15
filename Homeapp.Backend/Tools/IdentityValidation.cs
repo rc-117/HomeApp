@@ -24,7 +24,7 @@
         /// <param name="includesCreateHouseholdRequest">Set to 'true' if the body includes a request to create a 
         /// new household. Default value is 'false'.</param>
         public static void ValidateCreateUserRequest(
-            CreateUserRequest request,
+            UserRequest request,
             AppDbContext appDbContext,
             bool includesCreateHouseholdRequest = false)
         {
@@ -62,9 +62,9 @@
 
         public static void ValidateHouseholdRequest(HouseholdRequest request, AppDbContext appDbContext)
         {
-            if (request.AddressRequest != null)
+            if (request.Address != null)
             {
-                CommonValidation.AddressRequestIsValid(request.AddressRequest);
+                CommonValidation.AddressRequestIsValid(request.Address);
             }
             
             CommonValidation.PhoneNumberIsValid(request.PhoneNumber);

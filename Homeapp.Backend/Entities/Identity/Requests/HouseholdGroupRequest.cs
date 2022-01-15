@@ -16,6 +16,13 @@
         public string Id { get; set; }
 
         /// <summary>
+        /// (Optional) The id of the household to add this group to.
+        /// </summary>
+        /// <remarks>Use this property when adding a group to an existing household.</remarks>
+        [JsonProperty]
+        public string HouseholdId { get; set; }
+
+        /// <summary>
         /// The requested name of the household group.
         /// </summary>
         [JsonProperty]

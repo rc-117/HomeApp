@@ -20,6 +20,6 @@
         /// </summary>
         [JsonProperty]
         [Required(ErrorMessage = "User request required.")]
-        public CreateUserRequest UserRequest { get; set; }
+        public UserRequest UserRequest { get; set; }
     }
 }

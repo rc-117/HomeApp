@@ -99,7 +99,7 @@
         [AllowAnonymous]
         [HttpPut]
         [Route("api/Users/create")]
-        public async Task<IActionResult> CreateUser([FromBody]CreateUserRequest request)
+        public async Task<IActionResult> CreateUser([FromBody]UserRequest request)
         {
             if (NoUsersOrHouseHoldsExist())
             {
