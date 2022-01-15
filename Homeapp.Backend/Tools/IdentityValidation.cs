@@ -47,7 +47,7 @@
                 CommonValidation.PhoneNumberIsValid(request.PhoneNumber);
             }
 
-            if (includesCreateHouseholdRequest)
+            if (!includesCreateHouseholdRequest)
             {
                 IdentityValidation.HouseholdExists(
                     householdId: request.RequestedHouseholdId,

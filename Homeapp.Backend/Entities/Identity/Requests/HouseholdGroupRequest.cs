@@ -40,7 +40,8 @@
         /// Array of user ids to add to the household group.
         /// </summary>
         [JsonProperty]
-        [Required(ErrorMessage = "'UserIds' is required. If there are no users to add, create a blank 'UserIds' field.")]
+        [Required(ErrorMessage = "'UserIds' is required. If there are no users to add, create a blank 'UserIds' field.", 
+            AllowEmptyStrings = true)]
         public string[] UserIds { get; set; }
 
         /// <summary>

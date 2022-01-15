@@ -309,7 +309,7 @@
                 PhoneNumber = !string.IsNullOrWhiteSpace(request.PhoneNumber) ?
                     request.PhoneNumber : null,
                 Creator = creator == null ? null : creator,
-                AllowedUsers = allowedUsers,
+                AllowedUsersId = allowedUsers.Id,
                 DateTimeCreated = DateTime.Now
             };
 

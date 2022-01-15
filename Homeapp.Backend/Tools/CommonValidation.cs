@@ -205,6 +205,15 @@
             }
         }
 
+        /// <summary>
+        /// Generates an empty string if a JSON semi colon separated string with ids is null.
+        /// </summary>
+        /// <returns>An empty string.</returns>
+        public static string GenerateEmptyStringIfIdStringIsNull()
+        {
+            return "";
+        }
+
         #region Helper methods
         /// <summary>
         /// Converts an array of guids into a semi colon seperated string.
